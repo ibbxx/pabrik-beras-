@@ -202,34 +202,44 @@ export default function SettingsPage() {
     </div>
   );
 
+  const sidebarItems = [
+    { id: 'faq', icon: MessageSquare, label: 'FAQ', desc: 'Kelola pertanyaan umum pelanggan' },
+    { id: 'articles', icon: FileText, label: 'Artikel', desc: 'Publikasi berita & edukasi produk' },
+    { id: 'testimonials', icon: Star, label: 'Testimoni', desc: 'Tampilkan ulasan pelanggan' },
+    { id: 'appearance', icon: Layout, label: 'Tampilan', desc: 'Hero, profil & benefit website' },
+    { id: 'business', icon: Phone, label: 'Bisnis', desc: 'Kontak, pembayaran & layanan' },
+    { id: 'seo', icon: Globe, label: 'SEO', desc: 'Optimasi mesin pencari' },
+  ];
+
   return (
-    <div className="space-y-10 pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-black">Settings & Content</h1>
-          <p className="text-gray-500 text-sm">Fine-tune your website appearance, information, and core settings.</p>
-        </div>
+    <div className="pb-20">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-black">Pengaturan & Konten</h1>
+        <p className="text-gray-500 text-sm mt-1">Kelola tampilan, informasi, dan pengaturan inti website Anda.</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <TabsList className="flex items-center gap-1.5 p-1.5 bg-gray-100/50 rounded-2xl w-full overflow-x-auto no-scrollbar h-auto border border-gray-100">
-          {[
-            { id: 'faq', icon: MessageSquare, label: 'FAQ' },
-            { id: 'articles', icon: FileText, label: 'Articles' },
-            { id: 'testimonials', icon: Star, label: 'Testimonials' },
-            { id: 'appearance', icon: Layout, label: 'Appearance' },
-            { id: 'business', icon: Phone, label: 'Business' },
-            { id: 'seo', icon: Globe, label: 'SEO' },
-          ].map((tab) => (
-            <TabsTrigger 
-              key={tab.id}
-              value={tab.id} 
-              className="rounded-xl px-5 h-10 text-[10px] font-black uppercase tracking-widest data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-black/10 transition-all duration-300"
-            >
-              <tab.icon size={14} className="mr-2" /> {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex gap-8 items-start">
+          {/* Sidebar Navigation */}
+          <TabsList className="flex flex-col gap-1 p-2 bg-white border border-gray-100 rounded-3xl shadow-sm h-auto w-64 shrink-0">
+            <p className="px-4 pt-2 pb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Menu Pengaturan</p>
+            {sidebarItems.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="w-full justify-start gap-3 px-4 py-3 h-auto rounded-xl text-left data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-black/10 transition-all duration-200"
+              >
+                <tab.icon size={16} className="shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-bold leading-tight">{tab.label}</p>
+                  <p className="text-[10px] opacity-60 leading-tight truncate mt-0.5">{tab.desc}</p>
+                </div>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {/* Content Area */}
+          <div className="flex-1 min-w-0">
 
         {/* ── FAQ TAB ── */}
         <TabsContent value="faq" className="space-y-6 outline-none">
@@ -523,6 +533,8 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+          </div>
+        </div>
       </Tabs>
 
       {/* ── UNIVERSAL MODAL ── */}
