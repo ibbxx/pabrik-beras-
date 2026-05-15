@@ -21,7 +21,7 @@ export default function AboutPage() {
   const remainingParagraphs = introParagraphs.slice(1);
 
   return (
-    <div className="min-h-screen bg-white pb-10">
+    <div className="min-h-screen bg-neutral-50 pb-10">
       
       {/* SECTION 1: HERO & INTRO */}
       <section className="container mx-auto pt-16 pb-12 md:pt-24 md:pb-20 px-4 max-w-5xl">
@@ -55,13 +55,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* SECTION 2: VISI & MISI (Light Green Section) */}
-      <section className="bg-[#1F331E]/5 text-[#1F331E] py-16 md:py-24 w-full">
+      {/* SECTION 2: VISI & MISI (Light Gray Section) */}
+      <section className="bg-[#f5f5f5] text-[#1F331E] py-16 md:py-24 w-full">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20">
             {/* Visi */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left group">
-              <div className="w-16 h-16 rounded-2xl bg-[#1F331E]/10 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
                 <Target size={32} className="text-[#1F331E]" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">Visi Kami</h2>
@@ -72,7 +72,7 @@ export default function AboutPage() {
             
             {/* Misi */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left group">
-              <div className="w-16 h-16 rounded-2xl bg-[#1F331E]/10 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
                 <Eye size={32} className="text-[#1F331E]" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">Misi Kami</h2>

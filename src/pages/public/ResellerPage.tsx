@@ -107,7 +107,7 @@ export default function ResellerPage() {
         </div>
       </section>
 
-      <section className="py-6 lg:py-20 bg-dust-grey/10 overflow-hidden">
+      <section className="py-6 lg:py-20 bg-[#f5f5f5] overflow-hidden">
         <div className="container mx-auto px-4 max-w-5xl mb-6 lg:mb-14 text-center">
           <h2 className="text-lg lg:text-3xl font-black text-foreground uppercase tracking-tight">Keuntungan Menjadi Mitra</h2>
           <p className="mt-1 text-[8px] lg:text-xs text-muted-foreground font-black uppercase tracking-widest">Growth With Us</p>
@@ -115,27 +115,27 @@ export default function ResellerPage() {
         
         <div className="relative">
           {/* Gradient Faders */}
-          <div className="absolute inset-y-0 left-0 w-12 lg:w-32 bg-gradient-to-r from-dust-grey/20 to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-12 lg:w-32 bg-gradient-to-l from-dust-grey/20 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-12 lg:w-32 bg-gradient-to-r from-[#f5f5f5] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-12 lg:w-32 bg-gradient-to-l from-[#f5f5f5] to-transparent z-10 pointer-events-none" />
           
           <div className="animate-marquee flex gap-4 lg:gap-8 px-4">
             {[1, 2, 3, 4].map((set) => (
               <div key={set} className="flex gap-4 lg:gap-8">
-                <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-dust-grey/20 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
+                <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-evergreen/10 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 mx-auto bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3 lg:mb-6">
                     <TrendingUp className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>
                   <h3 className="text-base lg:text-xl font-black mb-1 lg:mb-2 text-foreground">Harga Pabrik</h3>
                   <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed text-justify">Margin keuntungan lebih besar karena Anda mendapatkan harga langsung dari tangan pertama.</p>
                 </div>
-                <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-dust-grey/20 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
+                <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-evergreen/10 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 mx-auto bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3 lg:mb-6">
                     <Truck className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>
                   <h3 className="text-base lg:text-xl font-black mb-1 lg:mb-2 text-foreground">Prioritas Pengiriman</h3>
                   <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed text-justify">Mitra mendapatkan jadwal pengiriman rutin dan prioritas ketersediaan stok.</p>
                 </div>
-                <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-dust-grey/20 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
+                <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-evergreen/10 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 mx-auto bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3 lg:mb-6">
                     <HandshakeIcon className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>

@@ -146,14 +146,14 @@ export default function CheckoutPage() {
         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali ke Keranjang
       </Link>
       
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Selesaikan Pesanan</h1>
+      <h1 className="text-3xl font-black text-evergreen mb-6 uppercase tracking-tight">Selesaikan Pesanan</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-6">
           <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 md:p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 text-black text-xs font-black">1</span>
+              <h2 className="text-xl font-black text-evergreen mb-6 flex items-center gap-2 uppercase tracking-tight">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-xs font-black">1</span>
                 Informasi Pelanggan
               </h2>
               <div className="grid gap-6 md:grid-cols-2">
@@ -181,28 +181,28 @@ export default function CheckoutPage() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 md:p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 text-black text-xs font-black">2</span>
+              <h2 className="text-xl font-black text-evergreen mb-6 flex items-center gap-2 uppercase tracking-tight">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-xs font-black">2</span>
                 Metode Pembayaran
               </h2>
               <div className="grid gap-4">
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'Transfer Bank' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
-                  <input type="radio" name="payment" value="Transfer Bank" checked={formData.paymentMethod === 'Transfer Bank'} onChange={handlePaymentChange} className="mt-1" />
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'Transfer Bank' ? 'border-primary bg-primary/5' : 'border-neutral-200'}`}>
+                  <input type="radio" name="payment" value="Transfer Bank" checked={formData.paymentMethod === 'Transfer Bank'} onChange={handlePaymentChange} className="mt-1 accent-primary" />
                   <div>
-                    <p className="font-bold text-gray-900">Transfer Bank Mandiri</p>
+                    <p className="font-black text-evergreen uppercase tracking-tight">Transfer Bank Mandiri</p>
                     <p className="text-sm text-gray-500 mt-1">Transfer ke rekening Bank Mandiri a.n Aris Abrar.</p>
                     {formData.paymentMethod === 'Transfer Bank' && (
-                      <div className="mt-3 p-3 bg-neutral-100 rounded-lg border border-neutral-200">
-                        <p className="text-xs font-bold text-gray-700">No. Rekening: <span className="font-mono text-black">1740012489571</span></p>
-                        <p className="text-xs text-gray-500 mt-1">a.n <span className="font-semibold text-gray-700">Aris Abrar</span></p>
+                      <div className="mt-3 p-3 bg-white rounded-lg border border-neutral-100 shadow-sm">
+                        <p className="text-xs font-black text-gray-700">No. Rekening: <span className="font-mono text-primary">1740012489571</span></p>
+                        <p className="text-xs text-gray-500 mt-1">a.n <span className="font-black text-evergreen">Aris Abrar</span></p>
                       </div>
                     )}
                   </div>
                 </label>
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'DANA' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
-                  <input type="radio" name="payment" value="DANA" checked={formData.paymentMethod === 'DANA'} onChange={handlePaymentChange} className="mt-1" />
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'DANA' ? 'border-primary bg-primary/5' : 'border-neutral-200'}`}>
+                  <input type="radio" name="payment" value="DANA" checked={formData.paymentMethod === 'DANA'} onChange={handlePaymentChange} className="mt-1 accent-primary" />
                   <div>
-                    <p className="font-bold text-gray-900">DANA</p>
+                    <p className="font-black text-evergreen uppercase tracking-tight">DANA</p>
                     <p className="text-sm text-gray-500 mt-1">Pembayaran mudah via aplikasi DANA.</p>
                     {formData.paymentMethod === 'DANA' && (
                       <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
 
         <div className="w-full lg:w-96">
           <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 sticky top-24">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Ringkasan Pesanan</h2>
+            <h2 className="text-xl font-black text-evergreen mb-6 uppercase tracking-tight">Ringkasan Pesanan</h2>
             
             <div className="space-y-4 mb-6">
               {cartItems.map((item) => (
@@ -244,24 +244,24 @@ export default function CheckoutPage() {
 
             <div className="border-t border-neutral-100 pt-6 mb-6">
               <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-gray-900">Total Pembayaran</span>
-                <span className="font-black text-2xl text-black tracking-tighter">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                <span className="font-black text-evergreen uppercase tracking-tight">Total Pembayaran</span>
+                <span className="font-black text-2xl text-primary tracking-tighter">Rp {cartTotal.toLocaleString('id-ID')}</span>
               </div>
-              <p className="text-xs text-gray-500 text-right mt-1">*Belum termasuk ongkos kirim</p>
+              <p className="text-xs text-gray-500 text-right mt-1 font-medium">*Belum termasuk ongkos kirim</p>
             </div>
 
             <Button 
               type="submit" 
               form="checkout-form"
               size="lg" 
-              className="w-full bg-black hover:bg-neutral-800 h-14 text-lg rounded-2xl font-bold shadow-xl shadow-black/10"
+              className="w-full bg-primary hover:bg-evergreen h-14 text-lg rounded-2xl font-black shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest"
               disabled={isSubmitting || cartItems.length === 0}
             >
               {isSubmitting ? "Memproses..." : "Buat Pesanan"}
             </Button>
             
             <div className="mt-4 flex items-start gap-2 text-xs text-gray-500 bg-neutral-50 p-3 rounded-lg">
-              <CheckCircle2 className="h-4 w-4 text-black shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <p>Setelah menekan tombol "Buat Pesanan", Anda akan diarahkan ke halaman instruksi pembayaran.</p>
             </div>
           </div>

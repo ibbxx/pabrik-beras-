@@ -48,7 +48,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <section className="relative min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-80px)] flex items-center bg-white overflow-hidden pb-10 lg:py-0">
+      <section className="relative min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-80px)] flex items-center overflow-hidden pb-10 lg:py-0">
         <div className="w-full lg:container relative z-10 mx-auto lg:px-6">
           <div className="grid lg:grid-cols-2 lg:gap-16 items-center">
             {/* Left: Text Content */}
@@ -107,7 +107,7 @@ export default function HomePage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-10 lg:py-24 bg-background">
+      <section className="py-10 lg:py-24 bg-neutral-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 lg:mb-12">
             <h2 className="text-2xl lg:text-3xl font-black text-foreground uppercase tracking-tight">{settings.benefit_title || "Mengapa Memilih Kami?"}</h2>
@@ -120,7 +120,7 @@ export default function HomePage() {
               { title: settings.benefit_2_title || "Harga Tangan Pertama", desc: settings.benefit_2_desc || "Langsung dari pabrik penggilingan sehingga harga lebih hemat untuk Anda." },
               { title: settings.benefit_3_title || "Pasokan Stabil", desc: settings.benefit_3_desc || "Kapasitas produksi besar memastikan ketersediaan stok sepanjang tahun." }
             ].map((benefit, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-5 lg:p-6 bg-dust-grey/10 rounded-[1.5rem] lg:rounded-2xl border border-dust-grey/20 transition-all hover:bg-dust-grey/20">
+              <div key={i} className="flex flex-col items-center text-center p-5 lg:p-6 bg-[#f5f5f5] rounded-[1.5rem] lg:rounded-2xl border border-gray-100 transition-all hover:bg-gray-100/50">
                 <div className="mb-3 lg:mb-4 flex h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <CheckCircle2 size={24} className="lg:hidden" />
                   <CheckCircle2 size={32} className="hidden lg:block" />
@@ -134,7 +134,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products Placeholder */}
-      <section className="py-10 lg:py-24 bg-dust-grey/10">
+      <section className="py-10 lg:py-24 bg-[#f5f5f5]">
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-6 lg:mb-8">
             <div className="text-left">
@@ -209,7 +209,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-10 lg:py-24 bg-background">
+      <section className="py-10 lg:py-24 bg-neutral-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 lg:mb-12">
             <h2 className="text-2xl lg:text-3xl font-black text-foreground uppercase tracking-tight">Testimoni</h2>
@@ -233,7 +233,7 @@ export default function HomePage() {
               ))
             ) : testimonials.length > 0 ? (
               testimonials.map((testi) => (
-                <div key={testi.id} className="p-6 lg:p-8 bg-dust-grey/10 rounded-[1.5rem] lg:rounded-[2.5rem] border border-dust-grey/20 relative">
+                <div key={testi.id} className="p-6 lg:p-8 bg-[#f5f5f5] rounded-[1.5rem] lg:rounded-[2.5rem] border border-gray-100 relative">
                   <div className="flex mb-3 lg:mb-4 text-dark-khaki">
                     {Array.from({ length: testi.rating || 5 }).map((_, i) => (
                       <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
