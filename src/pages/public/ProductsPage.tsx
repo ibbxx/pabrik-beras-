@@ -52,7 +52,7 @@ export default function ProductsPage() {
   return (
     <div className="container mx-auto py-8 lg:py-20 px-4 min-h-screen">
       <div className="mb-6 lg:mb-16 text-center space-y-2 lg:space-y-4">
-        <h1 className="text-2xl lg:text-5xl font-black text-foreground tracking-tighter uppercase">Katalog Produk</h1>
+        <h1 className="text-2xl lg:text-5xl font-black text-foreground tracking-widest uppercase leading-relaxed">Katalog Produk</h1>
         <p className="text-[10px] lg:text-sm text-muted-foreground max-w-xl mx-auto font-medium leading-relaxed uppercase tracking-widest">
           Kualitas beras premium dari Pabrik Desa Kurma.
         </p>

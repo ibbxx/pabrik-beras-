@@ -96,10 +96,10 @@ export default function ResellerPage() {
             </p>
             
             <div className="flex flex-row items-center justify-center gap-3 mt-8 animate-fade-in-up opacity-0 [animation-delay:800ms]">
-              <Button size="sm" className="bg-primary text-white font-black hover:bg-evergreen rounded-lg h-10 lg:h-12 px-6 lg:px-8 shadow-xl transition-all hover:-translate-y-1 active:scale-95 text-[10px] lg:text-xs" onClick={() => document.getElementById('reseller-form')?.scrollIntoView({ behavior: 'smooth' })}>
+              <Button size="sm" className="bg-primary text-white font-black hover:bg-evergreen h-12 lg:h-14 px-6 lg:px-8 shadow-xl transition-all hover:-translate-y-1 active:scale-95 text-xs lg:text-sm uppercase tracking-widest rounded-2xl" onClick={() => document.getElementById('reseller-form')?.scrollIntoView({ behavior: 'smooth' })}>
                 Daftar Sekarang <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" className="bg-white/90 border-white text-black hover:bg-white hover:text-black rounded-lg h-10 lg:h-12 px-6 lg:px-8 font-black text-[10px] lg:text-xs transition-all hover:-translate-y-1 active:scale-95 shadow-lg shadow-black/10" onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp || "082355148758", "Halo, saya ingin bertanya tentang kemitraan reseller."), "_blank")}>
+              <Button variant="outline" size="sm" className="bg-white/90 border-white text-[#1F331E] hover:bg-white hover:text-[#1F331E]/80 rounded-2xl h-12 lg:h-14 px-6 lg:px-8 font-black text-xs lg:text-sm transition-all hover:-translate-y-1 active:scale-95 shadow-lg shadow-[#1F331E]/10 uppercase tracking-widest" onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp || "082355148758", "Halo, saya ingin bertanya tentang kemitraan reseller."), "_blank")}>
                 <MessageCircle className="mr-1.5 h-3.5 w-3.5" /> Hubungi Admin
               </Button>
             </div>
@@ -126,21 +126,21 @@ export default function ResellerPage() {
                     <TrendingUp className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>
                   <h3 className="text-base lg:text-xl font-black mb-1 lg:mb-2 text-foreground">Harga Pabrik</h3>
-                  <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed">Margin keuntungan lebih besar karena Anda mendapatkan harga langsung dari tangan pertama.</p>
+                  <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed text-justify">Margin keuntungan lebih besar karena Anda mendapatkan harga langsung dari tangan pertama.</p>
                 </div>
                 <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-dust-grey/20 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 mx-auto bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3 lg:mb-6">
                     <Truck className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>
                   <h3 className="text-base lg:text-xl font-black mb-1 lg:mb-2 text-foreground">Prioritas Pengiriman</h3>
-                  <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed">Mitra mendapatkan jadwal pengiriman rutin dan prioritas ketersediaan stok.</p>
+                  <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed text-justify">Mitra mendapatkan jadwal pengiriman rutin dan prioritas ketersediaan stok.</p>
                 </div>
                 <div className="bg-background p-4 lg:p-8 rounded-xl lg:rounded-[2.5rem] shadow-sm border border-dust-grey/20 text-center w-[220px] lg:w-[350px] shrink-0 transition-all hover:shadow-xl hover:-translate-y-1">
                   <div className="w-10 h-10 lg:w-16 lg:h-16 mx-auto bg-primary/10 text-primary rounded-full flex items-center justify-center mb-3 lg:mb-6">
                     <HandshakeIcon className="w-5 h-5 lg:w-8 lg:h-8" />
                   </div>
                   <h3 className="text-base lg:text-xl font-black mb-1 lg:mb-2 text-foreground">Dukungan Bisnis</h3>
-                  <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed">Kami siap memberikan konsultasi produk dan membantu suplai beras sesuai kebutuhan pasar Anda.</p>
+                  <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed text-justify">Kami siap memberikan konsultasi produk dan membantu suplai beras sesuai kebutuhan pasar Anda.</p>
                 </div>
               </div>
             ))}

@@ -148,8 +148,8 @@ export default function ProductDetailPage() {
                 { icon: Award, label: "Harga Pabrik" }
               ].map((f, i) => (
                 <div key={i} className="flex flex-col items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50 transition-colors hover:bg-gray-50">
-                  <f.icon size={20} className="text-[#1F331E]" />
-                  <span className="text-[8px] font-black uppercase tracking-widest text-center text-[#1F331E]/60">{f.label}</span>
+                  <f.icon size={26} className="text-[#1F331E]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-center text-[#1F331E]/60">{f.label}</span>
                 </div>
               ))}
             </div>
@@ -204,7 +204,7 @@ export default function ProductDetailPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     variant="outline"
-                    className="w-full border-2 border-gray-100 text-[#1F331E] h-14 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 active:scale-[0.98] flex items-center justify-center gap-2"
+                    className="w-full border-2 border-gray-100 text-[#1F331E] h-14 rounded-xl text-xs font-black uppercase tracking-widest transition-all hover:bg-gray-50 active:scale-[0.98] flex items-center justify-center gap-2"
                     disabled={product.stock <= 0}
                     onClick={() => {
                       addToCart({
@@ -218,15 +218,15 @@ export default function ProductDetailPage() {
                       toast.success("Berhasil ditambahkan ke keranjang");
                     }}
                   >
-                    <ShoppingBag size={16} />
+                    <ShoppingBag size={18} />
                     Keranjang
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full border-2 border-gray-100 bg-white h-14 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#1F331E] hover:bg-gray-50 hover:border-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 px-1"
+                    className="w-full border-2 border-gray-100 bg-white h-14 rounded-xl text-xs font-black uppercase tracking-widest text-[#1F331E] hover:bg-gray-50 hover:border-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 px-1"
                     onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, `Halo, saya tertarik dengan produk ${product.name}`), "_blank")}
                   >
-                    <MessageCircle size={16} className="text-[#25D366]" />
+                    <MessageCircle size={18} className="text-[#25D366]" />
                     WhatsApp
                   </Button>
                 </div>

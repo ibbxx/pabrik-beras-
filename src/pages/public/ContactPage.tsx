@@ -12,7 +12,7 @@ export default function ContactPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-6xl">
       <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Hubungi Kami</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Hubungi Kami</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Ada pertanyaan seputar produk beras, kemitraan, atau pesanan Anda? Tim kami siap membantu!
         </p>
@@ -30,7 +30,7 @@ export default function ContactPage() {
             ) : (
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-neutral-100 text-black flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[#1F331E]/10 text-[#1F331E] flex items-center justify-center shrink-0">
                     <MapPin size={24} />
                   </div>
                   <div>
@@ -41,7 +41,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-neutral-100 text-black flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[#1F331E]/10 text-[#1F331E] flex items-center justify-center shrink-0">
                     <Phone size={24} />
                   </div>
                   <div>
@@ -54,7 +54,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-neutral-100 text-black flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[#1F331E]/10 text-[#1F331E] flex items-center justify-center shrink-0">
                     <Mail size={24} />
                   </div>
                   <div>
@@ -115,7 +115,7 @@ export default function ContactPage() {
               <Textarea id="message" placeholder="Tuliskan detail pertanyaan atau pesan Anda di sini..." className="min-h-[150px]" />
             </div>
 
-            <Button size="lg" className="w-full bg-black hover:bg-neutral-800 h-14 text-lg rounded-2xl">
+            <Button size="lg" className="w-full bg-[#1F331E] hover:bg-[#1F331E]/90 h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-[#1F331E]/20">
               <MessageSquare className="mr-2 h-5 w-5" /> Kirim Pesan Sekarang
             </Button>
           </form>

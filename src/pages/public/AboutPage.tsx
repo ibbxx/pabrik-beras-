@@ -26,7 +26,7 @@ export default function AboutPage() {
       {/* SECTION 1: HERO & INTRO */}
       <section className="container mx-auto pt-16 pb-12 md:pt-24 md:pb-20 px-4 max-w-5xl">
         <div className="text-center mb-10 md:mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#1F331E] tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#1F331E] tracking-widest uppercase leading-relaxed">
             Tentang Pabrik Beras<br className="hidden md:block" /> Desa Kurma
           </h1>
         </div>
@@ -93,7 +93,7 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1F331E] tracking-tight mb-6">Sejarah Kami</h2>
               <div className="w-20 h-1.5 bg-[#1F331E] rounded-full"></div>
             </div>
-            <p className="text-base md:text-lg text-gray-600 leading-loose whitespace-pre-line">
+            <p className="text-base md:text-lg text-gray-600 leading-loose whitespace-pre-line text-justify">
               {settings.about_history || "Berdiri sejak 1987, Pabrik Beras Mapailli telah menjadi mitra setia petani di Desa Kurma.\n\nMelalui perjalanan lebih dari tiga dekade, kami terus mempertahankan metode tradisional penjemuran alami di bawah sinar matahari sekaligus meningkatkan kualitas pelayanan. Dedikasi kami terhadap kualitas dan transparansi menjadikan kami satu-satunya pilihan terpercaya di wilayah Mapilli."}
             </p>
           </div>

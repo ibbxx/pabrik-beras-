@@ -90,7 +90,7 @@ export const HeroCarousel = ({
             className="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
             onClick={handlePrev}
             style={{
-              backgroundColor: hoverPrev ? "#10b981" : "#141414",
+              backgroundColor: hoverPrev ? "#2d4a2c" : "#1F331E",
               color: "#f1f1f7"
             }}
             onMouseEnter={() => setHoverPrev(true)}
@@ -103,7 +103,7 @@ export const HeroCarousel = ({
             className="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
             onClick={handleNext}
             style={{
-              backgroundColor: hoverNext ? "#10b981" : "#141414",
+              backgroundColor: hoverNext ? "#2d4a2c" : "#1F331E",
               color: "#f1f1f7"
             }}
             onMouseEnter={() => setHoverNext(true)}
