@@ -51,9 +51,9 @@ export function PublicNavbar() {
         <div className="flex items-center gap-2 md:gap-4">
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative h-11 w-11 rounded-xl hover:bg-dust-grey/20 transition-all text-foreground">
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-6 w-6" />
               {cartCount > 0 && (
-                <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-primary-foreground border-2 border-background">
                   {cartCount}
                 </span>
               )}
