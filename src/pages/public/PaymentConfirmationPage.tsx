@@ -1,12 +1,12 @@
 import { Link, useParams } from "react-router-dom";
-import { CheckCircle2, Copy, AlertCircle, ArrowRight, Upload, Loader2 } from "lucide-react";
+import { CheckCircle2, Copy, ArrowRight, Upload, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { createImageStoragePath, validateImageFile } from "@/lib/media";
 import { useSettings } from "@/hooks/useSettings";
-import { buildWhatsAppUrl, splitSettingLines } from "@/lib/contact";
+import { buildWhatsAppUrl } from "@/lib/contact";
 
 export default function PaymentConfirmationPage() {
   const { orderId } = useParams(); // Note: orderId here is actually the order_code based on the route setup
@@ -143,7 +143,7 @@ export default function PaymentConfirmationPage() {
 
   const isSubmitted = payment?.status === 'submitted' || payment?.status === 'verified';
   const whatsappMessage = `Halo Admin, saya sudah melakukan pemesanan dengan kode *${order.order_code}* dan total pembayaran *Rp ${order.total_amount?.toLocaleString('id-ID')}*. Mohon segera diproses ya!`;
-  const bankInfoLines = splitSettingLines(settings.payment_bank_info);
+
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-3xl">
@@ -161,47 +161,44 @@ export default function PaymentConfirmationPage() {
         <div className="bg-neutral-50 rounded-xl p-6 border border-neutral-200 mb-6 text-center">
           <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-widest">Total Pembayaran</p>
           <p className="text-4xl font-black text-black tracking-tighter mb-2">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
-          {order.payment_method === 'Transfer Bank' && (
-            <p className="text-xs text-red-500 flex items-center justify-center gap-1">
-              <AlertCircle size={14} /> Bayar tepat hingga 3 digit terakhir
-            </p>
-          )}
         </div>
 
         {order.payment_method === 'Transfer Bank' && (
           <div className="space-y-6">
             <div>
               <h3 className="font-bold text-gray-900 mb-3">Transfer ke Rekening Berikut:</h3>
-              {(bankInfoLines.length > 0 ? bankInfoLines : [
-                "Bank Mandiri - 1740012489571 - a.n Aris Abrar"
-              ]).map((line) => (
-                <div key={line} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3">
-                  <p className="font-semibold text-gray-800">{line}</p>
-                  <Button variant="outline" size="sm" onClick={() => handleCopy(line)} className="flex items-center gap-2">
-                    <Copy size={16} /> Salin
-                  </Button>
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3 bg-neutral-50">
+                <div>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Bank Mandiri</p>
+                  <p className="font-mono font-bold text-lg text-black">1740012489571</p>
+                  <p className="text-sm text-gray-600 mt-1">a.n <span className="font-semibold">Aris Abrar</span></p>
                 </div>
-              ))}
+                <Button variant="outline" size="sm" onClick={() => handleCopy("1740012489571")} className="flex items-center gap-2">
+                  <Copy size={16} /> Salin
+                </Button>
+              </div>
             </div>
           </div>
         )}
 
-        {order.payment_method === 'E-Wallet' && (
-          <div className="text-center p-6 bg-blue-50 rounded-xl border border-blue-100 text-blue-900">
-            <p className="font-bold mb-2">Pembayaran DANA</p>
-            <p className="text-sm">Transfer ke nomor: <strong>{settings.payment_dana_number || "082355148758"}</strong></p>
-          </div>
-        )}
-
-        {order.payment_method === 'COD' && (
-          <div className="text-center p-6 bg-orange-50 rounded-xl border border-orange-100 text-orange-800">
-            <p className="font-bold mb-2">Cash on Delivery (COD)</p>
-            <p className="text-sm">Silakan siapkan uang tunai sesuai total tagihan saat kurir tiba di alamat Anda.</p>
+        {order.payment_method === 'DANA' && (
+          <div className="space-y-4">
+            <h3 className="font-bold text-gray-900 mb-3">Transfer via DANA:</h3>
+            <div className="flex items-center justify-between p-4 border border-blue-200 rounded-lg bg-blue-50">
+              <div>
+                <p className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">DANA</p>
+                <p className="font-mono font-bold text-lg text-blue-900">082355148758</p>
+                <p className="text-sm text-blue-700 mt-1">a.n <span className="font-semibold">Aris Abrar</span></p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => handleCopy("082355148758")} className="flex items-center gap-2 border-blue-200 text-blue-800 hover:bg-blue-100">
+                <Copy size={16} /> Salin
+              </Button>
+            </div>
           </div>
         )}
       </div>
 
-      {order.payment_method !== 'COD' && !isSubmitted && (
+      {!isSubmitted && (
         <div className="bg-neutral-900 rounded-3xl p-6 md:p-8 shadow-sm border border-neutral-800 text-center space-y-6">
           <div>
             <h2 className="text-lg font-bold text-white mb-2">Sudah Melakukan Pembayaran?</h2>

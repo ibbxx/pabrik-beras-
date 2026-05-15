@@ -40,6 +40,7 @@ type Product = {
   is_featured: boolean;
   is_active: boolean;
   unit: string;
+  weight_kg: number;
 };
 
 export default function ProductsPage() {
@@ -61,6 +62,7 @@ export default function ProductsPage() {
     is_featured: false,
     is_active: true,
     unit: "kg",
+    weight_kg: "5",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -105,6 +107,7 @@ export default function ProductsPage() {
         is_featured: prod.is_featured,
         is_active: prod.is_active,
         unit: prod.unit || "kg",
+        weight_kg: (prod.weight_kg || 5).toString(),
       });
       setImagePreview(prod.main_image_url || "");
     } else {
@@ -118,6 +121,7 @@ export default function ProductsPage() {
         is_featured: false,
         is_active: true,
         unit: "kg",
+        weight_kg: "5",
       });
       setImagePreview("");
     }
@@ -207,6 +211,7 @@ export default function ProductsPage() {
         is_featured: prodForm.is_featured,
         is_active: prodForm.is_active,
         unit: prodForm.unit || "kg",
+        weight_kg: Number(prodForm.weight_kg),
         main_image_url: finalImageUrl
       };
 
@@ -324,7 +329,7 @@ export default function ProductsPage() {
                     Rp {prod.price.toLocaleString('id-ID')}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-gray-500 font-bold text-[11px] uppercase tracking-tight">
-                    {prod.stock} kg
+                    {prod.stock} karung ({prod.weight_kg || 5}kg)
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${prod.is_active ? 'bg-black text-white' : 'bg-gray-100 text-gray-400 border border-gray-100'}`}>
@@ -367,17 +372,36 @@ export default function ProductsPage() {
                   <Input id="prodSlug" value={prodForm.slug} onChange={(e) => setProdForm({...prodForm, slug: e.target.value})} required className="h-10 border-gray-100 rounded-lg font-mono text-[10px] focus-visible:ring-black" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="price" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Harga per KG</Label>
+                  <Label htmlFor="price" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Harga per Karung</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-[10px]">Rp</span>
                     <Input id="price" type="number" min="1" value={prodForm.price} onChange={(e) => setProdForm({...prodForm, price: e.target.value})} required className="pl-9 h-10 border-gray-100 rounded-lg text-xs font-black focus-visible:ring-black" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="stock" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Stok (KG)</Label>
+                  <Label htmlFor="stock" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Stok (Karung)</Label>
                   <div className="relative">
                     <Input id="stock" type="number" min="0" value={prodForm.stock} onChange={(e) => setProdForm({...prodForm, stock: e.target.value})} className="h-10 border-gray-100 rounded-lg text-xs font-bold focus-visible:ring-black" />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-[10px]">KG</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-[10px]">PCS</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <Label htmlFor="weight_kg" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Berat Produk (Netto)</Label>
+                  <div className="grid grid-cols-3 gap-3 pt-1">
+                    {[5, 10, 25].map((w) => (
+                      <button
+                        key={w}
+                        type="button"
+                        onClick={() => setProdForm({...prodForm, weight_kg: w.toString()})}
+                        className={`h-10 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-all ${
+                          prodForm.weight_kg === w.toString() 
+                          ? 'bg-black text-white border-black shadow-lg shadow-black/10' 
+                          : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300'
+                        }`}
+                      >
+                        {w} KG
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

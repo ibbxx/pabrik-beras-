@@ -42,7 +42,6 @@ function isRevenueOrder(order: {
   payments?: { status: string | null }[];
 }) {
   if (order.status !== "delivered") return false;
-  if (order.payment_method === "COD") return true;
   return order.payments?.[0]?.status === "verified";
 }
 

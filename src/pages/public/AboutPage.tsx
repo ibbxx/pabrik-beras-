@@ -26,7 +26,7 @@ export default function AboutPage() {
       {/* SECTION 1: HERO & INTRO */}
       <section className="container mx-auto pt-16 pb-12 md:pt-24 md:pb-20 px-4 max-w-5xl">
         <div className="text-center mb-10 md:mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#1F331E] tracking-tight">
             Tentang Pabrik Beras<br className="hidden md:block" /> Desa Kurma
           </h1>
         </div>
@@ -39,7 +39,7 @@ export default function AboutPage() {
           )}
           
           {remainingParagraphs.length > 0 && (
-            <div className="grid md:grid-cols-2 gap-6 md:gap-12 mt-8 text-base md:text-lg text-gray-600 leading-loose">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-12 mt-8 text-base md:text-lg text-gray-600 leading-loose text-justify">
               <div className="space-y-6">
                   {remainingParagraphs.slice(0, Math.ceil(remainingParagraphs.length / 2)).map((p, i) => (
                     <p key={`left-${i}`}>{p}</p>
@@ -55,28 +55,28 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* SECTION 2: VISI & MISI (Dark Section) */}
-      <section className="bg-black text-white py-16 md:py-24 w-full">
+      {/* SECTION 2: VISI & MISI (Light Green Section) */}
+      <section className="bg-[#1F331E]/5 text-[#1F331E] py-16 md:py-24 w-full">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20">
             {/* Visi */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left group">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
-                <Target size={32} className="text-white" />
+              <div className="w-16 h-16 rounded-2xl bg-[#1F331E]/10 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+                <Target size={32} className="text-[#1F331E]" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">Visi Kami</h2>
-              <p className="text-base md:text-lg text-gray-400 leading-relaxed">
+              <p className="text-base md:text-lg text-[#1F331E]/70 leading-relaxed">
                 {settings.about_vision || "Menjadi produsen beras terpercaya skala nasional."}
               </p>
             </div>
             
             {/* Misi */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left group">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
-                <Eye size={32} className="text-white" />
+              <div className="w-16 h-16 rounded-2xl bg-[#1F331E]/10 flex items-center justify-center mb-6 transition-transform group-hover:scale-110 duration-300">
+                <Eye size={32} className="text-[#1F331E]" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight">Misi Kami</h2>
-              <p className="text-base md:text-lg text-gray-400 leading-relaxed">
+              <p className="text-base md:text-lg text-[#1F331E]/70 leading-relaxed">
                 {settings.about_mission || "Menjaga kualitas dan ketersediaan stok pangan."}
               </p>
             </div>
@@ -90,8 +90,8 @@ export default function AboutPage() {
           
           <div className="order-2 lg:order-1 space-y-6 md:space-y-8">
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-6">Sejarah Kami</h2>
-              <div className="w-20 h-1.5 bg-black rounded-full"></div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1F331E] tracking-tight mb-6">Sejarah Kami</h2>
+              <div className="w-20 h-1.5 bg-[#1F331E] rounded-full"></div>
             </div>
             <p className="text-base md:text-lg text-gray-600 leading-loose whitespace-pre-line">
               {settings.about_history || "Berdiri sejak 1987, Pabrik Beras Mapailli telah menjadi mitra setia petani di Desa Kurma.\n\nMelalui perjalanan lebih dari tiga dekade, kami terus mempertahankan metode tradisional penjemuran alami di bawah sinar matahari sekaligus meningkatkan kualitas pelayanan. Dedikasi kami terhadap kualitas dan transparansi menjadikan kami satu-satunya pilihan terpercaya di wilayah Mapilli."}

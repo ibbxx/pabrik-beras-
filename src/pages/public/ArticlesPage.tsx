@@ -54,10 +54,16 @@ export default function ArticlesPage() {
       ) : articles.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((article) => (
-            <article key={article.id} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-neutral-100 flex flex-col hover:shadow-md transition-shadow">
+            <article key={article.id} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-neutral-100 flex flex-col hover:shadow-md transition-shadow group">
               <div className="relative h-60 overflow-hidden bg-neutral-100">
                 {article.image_url ? (
-                  <img src={article.image_url} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                  <img 
+                    src={article.image_url} 
+                    alt={article.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-neutral-400">Tidak ada gambar</div>
                 )}

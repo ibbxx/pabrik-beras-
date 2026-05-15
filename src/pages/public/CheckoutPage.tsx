@@ -141,17 +141,17 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="container mx-auto py-12 px-4 max-w-6xl">
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
       <Link to="/cart" className="inline-flex items-center text-black hover:opacity-70 mb-8 font-bold text-sm uppercase tracking-widest">
         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali ke Keranjang
       </Link>
       
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Selesaikan Pesanan</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Selesaikan Pesanan</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 space-y-8">
-          <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 md:p-8">
+        <div className="flex-1 space-y-6">
+          <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 md:p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 text-black text-xs font-black">1</span>
                 Informasi Pelanggan
@@ -180,7 +180,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 md:p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 md:p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 text-black text-xs font-black">2</span>
                 Metode Pembayaran
@@ -189,22 +189,27 @@ export default function CheckoutPage() {
                 <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'Transfer Bank' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
                   <input type="radio" name="payment" value="Transfer Bank" checked={formData.paymentMethod === 'Transfer Bank'} onChange={handlePaymentChange} className="mt-1" />
                   <div>
-                    <p className="font-bold text-gray-900">Transfer Bank (BCA / Mandiri / BRI)</p>
-                    <p className="text-sm text-gray-500 mt-1">Lakukan pembayaran manual ke rekening resmi Pabrik Beras Desa Kurma.</p>
+                    <p className="font-bold text-gray-900">Transfer Bank Mandiri</p>
+                    <p className="text-sm text-gray-500 mt-1">Transfer ke rekening Bank Mandiri a.n Aris Abrar.</p>
+                    {formData.paymentMethod === 'Transfer Bank' && (
+                      <div className="mt-3 p-3 bg-neutral-100 rounded-lg border border-neutral-200">
+                        <p className="text-xs font-bold text-gray-700">No. Rekening: <span className="font-mono text-black">1740012489571</span></p>
+                        <p className="text-xs text-gray-500 mt-1">a.n <span className="font-semibold text-gray-700">Aris Abrar</span></p>
+                      </div>
+                    )}
                   </div>
                 </label>
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'E-Wallet' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
-                  <input type="radio" name="payment" value="E-Wallet" checked={formData.paymentMethod === 'E-Wallet'} onChange={handlePaymentChange} className="mt-1" />
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'DANA' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
+                  <input type="radio" name="payment" value="DANA" checked={formData.paymentMethod === 'DANA'} onChange={handlePaymentChange} className="mt-1" />
                   <div>
-                    <p className="font-bold text-gray-900">E-Wallet (DANA)</p>
+                    <p className="font-bold text-gray-900">DANA</p>
                     <p className="text-sm text-gray-500 mt-1">Pembayaran mudah via aplikasi DANA.</p>
-                  </div>
-                </label>
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'COD' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
-                  <input type="radio" name="payment" value="COD" checked={formData.paymentMethod === 'COD'} onChange={handlePaymentChange} className="mt-1" />
-                  <div>
-                    <p className="font-bold text-gray-900">Cash on Delivery (COD)</p>
-                    <p className="text-sm text-gray-500 mt-1">Bayar langsung saat beras sampai di rumah Anda (Hanya untuk area tertentu).</p>
+                    {formData.paymentMethod === 'DANA' && (
+                      <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p className="text-xs font-bold text-blue-800">No. DANA: <span className="font-mono text-blue-900">082355148758</span></p>
+                        <p className="text-xs text-blue-600 mt-1">a.n <span className="font-semibold text-blue-800">Aris Abrar</span></p>
+                      </div>
+                    )}
                   </div>
                 </label>
               </div>
@@ -214,7 +219,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="w-full lg:w-96">
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 sticky top-24">
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 sticky top-24">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Ringkasan Pesanan</h2>
             
             <div className="space-y-4 mb-6">

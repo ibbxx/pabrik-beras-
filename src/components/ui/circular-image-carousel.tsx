@@ -164,6 +164,8 @@ export const CircularImageCarousel = ({ images, autoplay = true }: CircularImage
             alt={`Carousel image ${index + 1}`}
             className="absolute top-0 left-0 w-full h-full object-cover rounded-[2.5rem] md:rounded-[3rem] shadow-2xl"
             style={renderStyle(index)}
+            loading="lazy"
+            decoding="async"
           />
         ))}
       </div>

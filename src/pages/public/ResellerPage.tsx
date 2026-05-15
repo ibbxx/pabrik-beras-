@@ -87,7 +87,7 @@ export default function ResellerPage() {
               Kemitraan
             </div>
             
-            <h1 className="mt-4 text-2xl lg:text-5xl font-black tracking-tighter uppercase leading-tight text-white drop-shadow-md animate-fade-in-up opacity-0 [animation-delay:400ms]">
+            <h1 className="mt-6 text-2xl lg:text-5xl font-black uppercase tracking-widest leading-relaxed text-white drop-shadow-md animate-fade-in-up opacity-0 [animation-delay:400ms]">
               Kembangkan Bisnis Anda <br className="hidden lg:block" /> Bersama Kami
             </h1>
             

@@ -158,12 +158,11 @@ export default function OrdersPage() {
   );
 
   const getPaymentStatus = (order: Order) => {
-    if (order.payment_method === "COD") return "cod";
     return order.payments?.[0]?.status || "pending";
   };
 
   const isPaymentCleared = (order: Order) => {
-    return order.payment_method === "COD" || getPaymentStatus(order) === "verified";
+    return getPaymentStatus(order) === "verified";
   };
 
   const canMoveOrderStatus = (order: Order, newStatus: string) => {
@@ -442,7 +441,7 @@ export default function OrdersPage() {
                         {orderItems.map((item) => (
                           <TableRow key={item.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
                             <TableCell className="px-6 py-4 font-black text-black text-xs uppercase tracking-tight">{(item.products as any)?.name}</TableCell>
-                            <TableCell className="px-6 py-4 text-center font-bold text-gray-500 text-xs">{item.quantity}kg</TableCell>
+                            <TableCell className="px-6 py-4 text-center font-bold text-gray-500 text-xs">{item.quantity} karung</TableCell>
                             <TableCell className="px-6 py-4 text-right font-black text-black text-xs">Rp {(item.quantity * item.price_at_time).toLocaleString('id-ID')}</TableCell>
                           </TableRow>
                         ))}

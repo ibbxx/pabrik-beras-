@@ -14,7 +14,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 lg:gap-8 mb-8 lg:mb-12">
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="Logo" className="h-12 w-auto object-contain bg-background p-1 rounded-md" />
+              <img 
+                src={logo} 
+                alt="Logo" 
+                className="h-12 w-auto object-contain bg-background p-1 rounded-md" 
+                loading="lazy"
+                decoding="async"
+              />
               <h3 className="text-xl font-black text-background">{settings.business_name || "Pabrik Beras Desa Kurma"}</h3>
             </div>
             <p className="text-dust-grey/50 text-[10px] lg:text-sm mb-4 leading-relaxed">

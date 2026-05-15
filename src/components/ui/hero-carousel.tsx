@@ -77,6 +77,9 @@ export const HeroCarousel = ({
             alt={`Slide ${index + 1}`}
             className="absolute inset-0 w-full h-full object-cover"
             style={getImageStyle(index)}
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding="async"
+            {...(index === 0 ? { fetchPriority: "high" } : {})}
           />
         ))}
       </div>

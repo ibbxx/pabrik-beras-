@@ -39,7 +39,7 @@ export default function DashboardPage() {
       const totalProducts = productsRes.count || 0;
       const totalCustomers = customersRes.count || 0;
       const totalRevenue = ((revenueRes.data as any[]) || []).reduce((acc, curr) => {
-        const paymentStatus = curr.payment_method === "COD" ? "verified" : curr.payments?.[0]?.status;
+        const paymentStatus = curr.payments?.[0]?.status;
         return paymentStatus === "verified" ? acc + (curr.total_amount || 0) : acc;
       }, 0);
 

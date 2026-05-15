@@ -58,7 +58,7 @@ export default {
         "emerald-depths": "#1D543F",
         "evergreen": "#20341E",
         "dust-grey": "#CCC8C3",
-        "dark-khaki": "#513F17",
+        "dark-khaki": "#523F17",
         "soft-linen": "#E7E3DB",
       },
       borderRadius: {

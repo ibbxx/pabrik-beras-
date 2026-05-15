@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { useCart } from "@/contexts/CartContext";
-import { toast } from "sonner";
+
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const { addToCart } = useCart();
+
 
   useEffect(() => {
     fetchProducts();
@@ -82,56 +81,39 @@ export default function ProductsPage() {
           ))
         ) : products.length > 0 ? (
           products.map((product) => (
-            <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-[1.25rem] lg:rounded-[2.5rem] p-2.5 lg:p-6 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500">
-              <Link to={`/products/${product.slug}`} className="relative aspect-square mb-3 lg:mb-6 overflow-hidden rounded-[1rem] lg:rounded-[1.5rem] bg-white border border-dust-grey/20">
+            <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-2xl lg:rounded-[2rem] p-4 lg:p-7 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+              <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50">
                 {product.main_image_url ? (
-                  <img src={product.main_image_url} alt={product.name} className="h-full w-full object-contain p-2 lg:p-6 transition-transform duration-700" />
+                  <img 
+                    src={product.main_image_url} 
+                    alt={product.name} 
+                    className="h-full w-full object-contain p-4 lg:p-8 transition-transform duration-700" 
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center text-gray-200">Tidak Ada Gambar</div>
+                  <div className="h-full w-full flex items-center justify-center text-gray-200 text-[10px] font-bold uppercase tracking-widest">Tidak Ada Gambar</div>
                 )}
                 {product.is_featured && (
-                  <div className="absolute top-2 left-2 lg:top-4 lg:left-4 bg-primary text-primary-foreground text-[7px] lg:text-[8px] font-black uppercase tracking-widest px-2 lg:px-3 py-1 lg:py-1.5 rounded-full shadow-xl">
+                  <div className="absolute top-3 left-3 lg:top-5 lg:left-5 bg-primary text-primary-foreground text-[7px] lg:text-[8px] font-black uppercase tracking-widest px-2.5 lg:px-4 py-1 lg:py-2 rounded-full shadow-xl">
                     Unggulan
                   </div>
                 )}
               </Link>
 
-              <div className="flex-1 space-y-2 lg:space-y-4">
-                <div className="flex justify-between items-start">
-                  <Link to={`/products/${product.slug}`}>
-                    <h3 className="text-sm lg:text-xl font-black text-foreground tracking-tight leading-tight hover:text-primary transition-colors line-clamp-1">{product.name}</h3>
-                  </Link>
+              <div className="flex-1 flex flex-col">
+                <div className="space-y-1 lg:space-y-2 mb-4">
+                  <h3 className="text-sm lg:text-xl font-black text-foreground tracking-tight uppercase leading-tight">{product.name}</h3>
+                  <p className="text-[10px] lg:text-sm font-black text-dust-grey uppercase tracking-widest">
+                    Netto: {product.weight_kg ? `${product.weight_kg}kg` : (product.unit || '5kg')}
+                  </p>
                 </div>
-                
-                <p className="text-muted-foreground text-[9px] lg:text-xs line-clamp-2 leading-relaxed font-medium">
-                  {product.description || "Beras kualitas premium dari Desa Kurma."}
-                </p>
 
-                <div className="flex items-end justify-between pt-2 lg:pt-4 mt-auto">
-                  <div className="space-y-0.5 lg:space-y-1">
-                    <p className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-dust-grey">Harga</p>
-                    <p className="text-sm lg:text-2xl font-black text-primary tracking-tighter">
-                      Rp {product.price.toLocaleString('id-ID')}
-                    </p>
-                  </div>
-                  <Button
-                    className="bg-primary text-primary-foreground hover:bg-evergreen rounded-lg lg:rounded-2xl h-7 w-7 lg:h-12 lg:w-12 p-0 shadow-lg shadow-primary/20 transition-all hover:scale-110 active:scale-95"
-                    disabled={product.stock <= 0}
-                    onClick={() => {
-                      addToCart({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        quantity: 1,
-                        image: product.main_image_url,
-                        stock: product.stock,
-                      });
-                      toast.success("Produk ditambahkan");
-                    }}
-                  >
-                    <ShoppingBag size={14} className="lg:hidden" />
-                    <ShoppingBag size={20} className="hidden lg:block" />
-                  </Button>
+                <div className="mt-auto pt-4 lg:pt-6 border-t border-dust-grey/10">
+                  <p className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-dust-grey mb-1 lg:mb-2">Harga</p>
+                  <p className="text-base lg:text-3xl font-black text-primary tracking-tighter">
+                    Rp {product.price.toLocaleString('id-ID')}
+                  </p>
                 </div>
               </div>
             </div>

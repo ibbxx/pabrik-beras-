@@ -51,15 +51,15 @@ export default function HomePage() {
             {/* Left: Text Content */}
             <div className="order-2 lg:order-1 space-y-4 lg:space-y-8 flex flex-col items-start text-left animate-fade-in-up px-4 lg:px-0 mt-6 lg:mt-0">
               <div className="space-y-3 lg:space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-depths/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-depths">
-                  <CheckCircle2 size={12} className="text-emerald-depths" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
+                  <CheckCircle2 size={12} className="text-primary" />
                   {settings.hero_badge || "Langsung dari Penggilingan"}
                 </div>
-                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-black leading-[1.1] lg:leading-[1.05] tracking-tight text-foreground">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] lg:leading-[1.05] tracking-tight text-foreground">
                   {settings.hero_headline ? (
                     <span dangerouslySetInnerHTML={{ __html: renderGreenMarkup(settings.hero_headline).replace(/text-green-500/g, 'text-primary underline decoration-dust-grey underline-offset-[8px] lg:underline-offset-[12px]') }} />
                   ) : (
-                    <>Beras Premium <br /> <span className="text-dark-khaki">Desa Kurma</span></>
+                    <>Beras Premium <br /> <span className="text-[#523F17]">Desa Kurma</span></>
                   )}
                 </h1>
                 <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-md lg:max-w-lg leading-relaxed font-medium">
@@ -70,7 +70,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <Link to={settings.hero_cta_link || "/products"} className="w-full sm:w-auto">
                   <Button size="lg" className="h-12 lg:h-16 px-8 lg:px-10 w-full rounded-2xl lg:rounded-[2rem] bg-primary hover:bg-evergreen text-primary-foreground font-black shadow-xl lg:shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 active:scale-95 group">
-                    <ShoppingBag className="mr-2 h-4 w-4 lg:h-5 lg:w-5 transition-transform group-hover:rotate-12" /> 
+                    <ShoppingBag className="mr-2 h-4 w-4 lg:h-5 lg:w-5 transition-transform group-hover:rotate-12" />
                     {settings.hero_cta_text || "Belanja Sekarang"}
                   </Button>
                 </Link>
