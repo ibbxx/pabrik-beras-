@@ -142,18 +142,18 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-6xl">
-      <Link to="/cart" className="inline-flex items-center text-green-600 hover:text-green-800 mb-8 font-medium">
+      <Link to="/cart" className="inline-flex items-center text-black hover:opacity-70 mb-8 font-bold text-sm uppercase tracking-widest">
         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali ke Keranjang
       </Link>
       
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Selesaikan Pesanan</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-8">
           <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700 text-sm">1</span>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 text-black text-xs font-black">1</span>
                 Informasi Pelanggan
               </h2>
               <div className="grid gap-6 md:grid-cols-2">
@@ -182,25 +182,25 @@ export default function CheckoutPage() {
 
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700 text-sm">2</span>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-100 text-black text-xs font-black">2</span>
                 Metode Pembayaran
               </h2>
               <div className="grid gap-4">
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'Transfer Bank' ? 'border-green-600 bg-green-50/50' : 'border-neutral-200'}`}>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'Transfer Bank' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
                   <input type="radio" name="payment" value="Transfer Bank" checked={formData.paymentMethod === 'Transfer Bank'} onChange={handlePaymentChange} className="mt-1" />
                   <div>
                     <p className="font-bold text-gray-900">Transfer Bank (BCA / Mandiri / BRI)</p>
                     <p className="text-sm text-gray-500 mt-1">Lakukan pembayaran manual ke rekening resmi Pabrik Beras Desa Kurma.</p>
                   </div>
                 </label>
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'E-Wallet' ? 'border-green-600 bg-green-50/50' : 'border-neutral-200'}`}>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'E-Wallet' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
                   <input type="radio" name="payment" value="E-Wallet" checked={formData.paymentMethod === 'E-Wallet'} onChange={handlePaymentChange} className="mt-1" />
                   <div>
                     <p className="font-bold text-gray-900">E-Wallet (DANA)</p>
                     <p className="text-sm text-gray-500 mt-1">Pembayaran mudah via aplikasi DANA.</p>
                   </div>
                 </label>
-                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'COD' ? 'border-green-600 bg-green-50/50' : 'border-neutral-200'}`}>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'COD' ? 'border-black bg-neutral-50' : 'border-neutral-200'}`}>
                   <input type="radio" name="payment" value="COD" checked={formData.paymentMethod === 'COD'} onChange={handlePaymentChange} className="mt-1" />
                   <div>
                     <p className="font-bold text-gray-900">Cash on Delivery (COD)</p>
@@ -233,14 +233,14 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Ongkos Kirim</span>
-                <span className="text-green-600 font-medium">Hubungi Admin</span>
+                <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Hubungi Admin</span>
               </div>
             </div>
 
             <div className="border-t border-neutral-100 pt-6 mb-6">
               <div className="flex justify-between items-center mb-1">
                 <span className="font-bold text-gray-900">Total Pembayaran</span>
-                <span className="font-bold text-2xl text-green-700">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                <span className="font-black text-2xl text-black tracking-tighter">Rp {cartTotal.toLocaleString('id-ID')}</span>
               </div>
               <p className="text-xs text-gray-500 text-right mt-1">*Belum termasuk ongkos kirim</p>
             </div>
@@ -249,14 +249,14 @@ export default function CheckoutPage() {
               type="submit" 
               form="checkout-form"
               size="lg" 
-              className="w-full bg-green-600 hover:bg-green-700 h-14 text-lg"
+              className="w-full bg-black hover:bg-neutral-800 h-14 text-lg rounded-2xl font-bold shadow-xl shadow-black/10"
               disabled={isSubmitting || cartItems.length === 0}
             >
               {isSubmitting ? "Memproses..." : "Buat Pesanan"}
             </Button>
             
             <div className="mt-4 flex items-start gap-2 text-xs text-gray-500 bg-neutral-50 p-3 rounded-lg">
-              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-4 w-4 text-black shrink-0 mt-0.5" />
               <p>Setelah menekan tombol "Buat Pesanan", Anda akan diarahkan ke halaman instruksi pembayaran.</p>
             </div>
           </div>

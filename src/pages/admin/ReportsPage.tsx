@@ -1,14 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Loader2,
-  TrendingUp,
-  ShoppingCart,
-  DollarSign,
-  Package,
-  Download,
-  CalendarDays
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,14 +19,32 @@ type OrderRow = {
   order_code: string;
   total_amount: number;
   status: string;
+  payment_method: string | null;
   created_at: string;
+  payments?: { status: string | null }[];
 };
 
 type OrderItemRow = {
   quantity: number;
   price_at_time: number;
   products: { name: string; weight_kg: number | null } | null;
+  orders: {
+    status: string | null;
+    payment_method: string | null;
+    created_at: string | null;
+    payments?: { status: string | null }[];
+  } | null;
 };
+
+function isRevenueOrder(order: {
+  status: string | null;
+  payment_method: string | null;
+  payments?: { status: string | null }[];
+}) {
+  if (order.status !== "delivered") return false;
+  if (order.payment_method === "COD") return true;
+  return order.payments?.[0]?.status === "verified";
+}
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
@@ -50,20 +60,20 @@ export default function ReportsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch all delivered/processing orders for reporting
+      // Fetch completed orders for revenue reporting. Non-COD orders must have verified payment.
       const { data: ordersData, error: ordersErr } = await supabase
         .from("orders")
-        .select("id, order_code, total_amount, status, created_at")
-        .in("status", ["processing", "shipped", "delivered"])
+        .select("id, order_code, total_amount, status, payment_method, created_at, payments(status)")
+        .eq("status", "delivered")
         .order("created_at", { ascending: false });
 
       if (ordersErr) throw ordersErr;
       setOrders(ordersData || []);
 
-      // Fetch all order items with product info
+      // Fetch order items with order context so product ranking follows the same revenue rules.
       const { data: itemsData, error: itemsErr } = await supabase
         .from("order_items")
-        .select("quantity, price_at_time, products(name, weight_kg)");
+        .select("quantity, price_at_time, products(name, weight_kg), orders(status, payment_method, created_at, payments(status))");
 
       if (itemsErr) throw itemsErr;
       setOrderItems((itemsData as any) || []);
@@ -80,7 +90,7 @@ export default function ReportsPage() {
       const d = new Date(o.created_at);
       if (dateFrom && d < new Date(dateFrom)) return false;
       if (dateTo && d > new Date(dateTo + "T23:59:59")) return false;
-      return true;
+      return isRevenueOrder(o);
     });
   }, [orders, dateFrom, dateTo]);
 
@@ -92,6 +102,14 @@ export default function ReportsPage() {
   const productSales = useMemo(() => {
     const map: Record<string, { name: string; qty: number; revenue: number; kg: number }> = {};
     orderItems.forEach((item) => {
+      const order = item.orders as any;
+      if (!order || !isRevenueOrder(order)) return;
+
+      const createdAt = order.created_at ? new Date(order.created_at) : null;
+      if (!createdAt) return;
+      if (dateFrom && createdAt < new Date(dateFrom)) return;
+      if (dateTo && createdAt > new Date(dateTo + "T23:59:59")) return;
+
       const name = (item.products as any)?.name || "Unknown";
       const wkg = (item.products as any)?.weight_kg || 1;
       if (!map[name]) map[name] = { name, qty: 0, revenue: 0, kg: 0 };
@@ -100,7 +118,7 @@ export default function ReportsPage() {
       map[name].kg += item.quantity * wkg;
     });
     return Object.values(map).sort((a, b) => b.revenue - a.revenue);
-  }, [orderItems]);
+  }, [orderItems, dateFrom, dateTo]);
 
   const totalKg = productSales.reduce((s, p) => s + p.kg, 0);
 
@@ -134,31 +152,35 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Laporan Penjualan</h1>
-          <p className="text-gray-500 text-sm">Ringkasan pendapatan dan performa produk.</p>
+          <h1 className="text-xl lg:text-3xl font-black tracking-tighter text-black uppercase">Laporan</h1>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Analisis Performa & Penjualan</p>
         </div>
-        <Button variant="outline" onClick={exportCSV} className="gap-2">
-          <Download size={16} /> Export CSV
+        <Button 
+          variant="outline" 
+          onClick={exportCSV} 
+          className="h-10 px-6 border-gray-100 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black hover:bg-transparent transition-all active:scale-95"
+        >
+          Export CSV
         </Button>
       </div>
 
       {/* Date Filters */}
-      <div className="flex flex-wrap gap-4 items-end bg-white border rounded-xl p-4 shadow-sm">
-        <div className="space-y-1">
-          <Label className="text-xs text-gray-500 flex items-center gap-1"><CalendarDays size={12} /> Dari Tanggal</Label>
-          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-44" />
+      <div className="flex flex-wrap gap-6 items-end bg-white border border-gray-100 rounded-xl p-6 shadow-none">
+        <div className="space-y-1.5">
+          <Label className="text-[9px] font-black uppercase tracking-widest text-gray-400">Dari Tanggal</Label>
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-10 border-gray-100 rounded-lg text-xs font-bold focus-visible:ring-black w-40" />
         </div>
-        <div className="space-y-1">
-          <Label className="text-xs text-gray-500 flex items-center gap-1"><CalendarDays size={12} /> Sampai Tanggal</Label>
-          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-44" />
+        <div className="space-y-1.5">
+          <Label className="text-[9px] font-black uppercase tracking-widest text-gray-400">Sampai Tanggal</Label>
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-10 border-gray-100 rounded-lg text-xs font-bold focus-visible:ring-black w-40" />
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => { setDateFrom(""); setDateTo(""); }}
-          className="text-gray-500"
+          className="h-10 px-4 text-[10px] font-black uppercase tracking-widest text-gray-300 hover:text-black hover:bg-transparent"
         >
           Reset
         </Button>
@@ -166,51 +188,38 @@ export default function ReportsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border rounded-xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Total Omzet</p>
-            <DollarSign className="text-green-600" size={20} />
-          </div>
-          <p className="text-2xl font-black text-gray-900 mt-2">Rp {totalOmzet.toLocaleString("id-ID")}</p>
+        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-none">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">Total Omzet</p>
+          <p className="text-xl font-black text-black tracking-tight">Rp {totalOmzet.toLocaleString("id-ID")}</p>
         </div>
-        <div className="bg-white border rounded-xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Total Transaksi</p>
-            <ShoppingCart className="text-blue-600" size={20} />
-          </div>
-          <p className="text-2xl font-black text-gray-900 mt-2">{totalTransaksi}</p>
+        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-none">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">Transaksi</p>
+          <p className="text-xl font-black text-black tracking-tight">{totalTransaksi}</p>
         </div>
-        <div className="bg-white border rounded-xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Total Kg Terjual</p>
-            <Package className="text-purple-600" size={20} />
-          </div>
-          <p className="text-2xl font-black text-gray-900 mt-2">{totalKg.toLocaleString("id-ID")} kg</p>
+        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-none">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">Total Berat</p>
+          <p className="text-xl font-black text-black tracking-tight">{totalKg.toLocaleString("id-ID")} kg</p>
         </div>
-        <div className="bg-white border rounded-xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Rata-rata / Transaksi</p>
-            <TrendingUp className="text-orange-600" size={20} />
-          </div>
-          <p className="text-2xl font-black text-gray-900 mt-2">
+        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-none">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">Rata-rata</p>
+          <p className="text-xl font-black text-black tracking-tight">
             Rp {totalTransaksi > 0 ? Math.round(totalOmzet / totalTransaksi).toLocaleString("id-ID") : 0}
           </p>
         </div>
       </div>
 
-      {/* Top Products */}
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <h2 className="font-bold text-gray-900">Produk Terlaris</h2>
+      <div className="bg-white border border-gray-100 rounded-xl shadow-none overflow-hidden">
+        <div className="p-4 border-b border-gray-50">
+          <h2 className="text-[10px] font-black uppercase tracking-widest text-black">Produk Terlaris</h2>
         </div>
         <Table>
-          <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead>#</TableHead>
-              <TableHead>Nama Produk</TableHead>
-              <TableHead className="text-center">Qty Terjual</TableHead>
-              <TableHead className="text-center">Kg Terjual</TableHead>
-              <TableHead className="text-right">Pendapatan</TableHead>
+          <TableHeader className="bg-gray-50/50">
+            <TableRow className="border-gray-50">
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6 w-12">#</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Nama Produk</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6 text-center">Qty</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6 text-center">Berat</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6 text-right">Pendapatan</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -222,12 +231,12 @@ export default function ReportsPage() {
               </TableRow>
             ) : (
               productSales.slice(0, 10).map((p, i) => (
-                <TableRow key={p.name}>
-                  <TableCell className="font-bold text-gray-400">{i + 1}</TableCell>
-                  <TableCell className="font-medium text-gray-900">{p.name}</TableCell>
-                  <TableCell className="text-center">{p.qty}</TableCell>
-                  <TableCell className="text-center">{p.kg.toLocaleString("id-ID")} kg</TableCell>
-                  <TableCell className="text-right font-bold text-green-700">
+                <TableRow key={p.name} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="px-6 py-3 font-black text-gray-300 text-[10px]">{i + 1}</TableCell>
+                  <TableCell className="px-6 py-3 font-black text-black text-xs uppercase tracking-tight">{p.name}</TableCell>
+                  <TableCell className="px-6 py-3 text-center text-xs font-bold text-gray-500">{p.qty}</TableCell>
+                  <TableCell className="px-6 py-3 text-center text-xs font-bold text-gray-500">{p.kg.toLocaleString("id-ID")} kg</TableCell>
+                  <TableCell className="px-6 py-3 text-right font-black text-black text-xs">
                     Rp {p.revenue.toLocaleString("id-ID")}
                   </TableCell>
                 </TableRow>
@@ -237,18 +246,17 @@ export default function ReportsPage() {
         </Table>
       </div>
 
-      {/* Recent Orders Table */}
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <h2 className="font-bold text-gray-900">Riwayat Pesanan ({filteredOrders.length})</h2>
+      <div className="bg-white border border-gray-100 rounded-xl shadow-none overflow-hidden">
+        <div className="p-4 border-b border-gray-50">
+          <h2 className="text-[10px] font-black uppercase tracking-widest text-black">Riwayat Pesanan ({filteredOrders.length})</h2>
         </div>
         <Table>
-          <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead>Kode Pesanan</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Tanggal</TableHead>
+          <TableHeader className="bg-gray-50/50">
+            <TableRow className="border-gray-50">
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">ID Pesanan</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Total</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Status</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-gray-400 h-10 px-6 text-right">Tanggal</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -260,11 +268,11 @@ export default function ReportsPage() {
               </TableRow>
             ) : (
               filteredOrders.slice(0, 20).map((o) => (
-                <TableRow key={o.id}>
-                  <TableCell className="font-mono font-bold">{o.order_code}</TableCell>
-                  <TableCell className="font-bold text-green-700">Rp {o.total_amount.toLocaleString("id-ID")}</TableCell>
-                  <TableCell className="capitalize text-sm">{o.status}</TableCell>
-                  <TableCell className="text-xs text-gray-500">{new Date(o.created_at).toLocaleDateString("id-ID")}</TableCell>
+                <TableRow key={o.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="px-6 py-3 font-mono font-black text-black tracking-tighter text-xs">{o.order_code}</TableCell>
+                  <TableCell className="px-6 py-3 font-black text-black text-xs">Rp {o.total_amount.toLocaleString("id-ID")}</TableCell>
+                  <TableCell className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">{o.status}</TableCell>
+                  <TableCell className="px-6 py-3 text-right text-[10px] font-bold text-gray-300 uppercase tracking-widest">{new Date(o.created_at).toLocaleDateString("id-ID")}</TableCell>
                 </TableRow>
               ))
             )}

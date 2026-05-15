@@ -49,7 +49,7 @@ export default function ArticlesPage() {
 
       {loading ? (
         <div className="flex justify-center items-center py-20 w-full">
-          <Loader2 className="animate-spin h-10 w-10 text-green-600" />
+          <Loader2 className="animate-spin h-10 w-10 text-black" />
         </div>
       ) : articles.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -62,7 +62,7 @@ export default function ArticlesPage() {
                   <div className="w-full h-full flex items-center justify-center text-neutral-400">Tidak ada gambar</div>
                 )}
                 <div className="absolute top-4 left-4">
-                  <span className="bg-white/90 backdrop-blur-sm px-3 py-1 text-sm font-bold text-green-700 rounded-full">
+                  <span className="bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-black text-black rounded-full uppercase tracking-widest">
                     Artikel
                   </span>
                 </div>
@@ -82,7 +82,7 @@ export default function ArticlesPage() {
                   {article.excerpt || "Baca selengkapnya untuk melihat isi artikel ini."}
                 </p>
                 
-                <Button variant="ghost" className="text-green-600 hover:text-green-800 hover:bg-green-50 justify-start px-0 group">
+                <Button variant="ghost" className="text-black font-bold hover:bg-neutral-50 justify-start px-0 group">
                   Baca Selengkapnya <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
@@ -96,7 +96,7 @@ export default function ArticlesPage() {
       )}
       
       <div className="mt-16 text-center">
-        <Button variant="outline" size="lg" className="border-green-600 text-green-600 hover:bg-green-50">
+        <Button variant="outline" size="lg" className="border-black text-black font-bold hover:bg-neutral-50 rounded-2xl px-10">
           Muat Lebih Banyak Artikel
         </Button>
       </div>

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import { useSettings } from "@/hooks/useSettings";
+import { buildWhatsAppUrl } from "@/lib/contact";
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
@@ -13,6 +15,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
+  const { settings } = useSettings();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -53,10 +56,10 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
-        <h2 className="text-3xl font-black text-black mb-4 tracking-tighter uppercase">Product Not Found</h2>
-        <p className="text-gray-400 mb-8 uppercase tracking-widest text-xs font-bold">The item you are looking for does not exist or has been removed.</p>
+        <h2 className="text-3xl font-black text-black mb-4 tracking-tighter uppercase">Produk Tidak Ditemukan</h2>
+        <p className="text-gray-400 mb-8 uppercase tracking-widest text-xs font-bold">Produk yang Anda cari tidak tersedia atau telah dihapus.</p>
         <Link to="/products">
-          <Button className="bg-black text-white hover:bg-gray-800 rounded-xl px-8 h-12 font-bold shadow-xl shadow-black/10 transition-all">Back to Catalog</Button>
+          <Button className="bg-black text-white hover:bg-gray-800 rounded-xl px-8 h-12 font-bold shadow-xl shadow-black/10 transition-all">Kembali ke Katalog</Button>
         </Link>
       </div>
     );
@@ -67,7 +70,7 @@ export default function ProductDetailPage() {
       {/* Navigation */}
       <div className="container mx-auto px-4 py-8">
         <Link to="/products" className="inline-flex items-center text-gray-400 hover:text-black transition-colors font-black uppercase tracking-widest text-[10px] gap-2">
-          <ChevronLeft size={14} /> Back to Catalog
+          <ChevronLeft size={14} /> Kembali ke Katalog
         </Link>
       </div>
 
@@ -79,11 +82,11 @@ export default function ProductDetailPage() {
             {product.main_image_url ? (
               <img src={product.main_image_url} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
             ) : (
-              <div className="h-full w-full flex items-center justify-center text-gray-200">No Image</div>
+              <div className="h-full w-full flex items-center justify-center text-gray-200">Tidak Ada Gambar</div>
             )}
             {product.is_featured && (
               <div className="absolute top-8 left-8 bg-black text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-2xl">
-                Featured Quality
+                Kualitas Unggulan
               </div>
             )}
           </div>
@@ -91,25 +94,25 @@ export default function ProductDetailPage() {
           {/* Product Details */}
           <div className="flex flex-col space-y-10">
             <div className="space-y-4">
-              <h1 className="text-5xl font-black text-black tracking-tighter leading-none">{product.name}</h1>
+              <h1 className="text-3xl lg:text-5xl font-black text-black tracking-tighter leading-none">{product.name}</h1>
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Net Weight: {product.weight_kg ? `${product.weight_kg}kg` : "Bulk / Custom"}</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Berat Bersih: {product.weight_kg ? `${product.weight_kg}kg` : "Grosir / Kustom"}</span>
                 <span className="h-1 w-1 rounded-full bg-gray-200"></span>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black">Stock: {product.stock} kg Available</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black">Stok: {product.stock} kg Tersedia</span>
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Price per KG</p>
-              <p className="text-5xl font-black text-black tracking-tighter">
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Harga per KG</p>
+              <p className="text-3xl lg:text-5xl font-black text-black tracking-tighter">
                 Rp {product.price.toLocaleString('id-ID')}
               </p>
             </div>
 
             <div className="space-y-4 border-y border-gray-50 py-8">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Product Description</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Deskripsi Produk</p>
               <p className="text-gray-500 leading-relaxed font-medium">
-                {product.description || "Our premium rice is milled with state-of-the-art technology to ensure purity, texture, and taste. Directly from the Desa Kurma Factory, we guarantee the freshest quality for your family's daily meals."}
+                {product.description || "Beras kualitas premium kami diproses dengan teknologi modern untuk menjamin keaslian, tekstur, dan rasa. Langsung dari Pabrik Desa Kurma, kami menjamin kualitas paling segar untuk makanan harian keluarga Anda."}
               </p>
             </div>
 
@@ -117,15 +120,15 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
                 <ShieldCheck size={20} className="text-black" />
-                <span className="text-[8px] font-black uppercase tracking-widest text-center">Pure & Natural</span>
+                <span className="text-[8px] font-black uppercase tracking-widest text-center">Murni & Alami</span>
               </div>
               <div className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
                 <Truck size={20} className="text-black" />
-                <span className="text-[8px] font-black uppercase tracking-widest text-center">Fast Delivery</span>
+                <span className="text-[8px] font-black uppercase tracking-widest text-center">Pengiriman Cepat</span>
               </div>
               <div className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
                 <Award size={20} className="text-black" />
-                <span className="text-[8px] font-black uppercase tracking-widest text-center">Best Price</span>
+                <span className="text-[8px] font-black uppercase tracking-widest text-center">Harga Terbaik</span>
               </div>
             </div>
 
@@ -140,15 +143,16 @@ export default function ProductDetailPage() {
                   </button>
                   <span className="w-16 text-center font-black text-xl">{quantity}</span>
                   <button 
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    disabled={quantity >= product.stock}
                     className="h-12 w-12 flex items-center justify-center rounded-xl hover:bg-white hover:shadow-sm transition-all active:scale-90"
                   >
                     <Plus size={16} />
                   </button>
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Purchase Weight</p>
-                  <p className="text-sm font-bold text-black">{quantity} Kilograms</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Berat Pembelian</p>
+                  <p className="text-sm font-bold text-black">{quantity} Kilogram</p>
                 </div>
               </div>
 
@@ -165,15 +169,15 @@ export default function ProductDetailPage() {
                       image: product.main_image_url,
                       stock: product.stock,
                     });
-                    toast.success("Added to your shopping bag");
+                    toast.success("Berhasil ditambahkan ke keranjang");
                   }}
                 >
-                  <ShoppingBag size={20} className="mr-3" /> Add to Cart
+                  <ShoppingBag size={20} className="mr-3" /> Masukkan Keranjang
                 </Button>
                 <Button 
                   variant="outline" 
                   className="flex-1 border-gray-100 rounded-[1.5rem] h-16 font-black uppercase tracking-widest hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95"
-                  onClick={() => window.open(`https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20produk%20${product.name}`, "_blank")}
+                  onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, `Halo, saya tertarik dengan produk ${product.name}`), "_blank")}
                 >
                   <MessageCircle size={20} className="mr-3" /> WhatsApp
                 </Button>

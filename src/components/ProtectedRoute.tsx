@@ -18,6 +18,5 @@ export default function ProtectedRoute() {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Sudah login = langsung akses
   return <Outlet />;
 }

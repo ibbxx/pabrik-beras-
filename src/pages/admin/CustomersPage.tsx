@@ -1,32 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Search,
-  Loader2,
-  Eye,
-  Phone,
-  User,
-  ShoppingBag,
-  Users,
-  MessageCircle
+  Search, Loader2, Users, Handshake, CheckCircle2,
+  Clock, Phone, MapPin, Store, Package, MessageCircle,
+  UserPlus, ChevronRight, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -50,20 +33,74 @@ type OrderHistory = {
 
 type ResellerApp = {
   id: string;
-  full_name: string;
+  name: string;
   whatsapp: string;
   business_name: string;
-  city: string;
-  follow_up_status: string;
-  admin_notes: string | null;
+  location: string;
+  volume_needs: string;
+  message: string | null;
+  status: string | null;
   created_at: string;
 };
 
+/* ── Helpers ─────────────────────────────── */
+
+const STATUS_MAP: Record<string, { label: string; bg: string; text: string; dot: string }> = {
+  new:       { label: "Baru",       bg: "bg-amber-50",  text: "text-amber-700",  dot: "bg-amber-400" },
+  contacted: { label: "Dihubungi",  bg: "bg-blue-50",   text: "text-blue-700",   dot: "bg-blue-400" },
+  approved:  { label: "Disetujui",  bg: "bg-emerald-50",text: "text-emerald-700",dot: "bg-emerald-400" },
+  rejected:  { label: "Ditolak",    bg: "bg-gray-50",   text: "text-gray-400",   dot: "bg-gray-300" },
+};
+
+const ORDER_STATUS: Record<string, string> = {
+  pending: "Menunggu", processing: "Diproses", shipped: "Dikirim",
+  delivered: "Selesai", cancelled: "Batal",
+};
+
+function StatusDot({ status }: { status: string }) {
+  const s = STATUS_MAP[status] || STATUS_MAP.new;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${s.bg} ${s.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {s.label}
+    </span>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, accent }: {
+  icon: any; label: string; value: number; accent: string;
+}) {
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl p-4 lg:p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-0.5">
+      <div className={`w-10 h-10 lg:w-11 lg:h-11 rounded-xl ${accent} flex items-center justify-center shrink-0`}>
+        <Icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</p>
+        <p className="text-xl lg:text-2xl font-black text-black tracking-tight -mt-0.5">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ icon: Icon, title, sub }: { icon: any; title: string; sub: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 lg:py-24 text-center px-4">
+      <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-5">
+        <Icon className="w-7 h-7 text-gray-300" />
+      </div>
+      <p className="text-sm font-black text-gray-800 tracking-tight">{title}</p>
+      <p className="text-[11px] text-gray-400 font-medium mt-1 max-w-xs">{sub}</p>
+    </div>
+  );
+}
+
+/* ── Main Component ──────────────────────── */
+
 export default function CustomersPage() {
-  const [activeTab, setActiveTab] = useState("customers");
+  const [activeTab, setActiveTab] = useState<"customers" | "resellers">("customers");
   const [loading, setLoading] = useState(true);
 
-  // Customer states
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearch, setCustomerSearch] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -71,33 +108,23 @@ export default function CustomersPage() {
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  // Reseller states
   const [resellers, setResellers] = useState<ResellerApp[]>([]);
   const [resellerSearch, setResellerSearch] = useState("");
   const [selectedReseller, setSelectedReseller] = useState<ResellerApp | null>(null);
   const [isResellerModalOpen, setIsResellerModalOpen] = useState(false);
-  const [adminNote, setAdminNote] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+  useEffect(() => { fetchData(); }, [activeTab]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       if (activeTab === "customers") {
-        const { data, error } = await supabase
-          .from("customers")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data, error } = await supabase.from("customers").select("*").order("created_at", { ascending: false });
         if (error) throw error;
         setCustomers(data || []);
       } else {
-        const { data, error } = await (supabase as any)
-          .from("reseller_applications")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data, error } = await (supabase as any).from("reseller_applications").select("*").order("created_at", { ascending: false });
         if (error) throw error;
         setResellers(data || []);
       }
@@ -113,11 +140,7 @@ export default function CustomersPage() {
     setIsCustomerModalOpen(true);
     setLoadingOrders(true);
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("id, order_code, total_amount, status, created_at")
-        .eq("customer_id", customer.id)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("orders").select("id, order_code, total_amount, status, created_at").eq("customer_id", customer.id).order("created_at", { ascending: false });
       if (error) throw error;
       setCustomerOrders(data || []);
     } catch (err: any) {
@@ -127,23 +150,16 @@ export default function CustomersPage() {
     }
   };
 
-  const handleViewReseller = (reseller: ResellerApp) => {
-    setSelectedReseller(reseller);
-    setAdminNote(reseller.admin_notes || "");
-    setIsResellerModalOpen(true);
-  };
+  const handleViewReseller = (r: ResellerApp) => { setSelectedReseller(r); setIsResellerModalOpen(true); };
 
   const handleUpdateReseller = async (status: string) => {
     if (!selectedReseller) return;
     setIsSaving(true);
     try {
-      const { error } = await (supabase as any)
-        .from("reseller_applications")
-        .update({ follow_up_status: status, admin_notes: adminNote })
-        .eq("id", selectedReseller.id);
+      const { error } = await (supabase as any).from("reseller_applications").update({ status }).eq("id", selectedReseller.id);
       if (error) throw error;
-      toast.success("Data mitra berhasil diperbarui");
-      setIsResellerModalOpen(false);
+      toast.success("Status mitra berhasil diperbarui");
+      setSelectedReseller({ ...selectedReseller, status });
       fetchData();
     } catch (err: any) {
       toast.error("Gagal menyimpan: " + err.message);
@@ -154,264 +170,259 @@ export default function CustomersPage() {
 
   const openWhatsApp = (phone: string, name: string) => {
     const clean = phone.replace(/\D/g, "").replace(/^0/, "62");
-    const msg = encodeURIComponent(
-      `Halo ${name}, terima kasih sudah mendaftar sebagai mitra reseller Pabrik Beras Desa Kurma. Kami ingin menindaklanjuti pendaftaran Anda.`
-    );
+    const msg = encodeURIComponent(`Halo ${name}, terima kasih sudah mendaftar sebagai mitra reseller Pabrik Beras Desa Kurma. Kami ingin menindaklanjuti pendaftaran Anda.`);
     window.open(`https://wa.me/${clean}?text=${msg}`, "_blank");
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "new": return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100">Baru</Badge>;
-      case "contacted": return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-100">Dihubungi</Badge>;
-      case "approved": return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100 font-bold">Disetujui</Badge>;
-      case "rejected": return <Badge variant="destructive">Ditolak</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const getOrderStatusBadge = (status: string) => {
-    const map: Record<string, string> = {
-      pending: "Menunggu", processing: "Diproses", shipped: "Dikirim",
-      delivered: "Selesai", cancelled: "Dibatalkan"
-    };
-    return <Badge variant="outline" className="text-xs">{map[status] || status}</Badge>;
-  };
-
+  /* ── Derived data ── */
   const filteredCustomers = customers.filter(c =>
-    c.full_name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-    c.whatsapp.includes(customerSearch)
+    c.full_name.toLowerCase().includes(customerSearch.toLowerCase()) || c.whatsapp.includes(customerSearch)
   );
-
   const filteredResellers = resellers.filter(r =>
-    r.full_name.toLowerCase().includes(resellerSearch.toLowerCase()) ||
-    r.business_name?.toLowerCase().includes(resellerSearch.toLowerCase())
+    r.name.toLowerCase().includes(resellerSearch.toLowerCase()) || r.business_name?.toLowerCase().includes(resellerSearch.toLowerCase())
   );
 
+  const resellerStats = useMemo(() => ({
+    total: resellers.length,
+    baru: resellers.filter(r => (r.status || "new") === "new").length,
+    approved: resellers.filter(r => r.status === "approved").length,
+  }), [resellers]);
+
+  const tabBtn = (tab: "customers" | "resellers", icon: any, label: string, count: number) => {
+    const Icon = icon;
+    const active = activeTab === tab;
+    return (
+      <button
+        onClick={() => setActiveTab(tab)}
+        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+          active
+            ? "bg-black text-white shadow-lg shadow-black/10"
+            : "bg-white text-gray-500 border border-gray-100 hover:border-gray-200 hover:text-black"
+        }`}
+      >
+        <Icon className="w-3.5 h-3.5" />
+        {label}
+        <span className={`ml-1 text-[10px] font-black px-1.5 py-0.5 rounded-md ${active ? "bg-white/20" : "bg-gray-100"}`}>{count}</span>
+      </button>
+    );
+  };
+
+  /* ── Render ── */
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Pelanggan & Mitra Reseller</h1>
-        <p className="text-gray-500 text-sm">Kelola data pembeli dan mitra reseller Anda.</p>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h1 className="text-xl lg:text-2xl font-black tracking-tight text-black">Database</h1>
+          <p className="text-[11px] text-gray-400 font-medium mt-0.5">Kelola pelanggan & mitra reseller Anda</p>
+        </div>
+        <div className="flex gap-2">
+          {tabBtn("customers", Users, "Pelanggan", customers.length)}
+          {tabBtn("resellers", Handshake, "Reseller", resellers.length)}
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="customers" className="flex items-center gap-2">
-            <User size={14} /> Pelanggan
-          </TabsTrigger>
-          <TabsTrigger value="resellers" className="flex items-center gap-2">
-            <Users size={14} /> Mitra Reseller
-          </TabsTrigger>
-        </TabsList>
+      {/* ── CUSTOMERS VIEW ── */}
+      {activeTab === "customers" && (
+        <div className="space-y-5">
+          {/* Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+            <StatCard icon={Users} label="Total Pelanggan" value={customers.length} accent="bg-black" />
+            <StatCard icon={UserPlus} label="Bulan Ini" value={customers.filter(c => { const d = new Date(c.created_at); const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); }).length} accent="bg-gray-700" />
+          </div>
 
-        {/* ── CUSTOMERS TAB ── */}
-        <TabsContent value="customers" className="space-y-4">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          {/* Search */}
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
             <Input
-              placeholder="Cari nama atau nomor WhatsApp..."
-              className="pl-9 h-10"
+              placeholder="Cari nama atau nomor WA..."
+              className="pl-10 h-11 border-gray-100 rounded-xl text-xs font-medium focus-visible:ring-black/20 bg-white shadow-sm"
               value={customerSearch}
               onChange={(e) => setCustomerSearch(e.target.value)}
             />
+            {customerSearch && (
+              <button onClick={() => setCustomerSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <X className="w-3.5 h-3.5 text-gray-300 hover:text-black transition-colors" />
+              </button>
+            )}
           </div>
 
-          <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-            <Table>
-              <TableHeader className="bg-gray-50">
-                <TableRow>
-                  <TableHead>Nama Pelanggan</TableHead>
-                  <TableHead>WhatsApp</TableHead>
-                  <TableHead>Kota</TableHead>
-                  <TableHead>Terdaftar</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-green-600" />
-                    </TableCell>
-                  </TableRow>
-                ) : filteredCustomers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-gray-500">
-                      Belum ada pelanggan.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredCustomers.map((customer) => (
-                    <TableRow key={customer.id}>
-                      <TableCell className="font-medium text-gray-900">{customer.full_name}</TableCell>
-                      <TableCell>
-                        <a
-                          href={`https://wa.me/${customer.whatsapp.replace(/\D/g, "").replace(/^0/, "62")}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1.5 text-green-700 hover:underline text-sm"
-                        >
-                          <Phone size={12} /> {customer.whatsapp}
-                        </a>
-                      </TableCell>
-                      <TableCell className="text-gray-600 text-sm">{customer.city}</TableCell>
-                      <TableCell className="text-xs text-gray-500">
-                        {new Date(customer.created_at).toLocaleDateString("id-ID")}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-blue-600 hover:bg-blue-50"
-                          onClick={() => handleViewCustomer(customer)}
-                        >
-                          <Eye size={14} className="mr-1" /> Detail
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
+          {/* List */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+            </div>
+          ) : filteredCustomers.length === 0 ? (
+            <EmptyState icon={Users} title="Belum ada pelanggan" sub="Data pelanggan akan muncul setelah ada pesanan masuk." />
+          ) : (
+            <div className="grid gap-2.5">
+              {filteredCustomers.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => handleViewCustomer(c)}
+                  className="w-full text-left bg-white border border-gray-100 rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 flex items-center gap-4 hover:border-gray-200 hover:shadow-sm transition-all group"
+                >
+                  <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-black group-hover:text-white transition-colors text-gray-400">
+                    <span className="text-xs font-black uppercase">{c.full_name.charAt(0)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs lg:text-sm font-bold text-black truncate">{c.full_name}</p>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                        <Phone className="w-2.5 h-2.5" /> {c.whatsapp}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                        <MapPin className="w-2.5 h-2.5" /> {c.city}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-gray-300 font-medium hidden sm:block">
+                    {new Date(c.created_at).toLocaleDateString("id-ID")}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-black transition-colors shrink-0" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-        {/* ── RESELLERS TAB ── */}
-        <TabsContent value="resellers" className="space-y-4">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+      {/* ── RESELLERS VIEW ── */}
+      {activeTab === "resellers" && (
+        <div className="space-y-5">
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3">
+            <StatCard icon={Handshake} label="Total Mitra" value={resellerStats.total} accent="bg-black" />
+            <StatCard icon={Clock} label="Pending" value={resellerStats.baru} accent="bg-amber-500" />
+            <StatCard icon={CheckCircle2} label="Disetujui" value={resellerStats.approved} accent="bg-emerald-500" />
+          </div>
+
+          {/* Search */}
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
             <Input
-              placeholder="Cari nama atau nama usaha..."
-              className="pl-9 h-10"
+              placeholder="Cari nama atau bisnis..."
+              className="pl-10 h-11 border-gray-100 rounded-xl text-xs font-medium focus-visible:ring-black/20 bg-white shadow-sm"
               value={resellerSearch}
               onChange={(e) => setResellerSearch(e.target.value)}
             />
+            {resellerSearch && (
+              <button onClick={() => setResellerSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                <X className="w-3.5 h-3.5 text-gray-300 hover:text-black transition-colors" />
+              </button>
+            )}
           </div>
 
-          <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-            <Table>
-              <TableHeader className="bg-gray-50">
-                <TableRow>
-                  <TableHead>Nama</TableHead>
-                  <TableHead>Nama Usaha</TableHead>
-                  <TableHead>Kota</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Daftar</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-green-600" />
-                    </TableCell>
-                  </TableRow>
-                ) : filteredResellers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10 text-gray-500">
-                      Belum ada pendaftar reseller.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredResellers.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell className="font-medium text-gray-900">{r.full_name}</TableCell>
-                      <TableCell className="text-gray-600">{r.business_name || "-"}</TableCell>
-                      <TableCell className="text-gray-600 text-sm">{r.city || "-"}</TableCell>
-                      <TableCell>{getStatusBadge(r.follow_up_status || "new")}</TableCell>
-                      <TableCell className="text-xs text-gray-500">
-                        {new Date(r.created_at).toLocaleDateString("id-ID")}
-                      </TableCell>
-                      <TableCell className="text-right flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-green-600 hover:bg-green-50"
-                          onClick={() => openWhatsApp(r.whatsapp, r.full_name)}
-                        >
-                          <MessageCircle size={14} className="mr-1" /> WA
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-blue-600 hover:bg-blue-50"
-                          onClick={() => handleViewReseller(r)}
-                        >
-                          <Eye size={14} className="mr-1" /> Detail
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-      </Tabs>
+          {/* List */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+            </div>
+          ) : filteredResellers.length === 0 ? (
+            <EmptyState icon={Handshake} title="Belum ada pendaftar" sub="Calon mitra yang mengisi formulir kemitraan akan muncul di sini." />
+          ) : (
+            <div className="grid gap-2.5">
+              {filteredResellers.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => handleViewReseller(r)}
+                  className="w-full text-left bg-white border border-gray-100 rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 flex items-center gap-4 hover:border-gray-200 hover:shadow-sm transition-all group"
+                >
+                  <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-black group-hover:text-white transition-colors text-gray-400">
+                    <Store className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs lg:text-sm font-bold text-black truncate">{r.name}</p>
+                      <StatusDot status={r.status || "new"} />
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1 truncate">
+                        <Store className="w-2.5 h-2.5 shrink-0" /> {r.business_name || "-"}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                        <MapPin className="w-2.5 h-2.5 shrink-0" /> {r.location || "-"}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                        <Package className="w-2.5 h-2.5 shrink-0" /> {r.volume_needs || "-"}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-gray-300 font-medium hidden sm:block whitespace-nowrap">
+                    {new Date(r.created_at).toLocaleDateString("id-ID")}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-black transition-colors shrink-0" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── CUSTOMER DETAIL MODAL ── */}
       <Dialog open={isCustomerModalOpen} onOpenChange={setIsCustomerModalOpen}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User size={18} /> {selectedCustomer?.full_name}
+        <DialogContent className="max-w-xl bg-white border-none rounded-2xl p-0 overflow-hidden shadow-2xl">
+          <DialogHeader className="p-5 lg:p-6 border-b border-gray-100">
+            <DialogTitle className="text-base lg:text-lg font-black tracking-tight flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs font-black">
+                {selectedCustomer?.full_name.charAt(0)}
+              </div>
+              {selectedCustomer?.full_name}
             </DialogTitle>
           </DialogHeader>
           {selectedCustomer && (
-            <div className="space-y-6 pt-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">WhatsApp</p>
-                  <a
-                    href={`https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, "").replace(/^0/, "62")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-green-700 hover:underline font-medium flex items-center gap-1"
-                  >
-                    <Phone size={12} /> {selectedCustomer.whatsapp}
-                  </a>
+            <div className="p-5 lg:p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-xl p-3.5">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">WhatsApp</p>
+                  <p className="text-xs font-bold text-black">{selectedCustomer.whatsapp}</p>
                 </div>
-                <div>
-                  <p className="text-gray-500">Kota</p>
-                  <p className="font-medium">{selectedCustomer.city}</p>
+                <div className="bg-gray-50 rounded-xl p-3.5">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Kota</p>
+                  <p className="text-xs font-bold text-black">{selectedCustomer.city}</p>
                 </div>
-                <div className="col-span-2">
-                  <p className="text-gray-500">Alamat</p>
-                  <p className="font-medium">
+                <div className="col-span-2 bg-gray-50 rounded-xl p-3.5">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Alamat</p>
+                  <p className="text-xs font-medium text-gray-600 leading-relaxed">
                     {selectedCustomer.address}, Kec. {selectedCustomer.district}, {selectedCustomer.city}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="font-bold text-gray-900 border-b pb-1 flex items-center gap-2">
-                  <ShoppingBag size={16} /> Riwayat Pesanan
-                </h3>
+              <div>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Riwayat Pesanan</h3>
                 {loadingOrders ? (
-                  <div className="text-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-green-600" />
-                  </div>
+                  <div className="text-center py-8"><Loader2 className="h-5 w-5 animate-spin mx-auto text-gray-300" /></div>
                 ) : customerOrders.length === 0 ? (
-                  <p className="text-gray-400 text-sm italic">Belum ada pesanan.</p>
+                  <p className="text-[11px] text-gray-300 font-medium text-center py-6">Belum ada pesanan.</p>
                 ) : (
                   <div className="space-y-2">
                     {customerOrders.map((order) => (
-                      <div key={order.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5 border border-gray-100">
+                      <div key={order.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 hover:bg-gray-100/70 transition-colors">
                         <div>
-                          <p className="font-mono font-bold text-sm text-gray-900">{order.order_code}</p>
-                          <p className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString("id-ID")}</p>
+                          <p className="font-mono font-bold text-[11px] text-black">{order.order_code}</p>
+                          <p className="text-[9px] text-gray-400 font-medium mt-0.5">
+                            {new Date(order.created_at).toLocaleDateString("id-ID")}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-green-700 text-sm">Rp {order.total_amount.toLocaleString("id-ID")}</p>
-                          {getOrderStatusBadge(order.status)}
+                          <p className="font-bold text-black text-xs">Rp {order.total_amount.toLocaleString("id-ID")}</p>
+                          <Badge variant="outline" className="text-[8px] font-bold px-2 py-0 bg-white mt-1">
+                            {ORDER_STATUS[order.status] || order.status}
+                          </Badge>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+
+              <Button
+                className="w-full bg-black text-white rounded-xl h-11 font-bold text-xs hover:bg-black/90 transition-all active:scale-[0.98]"
+                onClick={() => openWhatsApp(selectedCustomer.whatsapp, selectedCustomer.full_name)}
+              >
+                <MessageCircle className="mr-2 h-3.5 w-3.5" /> Hubungi via WhatsApp
+              </Button>
             </div>
           )}
         </DialogContent>
@@ -419,73 +430,87 @@ export default function CustomersPage() {
 
       {/* ── RESELLER DETAIL MODAL ── */}
       <Dialog open={isResellerModalOpen} onOpenChange={setIsResellerModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Detail Mitra: {selectedReseller?.full_name}</DialogTitle>
+        <DialogContent className="max-w-lg bg-white border-none rounded-2xl p-0 overflow-hidden shadow-2xl">
+          <DialogHeader className="p-5 lg:p-6 border-b border-gray-100">
+            <DialogTitle className="text-base lg:text-lg font-black tracking-tight flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+                <Store className="w-4 h-4" />
+              </div>
+              Detail Mitra
+            </DialogTitle>
           </DialogHeader>
           {selectedReseller && (
-            <div className="space-y-5 pt-4">
-              <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div>
-                  <p className="text-gray-500 text-xs">Nama</p>
-                  <p className="font-semibold">{selectedReseller.full_name}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">WhatsApp</p>
-                  <p className="font-semibold">{selectedReseller.whatsapp}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">Nama Usaha</p>
-                  <p className="font-semibold">{selectedReseller.business_name || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs">Kota</p>
-                  <p className="font-semibold">{selectedReseller.city || "-"}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-gray-500 text-xs">Status Saat Ini</p>
-                  <div className="mt-1">{getStatusBadge(selectedReseller.follow_up_status || "new")}</div>
-                </div>
+            <div className="p-5 lg:p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+              {/* Info Grid */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { label: "Nama", value: selectedReseller.name },
+                  { label: "WhatsApp", value: selectedReseller.whatsapp },
+                  { label: "Nama Usaha", value: selectedReseller.business_name || "-" },
+                  { label: "Lokasi", value: selectedReseller.location || "-" },
+                  { label: "Volume/Bulan", value: selectedReseller.volume_needs || "-" },
+                  { label: "Tanggal Daftar", value: new Date(selectedReseller.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) },
+                ].map((item, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-3.5">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">{item.label}</p>
+                    <p className="text-xs font-bold text-black">{item.value}</p>
+                  </div>
+                ))}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Catatan Admin</label>
-                <textarea
-                  className="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Tulis catatan untuk pendaftar ini..."
-                  value={adminNote}
-                  onChange={(e) => setAdminNote(e.target.value)}
-                />
-              </div>
+              {/* Message */}
+              {selectedReseller.message && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Pesan Tambahan</p>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <p className="text-[11px] text-gray-600 font-medium leading-relaxed italic">
+                      "{selectedReseller.message}"
+                    </p>
+                  </div>
+                </div>
+              )}
 
-              <div className="space-y-2 pt-2">
-                <p className="text-sm font-medium text-gray-700">Perbarui Status</p>
+              {/* Status Update */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2.5">Status Saat Ini</p>
                 <div className="flex flex-wrap gap-2">
-                  {["new", "contacted", "approved", "rejected"].map((s) => (
-                    <Button
-                      key={s}
-                      size="sm"
-                      variant={selectedReseller.follow_up_status === s ? "default" : "outline"}
-                      disabled={isSaving}
-                      onClick={() => handleUpdateReseller(s)}
-                      className="capitalize rounded-full"
-                    >
-                      {isSaving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
-                      {{ new: "Baru", contacted: "Dihubungi", approved: "Setujui", rejected: "Tolak" }[s]}
-                    </Button>
-                  ))}
+                  {(["new", "contacted", "approved", "rejected"] as const).map((s) => {
+                    const isActive = (selectedReseller.status || "new") === s;
+                    const meta = STATUS_MAP[s];
+                    return (
+                      <button
+                        key={s}
+                        disabled={isSaving}
+                        onClick={() => handleUpdateReseller(s)}
+                        className={`h-9 px-4 rounded-xl text-[10px] font-bold transition-all active:scale-95 border ${
+                          isActive
+                            ? "bg-black text-white border-black shadow-md shadow-black/10"
+                            : "bg-white text-gray-500 border-gray-100 hover:border-gray-300 hover:text-black"
+                        }`}
+                      >
+                        {isSaving && isActive ? <Loader2 className="h-3 w-3 animate-spin mr-1.5 inline" /> : null}
+                        {meta.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t gap-3">
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
-                  variant="outline"
-                  className="text-green-700 border-green-200 hover:bg-green-50 flex items-center gap-2"
-                  onClick={() => openWhatsApp(selectedReseller.whatsapp, selectedReseller.full_name)}
+                  className="flex-1 bg-black text-white rounded-xl h-11 font-bold text-xs hover:bg-black/90 transition-all active:scale-[0.98]"
+                  onClick={() => openWhatsApp(selectedReseller.whatsapp, selectedReseller.name)}
                 >
-                  <MessageCircle size={16} /> Hubungi via WhatsApp
+                  <MessageCircle className="mr-2 h-3.5 w-3.5" /> Hubungi via WhatsApp
                 </Button>
-                <Button variant="ghost" onClick={() => setIsResellerModalOpen(false)}>Tutup</Button>
+                <Button
+                  variant="ghost"
+                  className="h-11 text-xs font-bold text-gray-400 hover:text-black hover:bg-transparent"
+                  onClick={() => setIsResellerModalOpen(false)}
+                >
+                  Tutup
+                </Button>
               </div>
             </div>
           )}

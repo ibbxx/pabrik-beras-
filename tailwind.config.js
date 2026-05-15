@@ -54,11 +54,21 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom palette
+        "emerald-depths": "#1D543F",
+        "evergreen": "#20341E",
+        "dust-grey": "#CCC8C3",
+        "dark-khaki": "#513F17",
+        "soft-linen": "#E7E3DB",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        heading: ["Inter", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

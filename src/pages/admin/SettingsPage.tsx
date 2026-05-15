@@ -9,27 +9,18 @@ import {
   FileText,
   Star,
   Layout,
-  User,
-  ShieldCheck,
-  CreditCard,
   Globe,
   Phone,
   Save,
-  Info
+  Info,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import { createImageStoragePath, validateImageFile, compressImageFile } from "@/lib/media";
 
 // ── Types ──
 type FAQ = { id: string; question: string; answer: string; order_num: number | null; is_active: boolean | null; };
@@ -53,7 +45,7 @@ export default function SettingsPage() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [_siteSettings, setSiteSettings] = useState<SiteSetting[]>([]);
+  const [, setSiteSettings] = useState<SiteSetting[]>([]);
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +53,7 @@ export default function SettingsPage() {
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // Dynamic Settings Map
-  const [settingsMap, setSettingsMap] = useState<Record<string, string>>({});
+  const [settingsMap, setSettingsMap] = useState<Record<string, any>>({});
 
   useEffect(() => {
     fetchData();
@@ -86,9 +78,9 @@ export default function SettingsPage() {
         const { data, error } = await supabase.from("site_settings").select("*").order("key");
         if (error) throw error;
         setSiteSettings(data || []);
-        const map: Record<string, string> = {};
-        (data || []).forEach((s: SiteSetting) => { 
-          map[s.key] = typeof s.value === "string" ? s.value : JSON.stringify(s.value); 
+        const map: Record<string, any> = {};
+        (data || []).forEach((s: SiteSetting) => {
+          map[s.key] = s.value;
         });
         setSettingsMap(map);
       }
@@ -109,7 +101,7 @@ export default function SettingsPage() {
     setIsSaving(true);
     const formData = new FormData(e.currentTarget);
     const data: any = Object.fromEntries((formData as any).entries());
-    
+
     // Handle checkboxes
     const checkInputs = e.currentTarget.querySelectorAll('input[type="checkbox"]');
     checkInputs.forEach((input: any) => { data[input.id] = input.checked; });
@@ -145,7 +137,7 @@ export default function SettingsPage() {
       if (activeTab === "faq") table = "faqs";
       else if (activeTab === "articles") table = "articles";
       else if (activeTab === "testimonials") table = "testimonials";
-      
+
       const { error } = await supabase.from(table).delete().eq("id", id);
       if (error) throw error;
       toast.success("Deleted successfully");
@@ -161,9 +153,7 @@ export default function SettingsPage() {
       for (const key of keys) {
         const newValue = settingsMap[key];
         if (newValue !== undefined) {
-          let parsedValue: any;
-          try { parsedValue = JSON.parse(newValue); } catch { parsedValue = newValue; }
-          const { error } = await (supabase as any).from("site_settings").upsert({ key, value: parsedValue }, { onConflict: 'key' });
+          const { error } = await (supabase as any).from("site_settings").upsert({ key, value: newValue }, { onConflict: 'key' });
           if (error) throw error;
         }
       }
@@ -172,17 +162,50 @@ export default function SettingsPage() {
     } catch (err: any) { toast.error(err.message); } finally { setIsSaving(false); }
   };
 
-  const renderSettingField = (key: string, label: string, type: "text" | "textarea" | "number" = "text", description?: string) => (
+  const handleImageUpload = async (key: string, file: File) => {
+    setIsSaving(true);
+    try {
+      const compressedFile = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
+
+      const validationError = validateImageFile(compressedFile, { maxSizeMB: 2 });
+      if (validationError) {
+        toast.error(validationError);
+        setIsSaving(false);
+        return;
+      }
+
+      const filePath = createImageStoragePath(`settings/${key}`, compressedFile);
+
+      const { error: uploadError } = await supabase.storage
+        .from('product_images') // Using existing bucket for simplicity, or we can use another one
+        .upload(filePath, compressedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product_images')
+        .getPublicUrl(filePath);
+
+      setSettingsMap(prev => ({ ...prev, [key]: publicUrl }));
+      toast.success("Image uploaded successfully!");
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const renderSettingField = (key: string, label: string, type: "text" | "textarea" | "number" | "image" = "text", description?: string) => (
     <div key={key} className="space-y-2">
       <div className="flex justify-between items-center">
         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</Label>
         {description && (
-           <div className="group relative">
-             <Info size={12} className="text-gray-300 cursor-help" />
-             <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-               {description}
-             </div>
-           </div>
+          <div className="group relative">
+            <Info size={12} className="text-gray-300 cursor-help" />
+            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+              {description}
+            </div>
+          </div>
         )}
       </div>
       {type === "textarea" ? (
@@ -191,6 +214,49 @@ export default function SettingsPage() {
           onChange={(e) => setSettingsMap({ ...settingsMap, [key]: e.target.value })}
           className="min-h-[100px] rounded-xl border-gray-100 focus:border-black transition-all resize-none p-4 text-sm"
         />
+      ) : type === "image" ? (
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
+              {settingsMap[key] ? (
+                <img src={settingsMap[key]} alt={label} className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon className="h-8 w-8 text-gray-200" />
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <Input
+                type="text"
+                placeholder="Image URL"
+                value={settingsMap[key] || ""}
+                onChange={(e) => setSettingsMap({ ...settingsMap, [key]: e.target.value })}
+                className="h-10 rounded-xl border-gray-100 focus:border-black transition-all px-4 text-xs"
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 rounded-xl border-gray-100 flex-1 gap-2 text-xs font-bold"
+                  onClick={() => document.getElementById(`file-${key}`)?.click()}
+                  disabled={isSaving}
+                >
+                  <Upload size={14} /> Upload Image
+                </Button>
+                <input
+                  type="file"
+                  id={`file-${key}`}
+                  className="hidden"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleImageUpload(key, e.target.files[0]);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
         <Input
           type={type}
@@ -211,338 +277,501 @@ export default function SettingsPage() {
     { id: 'seo', icon: Globe, label: 'SEO', desc: 'Optimasi mesin pencari' },
   ];
 
+
   return (
-    <div className="pb-20">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-black">Pengaturan & Konten</h1>
-        <p className="text-gray-500 text-sm mt-1">Kelola tampilan, informasi, dan pengaturan inti website Anda.</p>
+    <div className="space-y-5 pb-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h1 className="text-xl lg:text-2xl font-black tracking-tight text-black">Pengaturan</h1>
+          <p className="text-[11px] text-gray-400 font-medium mt-0.5">Kelola konten, tampilan & konfigurasi website</p>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex gap-8 items-start">
-          {/* Sidebar Navigation */}
-          <TabsList className="flex flex-col gap-1 p-2 bg-white border border-gray-100 rounded-3xl shadow-sm h-auto w-64 shrink-0">
-            <p className="px-4 pt-2 pb-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Menu Pengaturan</p>
-            {sidebarItems.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="w-full justify-start gap-3 px-4 py-3 h-auto rounded-xl text-left data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-black/10 transition-all duration-200"
-              >
-                <tab.icon size={16} className="shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-bold leading-tight">{tab.label}</p>
-                  <p className="text-[10px] opacity-60 leading-tight truncate mt-0.5">{tab.desc}</p>
-                </div>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {/* Content Area */}
-          <div className="flex-1 min-w-0">
-
-        {/* ── FAQ TAB ── */}
-        <TabsContent value="faq" className="space-y-6 outline-none">
-          <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-            <div>
-              <h2 className="text-xl font-bold">Frequently Asked Questions</h2>
-              <p className="text-sm text-gray-500">Manage help center content for your customers.</p>
-            </div>
-            <Button onClick={() => handleOpenModal()} className="rounded-xl bg-black text-white hover:bg-gray-800 h-11 px-6 font-bold shadow-lg shadow-black/10 transition-all">
-              <Plus size={18} className="mr-2" /> Add Question
-            </Button>
-          </div>
-          <Card className="border-none shadow-sm overflow-hidden rounded-[2rem]">
-            <Table>
-              <TableHeader className="bg-gray-50/50">
-                <TableRow>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Question</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Order</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-20"><Loader2 className="h-8 w-8 animate-spin mx-auto text-black/10" /></TableCell></TableRow>
-                ) : faqs.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-20 text-gray-400 font-medium">No FAQ records found.</TableCell></TableRow>
-                ) : faqs.map((faq) => (
-                  <TableRow key={faq.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-8 py-5 font-medium">{faq.question}</td>
-                    <td className="px-8 py-5 text-gray-400 font-mono text-xs">{faq.order_num || '-'}</td>
-                    <td className="px-8 py-5">
-                      <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${faq.is_active ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>
-                        {faq.is_active ? 'Active' : 'Hidden'}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="rounded-lg" onClick={() => handleOpenModal(faq)}><Pencil size={16} /></Button>
-                        <Button variant="ghost" size="icon" className="rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(faq.id)}><Trash2 size={16} /></Button>
-                      </div>
-                    </td>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        {/* ── ARTICLES TAB ── */}
-        <TabsContent value="articles" className="space-y-6 outline-none">
-          <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-            <div>
-              <h2 className="text-xl font-bold">News & Articles</h2>
-              <p className="text-sm text-gray-500">Publish updates and education about your products.</p>
-            </div>
-            <Button onClick={() => handleOpenModal()} className="rounded-xl bg-black text-white hover:bg-gray-800 h-11 px-6 font-bold shadow-lg shadow-black/10 transition-all">
-              <Plus size={18} className="mr-2" /> New Article
-            </Button>
-          </div>
-          <Card className="border-none shadow-sm overflow-hidden rounded-[2rem]">
-            <Table>
-              <TableHeader className="bg-gray-50/50">
-                <TableRow>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Title</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Published</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-20"><Loader2 className="h-8 w-8 animate-spin mx-auto text-black/10" /></TableCell></TableRow>
-                ) : articles.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-20 text-gray-400 font-medium">No articles found.</TableCell></TableRow>
-                ) : articles.map((art) => (
-                  <TableRow key={art.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-8 py-5 font-bold">{art.title}</td>
-                    <td className="px-8 py-5">
-                      <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${art.is_active ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>
-                        {art.is_active ? 'Published' : 'Draft'}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5 text-gray-400 text-[10px] font-black uppercase tracking-tighter">
-                      {art.published_at ? new Date(art.published_at).toLocaleDateString() : 'N/A'}
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="rounded-lg" onClick={() => handleOpenModal(art)}><Pencil size={16} /></Button>
-                        <Button variant="ghost" size="icon" className="rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(art.id)}><Trash2 size={16} /></Button>
-                      </div>
-                    </td>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        {/* ── TESTIMONIALS TAB ── */}
-        <TabsContent value="testimonials" className="space-y-6 outline-none">
-          <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-            <div>
-              <h2 className="text-xl font-bold">Customer Testimonials</h2>
-              <p className="text-sm text-gray-500">Highlight positive feedback from your happy customers.</p>
-            </div>
-            <Button onClick={() => handleOpenModal()} className="rounded-xl bg-black text-white hover:bg-gray-800 h-11 px-6 font-bold shadow-lg shadow-black/10 transition-all">
-              <Plus size={18} className="mr-2" /> Add Feedback
-            </Button>
-          </div>
-          <Card className="border-none shadow-sm overflow-hidden rounded-[2rem]">
-            <Table>
-              <TableHeader className="bg-gray-50/50">
-                <TableRow>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Customer</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rating</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-20"><Loader2 className="h-8 w-8 animate-spin mx-auto text-black/10" /></TableCell></TableRow>
-                ) : testimonials.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-20 text-gray-400 font-medium">No testimonials found.</TableCell></TableRow>
-                ) : testimonials.map((testi) => (
-                  <TableRow key={testi.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-8 py-5">
-                      <p className="font-bold text-black">{testi.name}</p>
-                      <p className="text-[10px] text-gray-400 uppercase tracking-wider">{testi.role || 'Customer'}</p>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex text-yellow-500"><Star size={12} fill="currentColor" /> <span className="text-xs font-bold ml-1">{testi.rating || 5}</span></div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${testi.is_active ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>
-                        {testi.is_active ? 'Visible' : 'Hidden'}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="rounded-lg" onClick={() => handleOpenModal(testi)}><Pencil size={16} /></Button>
-                        <Button variant="ghost" size="icon" className="rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(testi.id)}><Trash2 size={16} /></Button>
-                      </div>
-                    </td>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        {/* ── APPEARANCE TAB ── */}
-        <TabsContent value="appearance" className="space-y-8 outline-none">
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden">
-              <CardHeader className="bg-gray-50/50 px-10 py-8">
-                <CardTitle className="text-xl font-bold flex items-center gap-2"><Layout size={20} /> Hero Section</CardTitle>
-                <CardDescription>Update the main banner content of your homepage.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-10 space-y-6">
-                {renderSettingField("hero_badge", "Small Badge Text", "text", "Text shown above headline (e.g. 'Flash Sale')")}
-                {renderSettingField("hero_headline", "Main Headline", "textarea", "Use [green]text[/green] to highlight text in green color.")}
-                {renderSettingField("hero_subheadline", "Sub-headline", "textarea", "Descriptive text below the main headline.")}
-                {renderSettingField("hero_image_url", "Hero Background Image (URL)", "text", "Recommend Unsplash image URL for best look.")}
-                <div className="grid grid-cols-2 gap-4">
-                  {renderSettingField("hero_cta_text", "CTA Button Text")}
-                  {renderSettingField("hero_cta_link", "CTA Button Link")}
-                </div>
-                {renderSettingField("trust_1", "Trust Item 1")}
-                {renderSettingField("trust_2", "Trust Item 2")}
-                {renderSettingField("trust_3", "Trust Item 3")}
-                <Button onClick={() => saveSettings(["hero_badge", "hero_headline", "hero_subheadline", "hero_image_url", "hero_cta_text", "hero_cta_link", "trust_1", "trust_2", "trust_3"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold mt-4 shadow-xl shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Save Changes
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden">
-              <CardHeader className="bg-gray-50/50 px-10 py-8">
-                <CardTitle className="text-xl font-bold flex items-center gap-2"><User size={20} /> Factory Profile</CardTitle>
-                <CardDescription>Tell your story and vision to your visitors.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-10 space-y-6">
-                {renderSettingField("about_intro", "Intro Statement", "textarea")}
-                {renderSettingField("about_history", "History Content", "textarea")}
-                {renderSettingField("about_vision", "Vision Statement", "text")}
-                {renderSettingField("about_mission", "Mission Statement", "text")}
-                {renderSettingField("about_image_url", "Profile Image (URL)")}
-                <Button onClick={() => saveSettings(["about_intro", "about_history", "about_vision", "about_mission", "about_image_url"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold mt-4 shadow-xl shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Update Profile
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2 border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden">
-              <CardHeader className="bg-gray-50/50 px-10 py-8">
-                <CardTitle className="text-xl font-bold flex items-center gap-2"><ShieldCheck size={20} /> Benefits Section (Why Choose Us)</CardTitle>
-                <CardDescription>Configure the 3 key benefits shown on the homepage.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-10">
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="space-y-4">
-                    {renderSettingField("benefit_title", "Section Title")}
-                    {renderSettingField("benefit_subtitle", "Section Subtitle")}
+      <div className="flex flex-col md:flex-row w-full gap-5">
+        {/* Sidebar */}
+        <div className="w-full md:w-56 shrink-0">
+          <div className="bg-white border border-gray-100 rounded-2xl p-2 md:sticky md:top-6 space-y-1">
+            {sidebarItems.map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
+                    active ? "bg-black text-white shadow-md shadow-black/10" : "text-gray-500 hover:bg-gray-50 hover:text-black"
+                  }`}
+                >
+                  <Icon size={16} />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold">{tab.label}</p>
+                    <p className={`text-[10px] leading-tight mt-0.5 ${active ? "text-white/60" : "text-gray-400"}`}>{tab.desc}</p>
                   </div>
-                  <div className="space-y-4">
-                    {renderSettingField("benefit_1_title", "Benefit 1 Title")}
-                    {renderSettingField("benefit_1_desc", "Benefit 1 Desc", "textarea")}
-                  </div>
-                  <div className="space-y-4">
-                    {renderSettingField("benefit_2_title", "Benefit 2 Title")}
-                    {renderSettingField("benefit_2_desc", "Benefit 2 Desc", "textarea")}
-                    {renderSettingField("benefit_3_title", "Benefit 3 Title")}
-                    {renderSettingField("benefit_3_desc", "Benefit 3 Desc", "textarea")}
-                  </div>
-                </div>
-                <Button onClick={() => saveSettings(["benefit_title", "benefit_subtitle", "benefit_1_title", "benefit_1_desc", "benefit_2_title", "benefit_2_desc", "benefit_3_title", "benefit_3_desc"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold mt-8 shadow-xl shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Save Benefits
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* ── BUSINESS TAB ── */}
-        <TabsContent value="business" className="space-y-8 outline-none">
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden">
-              <CardHeader className="bg-gray-50/50 px-10 py-8">
-                <CardTitle className="text-xl font-bold flex items-center gap-2"><Phone size={20} /> Contact Details</CardTitle>
-                <CardDescription>Primary communication channels.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-10 space-y-6">
-                {renderSettingField("contact_whatsapp", "WhatsApp Number", "text", "Include country code (e.g. 628...)")}
-                {renderSettingField("contact_email", "Public Email")}
-                {renderSettingField("contact_address", "Physical Address", "textarea")}
-                {renderSettingField("contact_maps_iframe", "Google Maps Embed Code", "textarea", "Paste the <iframe> code from Google Maps share.")}
-                <Button onClick={() => saveSettings(["contact_whatsapp", "contact_email", "contact_address", "contact_maps_iframe"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold mt-4 shadow-xl shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Save Contact Info
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden">
-              <CardHeader className="bg-gray-50/50 px-10 py-8">
-                <CardTitle className="text-xl font-bold flex items-center gap-2"><CreditCard size={20} /> Payments & Service</CardTitle>
-                <CardDescription>Account info and logistics area.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-10 space-y-6">
-                {renderSettingField("payment_bank_info", "Bank Account Details", "textarea", "Format: Bank Name - Account No - Holder Name")}
-                {renderSettingField("payment_dana_number", "DANA Number")}
-                {renderSettingField("service_areas", "Service Areas", "textarea", "List cities or regions you serve.")}
-                <Button onClick={() => saveSettings(["payment_bank_info", "payment_dana_number", "service_areas"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold mt-4 shadow-xl shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Update Business Settings
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* ── SEO TAB ── */}
-        <TabsContent value="seo" className="space-y-8 outline-none">
-          <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden max-w-4xl mx-auto">
-            <CardHeader className="bg-gray-50/50 px-10 py-8">
-              <CardTitle className="text-xl font-bold flex items-center gap-2"><Globe size={20} /> SEO Management</CardTitle>
-              <CardDescription>Control how your website appears on search engines like Google.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-10 space-y-10">
-              <div className="space-y-6">
-                {renderSettingField("seo_title", "Meta Title", "text", "Recommended 50-60 characters.")}
-                {renderSettingField("seo_keywords", "Keywords", "text", "Separate with commas.")}
-                {renderSettingField("seo_description", "Meta Description", "textarea", "Recommended 150-160 characters.")}
-              </div>
-
-              {/* Live Preview */}
-              <div className="space-y-4 pt-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Search Engine Preview</p>
-                <div className="p-8 border border-gray-100 rounded-3xl bg-[#fafafa]">
-                  <p className="text-[#1a0dab] text-xl font-medium truncate hover:underline cursor-pointer">{settingsMap["seo_title"] || "Site Title Preview"}</p>
-                  <p className="text-[#006621] text-sm truncate mt-1">https://pabrikberaskurma.com</p>
-                  <p className="text-[#545454] text-sm mt-1 line-clamp-2">
-                    {settingsMap["seo_description"] || "Site description preview will appear here once you type it."}
-                  </p>
-                </div>
-              </div>
-
-              <Button onClick={() => saveSettings(["seo_title", "seo_keywords", "seo_description"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold shadow-xl shadow-black/10">
-                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Save SEO Configuration
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </button>
+              );
+            })}
           </div>
         </div>
-      </Tabs>
+
+        <div className="flex-1 min-w-0">
+          <div className="space-y-6">
+
+            {/* ── FAQ TAB ── */}
+            {activeTab === "faq" && (
+            <div className="space-y-5">
+              <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div>
+                  <h2 className="text-xl font-bold">Pertanyaan Umum (FAQ)</h2>
+                  <p className="text-sm text-gray-500">Kelola konten bantuan untuk pelanggan Anda.</p>
+                </div>
+                <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
+                  <Plus size={18} className="mr-2" /> Tambah Pertanyaan
+                </Button>
+              </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
+              ) : faqs.length === 0 ? (
+                <div className="flex flex-col items-center py-16 text-center">
+                  <MessageSquare className="w-8 h-8 text-gray-200 mb-3" />
+                  <p className="text-sm font-bold text-gray-400">Belum ada FAQ</p>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {faqs.map((faq) => (
+                    <div key={faq.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-black truncate">{faq.question}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{faq.answer}</p>
+                      </div>
+                      <span className="text-[10px] font-mono text-gray-300 shrink-0">#{faq.order_num || '-'}</span>
+                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${faq.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
+                        {faq.is_active ? 'Aktif' : 'Hidden'}
+                      </span>
+                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(faq)}><Pencil size={14} /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(faq.id)}><Trash2 size={14} /></Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            )}
+
+            {/* ── ARTICLES TAB ── */}
+            {activeTab === "articles" && (
+            <div className="space-y-5">
+              <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div>
+                  <h2 className="text-xl font-bold">Berita & Artikel</h2>
+                  <p className="text-sm text-gray-500">Publikasikan pembaruan dan edukasi tentang produk Anda.</p>
+                </div>
+                <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
+                  <Plus size={18} className="mr-2" /> Artikel Baru
+                </Button>
+              </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
+              ) : articles.length === 0 ? (
+                <div className="flex flex-col items-center py-16 text-center">
+                  <FileText className="w-8 h-8 text-gray-200 mb-3" />
+                  <p className="text-sm font-bold text-gray-400">Belum ada artikel</p>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {articles.map((art) => (
+                    <div key={art.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-black truncate">{art.title}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{art.excerpt || art.slug}</p>
+                      </div>
+                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${art.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                        {art.is_active ? 'Publik' : 'Draft'}
+                      </span>
+                      <span className="text-[10px] text-gray-300 font-medium hidden sm:block">{art.published_at ? new Date(art.published_at).toLocaleDateString('id-ID') : '-'}</span>
+                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(art)}><Pencil size={14} /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(art.id)}><Trash2 size={14} /></Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            )}
+
+            {activeTab === "testimonials" && (
+            <div className="space-y-5">
+              <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div>
+                  <h2 className="text-xl font-bold">Testimoni Pelanggan</h2>
+                  <p className="text-sm text-gray-500">Tampilkan ulasan positif dari pelanggan setia Anda.</p>
+                </div>
+                <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
+                  <Plus size={18} className="mr-2" /> Tambah Ulasan
+                </Button>
+              </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
+              ) : testimonials.length === 0 ? (
+                <div className="flex flex-col items-center py-16 text-center">
+                  <Star className="w-8 h-8 text-gray-200 mb-3" />
+                  <p className="text-sm font-bold text-gray-400">Belum ada testimoni</p>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {testimonials.map((testi) => (
+                    <div key={testi.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
+                      <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 text-gray-400">
+                        <span className="text-xs font-black">{testi.name.charAt(0)}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-black">{testi.name}</p>
+                        <p className="text-[10px] text-gray-400">{testi.role || 'Pelanggan'}</p>
+                      </div>
+                      <div className="flex items-center gap-0.5 text-amber-400 shrink-0">
+                        <Star size={10} fill="currentColor" />
+                        <span className="text-[10px] font-bold">{testi.rating || 5}</span>
+                      </div>
+                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${testi.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
+                        {testi.is_active ? 'Terlihat' : 'Hidden'}
+                      </span>
+                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(testi)}><Pencil size={14} /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(testi.id)}><Trash2 size={14} /></Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            )}
+
+            {activeTab === "appearance" && (
+            <div className="space-y-5">
+              <Tabs defaultValue="hero_section" className="w-full">
+                <Card className="border border-gray-100 shadow-sm rounded-3xl bg-white overflow-hidden">
+                  <CardHeader className="px-8 py-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-xl font-bold flex items-center gap-2"><Layout size={20} /> Pengaturan Tampilan</CardTitle>
+                      <CardDescription>Sesuaikan konten visual di halaman beranda Anda.</CardDescription>
+                    </div>
+                    <TabsList className="bg-gray-100/80 p-1 rounded-xl h-auto self-start md:self-center">
+                      <TabsTrigger value="hero_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Hero</TabsTrigger>
+                      <TabsTrigger value="profile_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Profil</TabsTrigger>
+                      <TabsTrigger value="benefits_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Keunggulan</TabsTrigger>
+                    </TabsList>
+                  </CardHeader>
+                  <CardContent className="p-8">
+                    <TabsContent value="hero_section" className="mt-0 outline-none space-y-6">
+                      <div className="grid lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          {renderSettingField("hero_badge", "Teks Badge Kecil")}
+                          {renderSettingField("hero_headline", "Headline Utama", "textarea")}
+                          {renderSettingField("hero_subheadline", "Sub-headline", "textarea")}
+                        </div>
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Gambar Hero & Slide</p>
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 rounded-lg text-[10px] font-black uppercase"
+                              onClick={() => {
+                                const currentSlides = settingsMap["hero_slides"] || [];
+                                setSettingsMap({
+                                  ...settingsMap,
+                                  "hero_slides": [...currentSlides, { image_url: "", cta_text: "", cta_link: "" }]
+                                });
+                              }}
+                            >
+                              <Plus size={14} className="mr-1" /> Tambah Slide
+                            </Button>
+                          </div>
+
+                          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                            {!settingsMap["hero_slides"]?.length && (
+                              <div className="p-4 rounded-2xl border border-dashed border-gray-200 text-center">
+                                <p className="text-xs text-gray-400 mb-2">Belum ada slide. Klik "Tambah Slide".</p>
+                                {renderSettingField("hero_image_url", "Gambar Hero Default", "image")}
+                              </div>
+                            )}
+
+                            {(settingsMap["hero_slides"] || []).map((slide: any, index: number) => (
+                              <div key={index} className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="absolute top-2 right-2 h-8 w-8 text-gray-300 hover:text-red-500 rounded-lg"
+                                  onClick={() => {
+                                    const newSlides = [...settingsMap["hero_slides"]];
+                                    newSlides.splice(index, 1);
+                                    setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                  }}
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+
+                                <div className="space-y-4">
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
+                                      {slide.image_url ? (
+                                        <img src={slide.image_url} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
+                                      ) : (
+                                        <ImageIcon className="h-6 w-6 text-gray-200" />
+                                      )}
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                      <Input
+                                        placeholder="Image URL"
+                                        value={slide.image_url || ""}
+                                        onChange={(e) => {
+                                          const newSlides = [...settingsMap["hero_slides"]];
+                                          newSlides[index].image_url = e.target.value;
+                                          setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                        }}
+                                        className="h-9 rounded-lg border-gray-100 text-[10px]"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="h-8 rounded-lg border-gray-100 w-full gap-2 text-[10px] font-bold"
+                                        onClick={() => {
+                                          const input = document.createElement('input');
+                                          input.type = 'file';
+                                          input.accept = 'image/*';
+                                          input.onchange = async (e: any) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                              const filePath = createImageStoragePath(`settings/hero_slide_${index}`, file);
+                                              const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, file);
+                                              if (!uploadError) {
+                                                const { data: { publicUrl } } = supabase.storage.from('product_images').getPublicUrl(filePath);
+                                                const newSlides = [...settingsMap["hero_slides"]];
+                                                newSlides[index].image_url = publicUrl;
+                                                setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                                toast.success("Gambar berhasil diunggah");
+                                              }
+                                            }
+                                          };
+                                          input.click();
+                                        }}
+                                      >
+                                        <Upload size={12} /> Upload Image
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                      <Label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Label Tombol</Label>
+                                      <Input 
+                                        placeholder="Belanja Sekarang" 
+                                        value={slide.cta_text || ""}
+                                        onChange={(e) => {
+                                          const newSlides = [...settingsMap["hero_slides"]];
+                                          newSlides[index].cta_text = e.target.value;
+                                          setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                        }}
+                                        className="h-9 rounded-lg text-xs"
+                                      />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <Label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Link Tombol</Label>
+                                      <Input 
+                                        placeholder="/products" 
+                                        value={slide.cta_link || ""}
+                                        onChange={(e) => {
+                                          const newSlides = [...settingsMap["hero_slides"]];
+                                          newSlides[index].cta_link = e.target.value;
+                                          setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                        }}
+                                        className="h-9 rounded-lg text-xs"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            {renderSettingField("hero_cta_text", "Label Tombol Default")}
+                            {renderSettingField("hero_cta_link", "Link Tombol Default")}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-gray-50 space-y-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Poin Kepercayaan (Trust Points)</p>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          {renderSettingField("trust_1", "Poin 1")}
+                          {renderSettingField("trust_2", "Poin 2")}
+                          {renderSettingField("trust_3", "Poin 3")}
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-gray-50 flex justify-end">
+                        <Button onClick={() => saveSettings(["hero_badge", "hero_headline", "hero_subheadline", "hero_image_url", "hero_cta_text", "hero_cta_link", "trust_1", "trust_2", "trust_3", "hero_slides"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Perubahan Hero
+                        </Button>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="profile_section" className="mt-0 outline-none space-y-6">
+                      <div className="grid lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          {renderSettingField("about_intro", "Pernyataan Intro", "textarea")}
+                          {renderSettingField("about_history", "Sejarah", "textarea")}
+                        </div>
+                        <div className="space-y-4">
+                          {renderSettingField("about_image_url", "Foto Profil", "image")}
+                          <div className="grid grid-cols-2 gap-4">
+                            {renderSettingField("about_vision", "Visi", "text")}
+                            {renderSettingField("about_mission", "Misi", "text")}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-gray-50 flex justify-end">
+                        <Button onClick={() => saveSettings(["about_intro", "about_history", "about_vision", "about_mission", "about_image_url"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Profil Pabrik
+                        </Button>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="benefits_section" className="mt-0 outline-none space-y-6">
+                      <div className="grid lg:grid-cols-2 gap-8 mb-6">
+                        {renderSettingField("benefit_title", "Judul Bagian")}
+                        {renderSettingField("benefit_subtitle", "Sub-judul")}
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                          {renderSettingField("benefit_1_title", "Keunggulan 1")}
+                          {renderSettingField("benefit_1_desc", "Deskripsi", "textarea")}
+                        </div>
+                        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                          {renderSettingField("benefit_2_title", "Keunggulan 2")}
+                          {renderSettingField("benefit_2_desc", "Deskripsi", "textarea")}
+                        </div>
+                        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                          {renderSettingField("benefit_3_title", "Keunggulan 3")}
+                          {renderSettingField("benefit_3_desc", "Deskripsi", "textarea")}
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-gray-50 flex justify-end">
+                        <Button onClick={() => saveSettings(["benefit_title", "benefit_subtitle", "benefit_1_title", "benefit_1_desc", "benefit_2_title", "benefit_2_desc", "benefit_3_title", "benefit_3_desc"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Keunggulan
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </CardContent>
+                </Card>
+              </Tabs>
+            </div>
+            )}
+
+            {activeTab === "business" && (
+            <div className="space-y-5">
+              <Tabs defaultValue="contact_info" className="w-full">
+                <Card className="border border-gray-100 shadow-sm rounded-3xl bg-white overflow-hidden">
+                  <CardHeader className="px-8 py-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-xl font-bold flex items-center gap-2"><Phone size={20} /> Pengaturan Bisnis</CardTitle>
+                      <CardDescription>Kelola informasi kontak dan detail operasional bisnis Anda.</CardDescription>
+                    </div>
+                    <TabsList className="bg-gray-100/80 p-1 rounded-xl h-auto self-start md:self-center">
+                      <TabsTrigger value="contact_info" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Kontak</TabsTrigger>
+                      <TabsTrigger value="payment_service" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Pembayaran</TabsTrigger>
+                    </TabsList>
+                  </CardHeader>
+                  <CardContent className="p-8">
+                    <TabsContent value="contact_info" className="mt-0 outline-none space-y-6">
+                      <div className="grid lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          {renderSettingField("business_name", "Nama Bisnis")}
+                          {renderSettingField("footer_description", "Deskripsi Footer", "textarea")}
+                        </div>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            {renderSettingField("contact_whatsapp", "WhatsApp")}
+                            {renderSettingField("contact_email", "Email")}
+                          </div>
+                          {renderSettingField("contact_address", "Alamat", "textarea")}
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-gray-50">
+                        {renderSettingField("contact_maps_iframe", "Embed Maps", "textarea")}
+                      </div>
+                      <div className="pt-6 border-t border-gray-50 flex justify-end">
+                        <Button onClick={() => saveSettings(["business_name", "footer_description", "contact_whatsapp", "contact_email", "contact_address", "contact_maps_iframe"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Informasi Kontak
+                        </Button>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="payment_service" className="mt-0 outline-none space-y-6">
+                      <div className="grid lg:grid-cols-2 gap-8">
+                        {renderSettingField("payment_bank_info", "Info Bank (Transfer)", "textarea")}
+                        <div className="space-y-6">
+                          {renderSettingField("payment_dana_number", "Nomor E-Wallet (DANA/OVO)")}
+                          {renderSettingField("service_areas", "Area Layanan Pengiriman", "textarea")}
+                        </div>
+                      </div>
+                      <div className="pt-6 border-t border-gray-50 flex justify-end">
+                        <Button onClick={() => saveSettings(["payment_bank_info", "payment_dana_number", "service_areas"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Detail Pembayaran
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </CardContent>
+                </Card>
+              </Tabs>
+            </div>
+            )}
+
+            {activeTab === "seo" && (
+            <div className="space-y-6">
+              <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden max-w-4xl mx-auto">
+                <CardHeader className="bg-gray-50/50 px-10 py-8">
+                  <CardTitle className="text-xl font-bold flex items-center gap-2"><Globe size={20} /> Manajemen SEO</CardTitle>
+                  <CardDescription>Kontrol bagaimana situs web Anda muncul di mesin pencari seperti Google.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-10 space-y-10">
+                  <div className="space-y-6">
+                    {renderSettingField("seo_title", "Meta Title", "text", "Direkomendasikan 50-60 karakter.")}
+                    {renderSettingField("seo_keywords", "Keywords", "text", "Pisahkan dengan koma.")}
+                    {renderSettingField("seo_description", "Meta Description", "textarea", "Direkomendasikan 150-160 karakter.")}
+                  </div>
+
+                  {/* Live Preview */}
+                  <div className="space-y-4 pt-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pratinjau Mesin Pencari</p>
+                    <div className="p-8 border border-gray-100 rounded-3xl bg-[#fafafa]">
+                      <p className="text-[#1a0dab] text-xl font-medium truncate hover:underline cursor-pointer">{settingsMap["seo_title"] || "Pratinjau Judul Situs"}</p>
+                      <p className="text-[#006621] text-sm truncate mt-1">https://pabrikberaskurma.com</p>
+                      <p className="text-[#545454] text-sm mt-1 line-clamp-2">
+                        {settingsMap["seo_description"] || "Pratinjau deskripsi situs akan muncul di sini setelah Anda mengetiknya."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button onClick={() => saveSettings(["seo_title", "seo_keywords", "seo_description"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold shadow-xl shadow-black/10">
+                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Konfigurasi SEO
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+            )}
+
+          </div>
+        </div>
+      </div>
 
       {/* ── UNIVERSAL MODAL ── */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-xl rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
           <DialogHeader className="bg-gray-50/50 px-10 py-8 border-b border-gray-100">
             <DialogTitle className="text-2xl font-black">
-              {editingItem ? 'Edit Entry' : 'Create New Entry'}
+              {editingItem ? 'Ubah Data' : 'Tambah Data Baru'}
             </DialogTitle>
           </DialogHeader>
           <div className="p-10">
@@ -550,21 +779,21 @@ export default function SettingsPage() {
               {activeTab === "faq" && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Question</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pertanyaan</Label>
                     <Input id="question" name="question" defaultValue={editingItem?.question} required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Answer</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Jawaban</Label>
                     <Textarea id="answer" name="answer" defaultValue={editingItem?.answer} required className="min-h-[120px] rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Display Order</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Urutan Tampil</Label>
                       <Input id="order_num" name="order_num" type="number" defaultValue={editingItem?.order_num} className="h-12 rounded-xl border-gray-100 focus:border-black" />
                     </div>
                     <div className="flex items-center gap-3 pt-8">
                       <input type="checkbox" id="is_active" defaultChecked={editingItem ? editingItem.is_active : true} className="w-5 h-5 accent-black" />
-                      <Label htmlFor="is_active" className="text-sm font-bold">Active & Visible</Label>
+                      <Label htmlFor="is_active" className="text-sm font-bold">Aktif & Terlihat</Label>
                     </div>
                   </div>
                 </>
@@ -573,28 +802,28 @@ export default function SettingsPage() {
               {activeTab === "articles" && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Title</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Judul Artikel</Label>
                     <Input id="title" name="title" defaultValue={editingItem?.title} required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slug (URL)</Label>
-                    <Input id="slug" name="slug" defaultValue={editingItem?.slug} placeholder="my-article-title" required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all font-mono" />
+                    <Input id="slug" name="slug" defaultValue={editingItem?.slug} placeholder="judul-artikel-anda" required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all font-mono" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Excerpt (Summary)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ringkasan (Excerpt)</Label>
                     <Textarea id="excerpt" name="excerpt" defaultValue={editingItem?.excerpt} className="h-20 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Content</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Konten Artikel</Label>
                     <Textarea id="content" name="content" defaultValue={editingItem?.content} required className="min-h-[200px] rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Cover Image URL</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">URL Gambar Sampul</Label>
                     <Input id="image_url" name="image_url" defaultValue={editingItem?.image_url} className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="flex items-center gap-3">
                     <input type="checkbox" id="is_active" defaultChecked={editingItem ? editingItem.is_active : true} className="w-5 h-5 accent-black" />
-                    <Label htmlFor="is_active" className="text-sm font-bold">Publish Article</Label>
+                    <Label htmlFor="is_active" className="text-sm font-bold">Terbitkan Artikel</Label>
                   </div>
                 </>
               )}
@@ -603,16 +832,16 @@ export default function SettingsPage() {
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Customer Name</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Nama Pelanggan</Label>
                       <Input id="name" name="name" defaultValue={editingItem?.name} required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Role / Location</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Peran / Lokasi</Label>
                       <Input id="role" name="role" defaultValue={editingItem?.role} placeholder="Reseller, Ibu Rumah Tangga..." className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Testimonial Content</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Isi Testimoni</Label>
                     <Textarea id="content" name="content" defaultValue={editingItem?.content} required className="min-h-[100px] rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -622,16 +851,16 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex items-center gap-3 pt-8">
                       <input type="checkbox" id="is_active" defaultChecked={editingItem ? editingItem.is_active : true} className="w-5 h-5 accent-black" />
-                      <Label htmlFor="is_active" className="text-sm font-bold">Visible on Site</Label>
+                      <Label htmlFor="is_active" className="text-sm font-bold">Terlihat di Situs</Label>
                     </div>
                   </div>
                 </>
               )}
 
               <div className="flex justify-end gap-3 pt-6">
-                <Button type="button" variant="ghost" className="rounded-xl h-12" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button type="button" variant="ghost" className="rounded-xl h-12" onClick={() => setIsModalOpen(false)}>Batal</Button>
                 <Button type="submit" disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Save Changes
+                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Simpan Perubahan
                 </Button>
               </div>
             </form>

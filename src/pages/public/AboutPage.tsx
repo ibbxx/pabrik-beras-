@@ -7,7 +7,7 @@ export default function AboutPage() {
   if (loading) {
     return (
       <div className="h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-black" />
       </div>
     );
   }
@@ -22,12 +22,19 @@ export default function AboutPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-16 items-center mb-32">
-        <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl relative">
-          <img 
-            src={settings.about_image_url || "https://images.unsplash.com/photo-1595054173874-54526d11f964?q=80&w=2074&auto=format&fit=crop"} 
-            alt="Pabrik Kami" 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+        <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl relative bg-neutral-100 flex items-center justify-center">
+          {settings.about_image_url ? (
+            <img 
+              src={settings.about_image_url} 
+              alt="Pabrik Kami" 
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-neutral-300 flex flex-col items-center gap-2">
+              <Target size={64} className="opacity-20" />
+              <span className="text-xs font-bold uppercase tracking-widest opacity-30">Pabrik Beras</span>
+            </div>
+          )}
         </div>
         <div className="space-y-8">
           <div className="space-y-4">

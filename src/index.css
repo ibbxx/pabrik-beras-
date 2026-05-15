@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "tailwindcss/base";
@@ -7,48 +7,54 @@
 
 @layer base {
   :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.1 0 0);
+    --background: 0 0% 100%;
+    --foreground: 115 27% 16%;
 
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.1 0 0);
+    --card: 0 0% 100%;
+    --card-foreground: 115 27% 16%;
 
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.1 0 0);
+    --popover: 0 0% 100%;
+    --popover-foreground: 115 27% 16%;
 
-    --primary: oklch(0.1 0 0);
-    --primary-foreground: oklch(1 0 0);
+    --primary: 157 49% 22%;
+    --primary-foreground: 40 20% 88%;
 
-    --secondary: oklch(0.96 0 0);
-    --secondary-foreground: oklch(0.1 0 0);
+    --secondary: 33 8% 78%;
+    --secondary-foreground: 115 27% 16%;
 
-    --muted: oklch(0.96 0 0);
-    --muted-foreground: oklch(0.4 0 0);
+    --muted: 33 8% 78%;
+    --muted-foreground: 41 56% 20%;
 
-    --accent: oklch(0.96 0 0);
-    --accent-foreground: oklch(0.1 0 0);
+    --accent: 41 56% 20%;
+    --accent-foreground: 40 20% 88%;
 
-    --destructive: oklch(0.6 0.2 25);
-    --destructive-foreground: oklch(1 0 0);
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 40 20% 88%;
 
-    --border: oklch(0.9 0 0);
-    --input: oklch(0.9 0 0);
-    --ring: oklch(0.1 0 0);
+    --border: 33 8% 78%;
+    --input: 33 8% 78%;
+    --ring: 157 49% 22%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     --font-sans: 'Inter', sans-serif;
-    --font-heading: 'Playfair Display', serif;
+    --font-heading: 'Inter', sans-serif;
   }
 
   .dark {
-    --background: oklch(0.1 0 0);
-    --foreground: oklch(1 0 0);
-    --border: oklch(0.2 0 0);
-    --input: oklch(0.2 0 0);
-    --ring: oklch(0.9 0 0);
-    --primary: oklch(1 0 0);
-    --primary-foreground: oklch(0.1 0 0);
+    --background: 115 27% 10%;
+    --foreground: 40 20% 88%;
+    --border: 115 27% 20%;
+    --input: 115 27% 20%;
+    --ring: 157 49% 30%;
+    --primary: 157 49% 40%;
+    --primary-foreground: 115 27% 10%;
+    --secondary: 33 8% 30%;
+    --secondary-foreground: 40 20% 88%;
+    --muted: 33 8% 30%;
+    --muted-foreground: 41 56% 60%;
+    --accent: 41 56% 60%;
+    --accent-foreground: 115 27% 10%;
   }
 
   * {
@@ -97,6 +103,30 @@
   .animate-fade-in-down {
     animation: fade-in-down 1s ease-out forwards;
   }
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 1s ease-out forwards;
+  }
+
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 1.2s ease-out forwards;
+  }
 }
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
@@ -106,10 +136,25 @@
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
+    background: hsl(var(--secondary));
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #d1d5db;
+    background: hsl(var(--muted));
   }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--duration, 30s) linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }

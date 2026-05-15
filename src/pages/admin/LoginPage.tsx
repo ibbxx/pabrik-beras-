@@ -48,56 +48,56 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-neutral-100 p-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-700 mb-4">
-            <Lock size={32} />
+    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-center items-center p-4 font-sans">
+      <div className="w-full max-w-sm bg-white rounded-2xl border border-gray-100 p-8 lg:p-12">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-black text-white mb-6">
+            <Lock size={20} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-500 mt-2">Pabrik Beras Desa Kurma</p>
+          <h1 className="text-xl lg:text-2xl font-black uppercase tracking-tighter text-black">Admin Access</h1>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Desa Kurma Factory</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="admin@desapabrik.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12"
+              className="h-10 lg:h-12 border-gray-100 rounded-lg text-xs font-bold focus-visible:ring-black"
               autoComplete="email"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Kata Sandi</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kata Sandi</Label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-12"
+              className="h-10 lg:h-12 border-gray-100 rounded-lg text-xs font-bold focus-visible:ring-black"
               autoComplete="current-password"
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 bg-green-700 hover:bg-green-800 font-medium text-base"
+            className="w-full h-10 lg:h-12 bg-black hover:bg-black/90 text-white font-black text-xs uppercase tracking-widest mt-4 rounded-lg transition-all active:scale-95"
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-            {isLoading ? "Masuk..." : "Masuk"}
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {isLoading ? "PROSES..." : "MASUK"}
           </Button>
         </form>
       </div>
 
-      <p className="text-gray-400 text-sm mt-8">
-        &copy; {new Date().getFullYear()} Pabrik Beras Desa Kurma.
+      <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mt-10">
+        &copy; {new Date().getFullYear()} DESA KURMA FACTORY
       </p>
     </div>
   );

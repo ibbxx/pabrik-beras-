@@ -49,7 +49,7 @@ export default function FAQPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-50 text-green-600 mb-6">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 text-black mb-6">
           <HelpCircle size={32} />
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Pusat Bantuan & FAQ</h1>
@@ -60,7 +60,7 @@ export default function FAQPage() {
         <div className="relative max-w-xl mx-auto">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <Input 
-            className="w-full pl-12 h-14 rounded-full text-base bg-white border-neutral-200 shadow-sm focus-visible:ring-green-600" 
+            className="w-full pl-12 h-14 rounded-full text-base bg-white border-neutral-200 shadow-sm focus-visible:ring-black" 
             placeholder="Cari pertanyaan Anda di sini..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -71,12 +71,12 @@ export default function FAQPage() {
       <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-neutral-100">
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="animate-spin h-8 w-8 text-green-600" />
+            <Loader2 className="animate-spin h-8 w-8 text-black" />
           </div>
         ) : filteredFaqs.length > 0 ? (
           <Accordion className="w-full space-y-4">
             {filteredFaqs.map((faq) => (
-              <AccordionItem key={faq.id} value={`item-${faq.id}`} className="border border-neutral-200 px-6 rounded-2xl bg-neutral-50/50 data-[state=open]:bg-white data-[state=open]:border-green-200 data-[state=open]:shadow-sm transition-all">
+              <AccordionItem key={faq.id} value={`item-${faq.id}`} className="border border-neutral-200 px-6 rounded-2xl bg-neutral-50/50 data-[state=open]:bg-white data-[state=open]:border-black data-[state=open]:shadow-sm transition-all">
                 <AccordionTrigger className="text-left font-bold text-gray-900 hover:no-underline py-6">
                   {faq.question}
                 </AccordionTrigger>
@@ -93,12 +93,12 @@ export default function FAQPage() {
         )}
       </div>
 
-      <div className="mt-12 bg-green-900 rounded-3xl p-8 text-center text-white">
+      <div className="mt-12 bg-black rounded-3xl p-8 text-center text-white">
         <h2 className="text-2xl font-bold mb-4">Masih Butuh Bantuan?</h2>
-        <p className="text-green-100 mb-6 max-w-lg mx-auto">
+        <p className="text-neutral-400 mb-6 max-w-lg mx-auto">
           Jika Anda tidak menemukan jawaban yang dicari, tim kami siap membantu Anda kapan saja.
         </p>
-        <Button size="lg" className="bg-white text-green-900 hover:bg-neutral-100 h-12">
+        <Button size="lg" className="bg-white text-black hover:bg-neutral-100 h-12 rounded-xl font-bold">
           Hubungi Admin Sekarang
         </Button>
       </div>

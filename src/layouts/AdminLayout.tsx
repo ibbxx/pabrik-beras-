@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  Settings, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  Settings,
+  LogOut,
   Menu,
   X,
   FileText,
@@ -18,126 +18,148 @@ import { useAuth } from "../contexts/AuthContext";
 export default function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, adminProfile, signOut } = useAuth();
 
   const navItems = [
-    { name: "Overview", path: "/admin", icon: LayoutDashboard },
-    { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
-    { name: "Payments", path: "/admin/payments", icon: CreditCard },
-    { name: "Inventory", path: "/admin/products", icon: Package },
-    { name: "Customers", path: "/admin/customers", icon: Users },
-    { name: "Reports", path: "/admin/reports", icon: FileText },
-    { name: "Settings", path: "/admin/settings", icon: Settings },
+    { name: "Ringkasan", path: "/admin", icon: LayoutDashboard },
+    { name: "Pesanan", path: "/admin/orders", icon: ShoppingCart },
+    { name: "Pembayaran", path: "/admin/payments", icon: CreditCard },
+    { name: "Produk", path: "/admin/products", icon: Package },
+    { name: "Pelanggan", path: "/admin/customers", icon: Users },
+    { name: "Laporan", path: "/admin/reports", icon: FileText },
+    { name: "Pengaturan", path: "/admin/settings", icon: Settings },
   ];
+
+  const adminName = adminProfile?.full_name || user?.email?.split("@")[0] || "Admin";
+  const adminRole = adminProfile?.role ? adminProfile.role.replace(/_/g, " ") : "Administrator";
 
   const handleLogout = async () => {
     await signOut();
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex text-black">
-      {/* Mobile Sidebar Overlay */}
+    <div className="flex h-screen overflow-hidden bg-[#fafafa] text-black font-sans">
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
+        <div
+          className="fixed inset-0 z-40 bg-black/45 backdrop-blur-sm lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:block ${
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-100 bg-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <Link to="/admin" className="font-bold text-lg tracking-tighter flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white text-xs">P</div>
-            ADMIN PANEL
-          </Link>
-          <button 
-            className="ml-auto lg:hidden text-gray-400 hover:text-black transition-colors"
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            <X size={20} />
-          </button>
-        </div>
+        <div className="flex h-full flex-col">
+          <div className="flex h-20 items-center border-b border-gray-50 px-6">
+            <Link to="/admin" className="flex items-center gap-2" onClick={() => setIsSidebarOpen(false)}>
+              <div className="bg-black text-white p-1.5 rounded-lg">
+                <LayoutDashboard size={20} />
+              </div>
+              <div>
+                <p className="text-sm font-black uppercase tracking-tighter">Admin Panel</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Desa Kurma</p>
+              </div>
+            </Link>
+            <button
+              type="button"
+              aria-label="Tutup menu admin"
+              className="ml-auto rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-black lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-        <div className="flex flex-col h-[calc(100vh-4rem)] justify-between py-6">
-          <nav className="px-4 space-y-1.5">
-            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Main Menu</p>
+          <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-6">
+            <p className="px-3 pb-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+              Menu Utama
+            </p>
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path || 
-                               (item.path !== '/admin' && location.pathname.startsWith(item.path));
-              
+              const isActive = location.pathname === item.path ||
+                               (item.path !== "/admin" && location.pathname.startsWith(item.path));
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    isActive 
-                      ? "bg-black text-white shadow-lg shadow-black/10" 
-                      : "text-gray-500 hover:bg-gray-100 hover:text-black"
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-200 ${
+                    isActive
+                      ? "bg-black text-white"
+                      : "text-gray-500 hover:bg-gray-50 hover:text-black"
                   }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
-                  <Icon size={18} />
-                  {item.name}
+                  <Icon size={16} />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="px-4 border-t border-gray-100 pt-6">
+          <div className="border-t border-gray-50 p-4">
+            <div className="mb-2 p-3">
+              <p className="truncate text-sm font-black text-black">{adminName}</p>
+              <p className="truncate text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                {adminRole}
+              </p>
+            </div>
             <button
+              type="button"
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-600 w-full transition-all duration-200"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-400 transition-all duration-200 hover:bg-gray-50 hover:text-black border border-transparent hover:border-gray-100"
             >
-              <LogOut size={18} />
-              Logout Session
+              <LogOut size={14} />
+              Keluar Sesi
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Topbar */}
-        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 lg:px-10 shrink-0">
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="z-30 flex h-20 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
           <button
-            className="lg:hidden text-gray-400 hover:text-black focus:outline-none"
+            type="button"
+            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-black lg:hidden"
             onClick={() => setIsSidebarOpen(true)}
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
-          
-          <div className="ml-auto flex items-center gap-6">
-            <button className="text-gray-400 hover:text-black transition-colors relative">
-              <Bell size={20} />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-black rounded-full border-2 border-white"></span>
+ 
+          <div className="hidden lg:block">
+            <h2 className="text-base font-black tracking-tighter uppercase">Overview</h2>
+          </div>
+ 
+          <div className="ml-auto flex items-center gap-4">
+            <button
+              type="button"
+              className="relative rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-black"
+            >
+              <Bell size={18} />
+              <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-black ring-2 ring-white" />
             </button>
-            
-            <div className="h-8 w-px bg-gray-100 hidden sm:block"></div>
-            
+
+            <div className="h-6 w-px bg-gray-100" />
+ 
             <div className="flex items-center gap-3">
-              <div className="text-sm text-right hidden sm:block">
-                <p className="font-bold text-gray-900 leading-tight">{user?.email?.split('@')[0] || "Admin"}</p>
-                <p className="text-gray-400 text-[10px] uppercase tracking-wider">Super Administrator</p>
+              <div className="hidden text-right lg:block">
+                <p className="text-xs font-black text-black leading-none uppercase">{adminName}</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">{adminRole}</p>
               </div>
-              <div className="h-9 w-9 rounded-full bg-black flex items-center justify-center text-white font-bold text-xs shadow-inner">
-                {(user?.email || "A")[0].toUpperCase()}
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black text-[10px] font-black text-white">
+                {(adminName || user?.email || "A")[0].toUpperCase()}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="flex-1 overflow-auto p-6 lg:p-10">
-          <div className="max-w-7xl mx-auto">
+        <section className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mx-auto w-full max-w-[1440px]">
             <Outlet />
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );

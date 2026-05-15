@@ -105,7 +105,7 @@ export default function OrderStatusPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
           />
-          <Button type="submit" className="h-12 bg-green-600 hover:bg-green-700 px-8">
+          <Button type="submit" className="h-12 bg-black hover:bg-neutral-800 px-8 rounded-xl font-bold">
             <Search className="mr-2 h-5 w-5" /> Cari
           </Button>
         </form>
@@ -117,7 +117,7 @@ export default function OrderStatusPage() {
   if (loading) {
     return (
       <div className="container mx-auto py-24 flex justify-center items-center">
-        <Loader2 className="w-12 h-12 animate-spin text-green-600" />
+        <Loader2 className="w-12 h-12 animate-spin text-black" />
       </div>
     );
   }
@@ -129,7 +129,7 @@ export default function OrderStatusPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Pesanan Tidak Ditemukan</h2>
         <p className="text-gray-600 mb-6">Kami tidak menemukan pesanan dengan kode <span className="font-bold">{orderId}</span>.</p>
         <Link to="/order-status">
-          <Button className="bg-green-600 hover:bg-green-700">Coba Pencarian Lain</Button>
+          <Button className="bg-black hover:bg-neutral-800 rounded-xl font-bold">Coba Pencarian Lain</Button>
         </Link>
       </div>
     );
@@ -164,7 +164,7 @@ export default function OrderStatusPage() {
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
-      <Link to="/" className="inline-flex items-center text-green-600 hover:text-green-800 mb-8 font-medium">
+      <Link to="/" className="inline-flex items-center text-black hover:opacity-70 mb-8 font-bold text-sm uppercase tracking-widest">
         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali ke Beranda
       </Link>
 
@@ -190,7 +190,7 @@ export default function OrderStatusPage() {
         <div className="relative">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-neutral-100 rounded-full hidden sm:block"></div>
           <div 
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-green-500 rounded-full hidden sm:block transition-all duration-500"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-black rounded-full hidden sm:block transition-all duration-500"
             style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
           ></div>
           
@@ -203,8 +203,8 @@ export default function OrderStatusPage() {
               return (
                 <div key={step.id} className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-3 z-10">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 ${
-                    isCompleted ? 'bg-green-500 border-green-100 text-white' : 'bg-white border-neutral-100 text-gray-400'
-                  } ${isCurrent ? 'ring-4 ring-green-50' : ''} transition-colors`}>
+                    isCompleted ? 'bg-black border-neutral-100 text-white' : 'bg-white border-neutral-100 text-gray-400'
+                  } ${isCurrent ? 'ring-4 ring-neutral-100' : ''} transition-colors`}>
                     <Icon size={20} />
                   </div>
                   <div>
@@ -212,7 +212,7 @@ export default function OrderStatusPage() {
                       {step.label}
                     </p>
                     {isCurrent && (
-                      <p className="text-xs text-green-600 mt-1 sm:mt-0">Sedang berlangsung</p>
+                      <p className="text-[10px] font-black text-black uppercase tracking-widest mt-1 sm:mt-0">Sedang berlangsung</p>
                     )}
                   </div>
                 </div>
@@ -241,7 +241,7 @@ export default function OrderStatusPage() {
           <div className="pt-4 border-t border-neutral-100">
             <div className="flex justify-between items-center text-lg">
               <span className="font-bold text-gray-900">Total</span>
-              <span className="font-bold text-green-700">Rp {(order.total_amount || 0).toLocaleString('id-ID')}</span>
+              <span className="font-black text-black text-2xl tracking-tighter">Rp {(order.total_amount || 0).toLocaleString('id-ID')}</span>
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function OrderStatusPage() {
               <p className="font-medium flex items-center justify-between text-gray-900">
                 <span>{order.payment_method || '-'}</span>
                 {payment?.status === 'verified' && (
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">LUNAS</span>
+                  <span className="bg-neutral-900 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest">LUNAS</span>
                 )}
                 {payment?.status === 'submitted' && (
                   <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">MENUNGGU VERIFIKASI</span>
