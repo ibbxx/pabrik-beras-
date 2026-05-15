@@ -9,7 +9,9 @@ import {
   Truck,
   XCircle,
   MoreVertical,
-  CreditCard
+  CreditCard,
+  Image as ImageIcon,
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,8 +48,10 @@ type Order = {
   payment_method: string;
   created_at: string;
   payments?: {
+    id: string;
     status: string | null;
     proof_url: string | null;
+    amount: number;
   }[];
   customers: {
     full_name: string;
@@ -87,7 +91,7 @@ export default function OrdersPage() {
         .select(`
           *,
           customers (*),
-          payments (status, proof_url)
+          payments (id, status, proof_url, amount)
         `, { count: "exact" })
         .order('created_at', { ascending: false })
         .range(from, to);
@@ -121,10 +125,65 @@ export default function OrdersPage() {
     }
   };
 
-  const handleViewDetail = (order: Order) => {
-    setSelectedOrder(order);
-    fetchOrderItems(order.id);
+  const handleViewDetail = async (order: Order) => {
+    setSelectedOrder(order); // Set temporary data first
     setIsDetailModalOpen(true);
+    
+    // Fetch latest data to ensure payment proof is up to date
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          customers (*),
+          payments (id, status, proof_url, amount)
+        `)
+        .eq('id', order.id)
+        .single();
+        
+      if (error) throw error;
+      if (data) {
+        setSelectedOrder(data as any);
+      }
+    } catch (err) {
+      console.error("Error refreshing order detail:", err);
+    }
+    
+    fetchOrderItems(order.id);
+  };
+
+  const verifyPayment = async (paymentId: string, orderId: string, status: 'verified' | 'rejected') => {
+    setIsUpdating(true);
+    try {
+      const { error: payError } = await (supabase as any)
+        .from('payments')
+        .update({
+          status,
+          verified_at: status === "verified" ? new Date().toISOString() : null
+        })
+        .eq('id', paymentId);
+
+      if (payError) throw payError;
+
+      if (status === 'verified') {
+        const { error: orderError } = await (supabase as any)
+          .from('orders')
+          .update({ status: 'processing' })
+          .eq('id', orderId);
+        
+        if (orderError) throw orderError;
+        toast.success("Pembayaran berhasil diverifikasi!");
+      } else {
+        toast.error("Pembayaran ditolak.");
+      }
+
+      setIsDetailModalOpen(false);
+      fetchOrders();
+    } catch (error: any) {
+      toast.error("Gagal verifikasi: " + error.message);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const updateOrderStatus = async (order: Order, newStatus: string) => {
@@ -458,6 +517,71 @@ export default function OrdersPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Integrated Payment Verification */}
+                {selectedOrder.payments?.[0] && (
+                  <div className="space-y-4 pt-4 border-t border-gray-50">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-black border-b border-gray-50 pb-2">Bukti Pembayaran</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 bg-gray-50 group">
+                        {selectedOrder.payments[0].proof_url && selectedOrder.payments[0].proof_url.startsWith('http') ? (
+                          <>
+                            <img 
+                              src={selectedOrder.payments[0].proof_url} 
+                              alt="Bukti Transfer" 
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://placehold.co/400x600?text=Error+Loading+Image';
+                              }}
+                            />
+                            <a 
+                              href={selectedOrder.payments[0].proof_url} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="absolute bottom-4 right-4 bg-black text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity active:scale-95"
+                            >
+                              <ExternalLink size={14} />
+                            </a>
+                          </>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center text-gray-300 gap-2">
+                            <ImageIcon size={24} className="opacity-20" />
+                            <p className="text-[8px] font-black uppercase tracking-widest text-center">Belum ada bukti yang diunggah</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-4">
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Status Pembayaran</p>
+                          {getPaymentBadge(getPaymentStatus(selectedOrder))}
+                          <p className="text-[10px] text-gray-500 mt-3 font-medium leading-relaxed">
+                            Pastikan nominal pada gambar sesuai dengan total tagihan sebelum melakukan verifikasi.
+                          </p>
+                        </div>
+                        
+                        {selectedOrder.payments[0].status === 'submitted' && (
+                          <div className="flex flex-col gap-2">
+                            <Button 
+                              className="w-full bg-black text-white hover:bg-neutral-800 h-10 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
+                              onClick={() => verifyPayment(selectedOrder.payments![0].id, selectedOrder.id, 'verified')}
+                              disabled={isUpdating}
+                            >
+                              Approve Pembayaran
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              className="w-full h-10 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-400 border-gray-100 hover:text-black transition-all"
+                              onClick={() => verifyPayment(selectedOrder.payments![0].id, selectedOrder.id, 'rejected')}
+                              disabled={isUpdating}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}

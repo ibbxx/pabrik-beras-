@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { CheckCircle2, Copy, ArrowRight, Upload, Loader2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, Upload, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -146,52 +146,48 @@ export default function PaymentConfirmationPage() {
 
 
   return (
-    <div className="container mx-auto py-12 px-4 max-w-3xl">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 text-black mb-4">
-          <CheckCircle2 size={32} />
+    <div className="container mx-auto py-4 px-4 max-w-2xl">
+      <div className="text-center mb-4">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-neutral-100 text-black mb-2">
+          <CheckCircle2 size={24} />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Pesanan Berhasil Dibuat!</h1>
-        <p className="text-gray-600">ID Pesanan Anda: <span className="font-bold text-gray-900">{order.order_code}</span></p>
+        <h1 className="text-2xl font-bold text-gray-900 leading-tight">Pesanan Berhasil!</h1>
+        <p className="text-sm text-gray-500">ID: <span className="font-bold text-gray-900">{order.order_code}</span></p>
       </div>
 
-      <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-neutral-100 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">Instruksi Pembayaran</h2>
+      <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 mb-4">
+        <h2 className="text-base font-bold text-gray-900 mb-3 text-center uppercase tracking-widest">Instruksi Pembayaran</h2>
         
-        <div className="bg-neutral-50 rounded-xl p-6 border border-neutral-200 mb-6 text-center">
-          <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-widest">Total Pembayaran</p>
-          <p className="text-4xl font-black text-black tracking-tighter mb-2">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
+        <div className="bg-neutral-50 rounded-xl p-4 border border-neutral-200 mb-4 text-center">
+          <p className="text-[10px] text-gray-500 mb-1 font-bold uppercase tracking-widest">Total Pembayaran</p>
+          <p className="text-3xl font-black text-black tracking-tighter">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
         </div>
 
         {order.payment_method === 'Transfer Bank' && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-gray-900 mb-3">Transfer ke Rekening Berikut:</h3>
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3 bg-neutral-50">
-                <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Bank Mandiri</p>
-                  <p className="font-mono font-bold text-lg text-black">1740012489571</p>
-                  <p className="text-sm text-gray-600 mt-1">a.n <span className="font-semibold">Aris Abrar</span></p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => handleCopy("1740012489571")} className="flex items-center gap-2">
-                  <Copy size={16} /> Salin
-                </Button>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-neutral-50">
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Bank Mandiri</p>
+                <p className="font-mono font-bold text-base text-black">1740012489571</p>
+                <p className="text-xs text-gray-500">a.n Aris Abrar</p>
               </div>
+              <Button variant="outline" size="sm" onClick={() => handleCopy("1740012489571")} className="h-9 text-[10px] font-bold uppercase tracking-widest">
+                Salin
+              </Button>
             </div>
           </div>
         )}
 
         {order.payment_method === 'DANA' && (
-          <div className="space-y-4">
-            <h3 className="font-bold text-gray-900 mb-3">Transfer via DANA:</h3>
-            <div className="flex items-center justify-between p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 border border-blue-100 rounded-lg bg-blue-50/50">
               <div>
-                <p className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">DANA</p>
-                <p className="font-mono font-bold text-lg text-blue-900">082355148758</p>
-                <p className="text-sm text-blue-700 mt-1">a.n <span className="font-semibold">Aris Abrar</span></p>
+                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">DANA</p>
+                <p className="font-mono font-bold text-base text-blue-900">082355148758</p>
+                <p className="text-xs text-blue-600">a.n Aris Abrar</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => handleCopy("082355148758")} className="flex items-center gap-2 border-blue-200 text-blue-800 hover:bg-blue-100">
-                <Copy size={16} /> Salin
+              <Button variant="outline" size="sm" onClick={() => handleCopy("082355148758")} className="h-9 text-[10px] font-bold uppercase tracking-widest border-blue-200 text-blue-700">
+                Salin
               </Button>
             </div>
           </div>
@@ -199,68 +195,52 @@ export default function PaymentConfirmationPage() {
       </div>
 
       {!isSubmitted && (
-        <div className="bg-neutral-900 rounded-3xl p-6 md:p-8 shadow-sm border border-neutral-800 text-center space-y-6">
-          <div>
-            <h2 className="text-lg font-bold text-white mb-2">Sudah Melakukan Pembayaran?</h2>
-            <p className="text-neutral-400 text-sm mb-6">
-              Segera konfirmasi pembayaran Anda agar pesanan dapat segera diproses dan dikirim.
-            </p>
-            
-            <input 
-              type="file" 
-              accept="image/jpeg,image/png,image/webp"
-              className="hidden" 
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-            />
+        <div className="bg-neutral-900 rounded-2xl p-5 shadow-sm border border-neutral-800 text-center">
+          <h2 className="text-sm font-bold text-white mb-1 uppercase tracking-widest">Konfirmasi Pembayaran</h2>
+          <p className="text-neutral-400 text-[10px] mb-4">Upload bukti transfer agar pesanan segera diproses.</p>
+          
+          <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-white text-black hover:bg-neutral-100 h-14 rounded-2xl font-bold px-8 shadow-xl"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                {isUploading ? "Mengunggah..." : "Upload Bukti Transfer"}
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white/20 text-white hover:bg-white/10 h-14 bg-transparent rounded-2xl font-bold px-8"
-                onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, whatsappMessage), "_blank")}
-              >
-                Konfirmasi via WhatsApp
-              </Button>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button 
+              className="bg-white text-black hover:bg-neutral-100 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-2" />}
+              {isUploading ? "..." : "Upload Bukti"}
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-white/20 text-white hover:bg-white/10 h-11 bg-transparent rounded-xl text-[10px] font-black uppercase tracking-widest"
+              onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, whatsappMessage), "_blank")}
+            >
+              WhatsApp
+            </Button>
           </div>
         </div>
       )}
 
       {isSubmitted && (
-        <div className="bg-neutral-50 rounded-3xl p-6 md:p-8 shadow-sm border border-neutral-200 text-center">
-           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-black text-white mb-4">
-            <CheckCircle2 size={24} />
+        <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200 text-center">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black text-white mb-3">
+            <CheckCircle2 size={20} />
           </div>
-          <h2 className="text-lg font-bold text-black mb-2">Bukti Pembayaran Terkirim!</h2>
-          <p className="text-neutral-500 text-sm">
-            Terima kasih! Bukti pembayaran Anda sedang kami verifikasi. Kami akan mengabari Anda setelah pembayaran diterima.
-          </p>
-          <div className="mt-6">
-             <Button 
-                variant="outline" 
-                className="border-black text-black hover:bg-black hover:text-white bg-white rounded-xl font-bold transition-all"
-                onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, whatsappMessage), "_blank")}
-              >
-                Hubungi Admin via WhatsApp
-              </Button>
-          </div>
+          <h2 className="text-sm font-bold text-black mb-1 uppercase tracking-widest">Bukti Terkirim!</h2>
+          <p className="text-neutral-500 text-[10px] mb-4">Pembayaran Anda sedang diverifikasi admin.</p>
+          <Button 
+            variant="outline" 
+            className="w-full border-black text-black hover:bg-black hover:text-white bg-white h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+            onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, whatsappMessage), "_blank")}
+          >
+            Chat Admin via WhatsApp
+          </Button>
         </div>
       )}
 
-      <div className="mt-8 text-center">
-        <Link to={`/order-status/${order.order_code}`} className="inline-flex items-center text-gray-500 hover:text-gray-900 transition-colors font-medium">
-          Pantau Status Pesanan <ArrowRight className="ml-1 h-4 w-4" />
+      <div className="mt-4 text-center">
+        <Link to={`/order-status/${order.order_code}`} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors flex items-center justify-center gap-2">
+          Pantau Status Pesanan <ArrowRight size={12} />
         </Link>
       </div>
     </div>

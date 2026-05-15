@@ -18,7 +18,6 @@ import LoginPage from "../pages/admin/LoginPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminProductsPage from "../pages/admin/ProductsPage";
 import OrdersPage from "../pages/admin/OrdersPage";
-import PaymentsPage from "../pages/admin/PaymentsPage";
 import CustomersPage from "../pages/admin/CustomersPage";
 import ReportsPage from "../pages/admin/ReportsPage";
 import SettingsPage from "../pages/admin/SettingsPage";
@@ -52,7 +51,6 @@ export default function AppRoutes() {
           <Route index element={<DashboardPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="orders" element={<OrdersPage />} />
-          <Route path="payments" element={<PaymentsPage />} />
           <Route path="customers" element={<CustomersPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />

@@ -10,7 +10,6 @@ import {
   Menu,
   X,
   FileText,
-  CreditCard,
   Bell
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -23,7 +22,6 @@ export default function AdminLayout() {
   const navItems = [
     { name: "Ringkasan", path: "/admin", icon: LayoutDashboard },
     { name: "Pesanan", path: "/admin/orders", icon: ShoppingCart },
-    { name: "Pembayaran", path: "/admin/payments", icon: CreditCard },
     { name: "Produk", path: "/admin/products", icon: Package },
     { name: "Pelanggan & Mitra", path: "/admin/customers", icon: Users },
     { name: "Laporan", path: "/admin/reports", icon: FileText },

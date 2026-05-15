@@ -163,28 +163,28 @@ export default function OrderStatusPage() {
   });
 
   return (
-    <div className="container mx-auto py-12 px-4 max-w-4xl">
-      <Link to="/" className="inline-flex items-center text-black hover:opacity-70 mb-8 font-bold text-sm uppercase tracking-widest">
-        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali ke Beranda
+    <div className="container mx-auto py-4 px-4 max-w-3xl">
+      <Link to="/" className="inline-flex items-center text-gray-400 hover:text-black mb-4 font-black text-[10px] uppercase tracking-widest gap-2">
+        <ArrowLeft className="h-3 w-3" /> Kembali ke Beranda
       </Link>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Status Pesanan</h1>
-          <p className="text-gray-500">
-            ID Pesanan: <span className="font-bold text-gray-900">{order.order_code}</span>
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Tanggal: {orderDate} WIB</p>
+          <h1 className="text-xl font-black text-gray-900 tracking-tighter uppercase">Status Pesanan</h1>
+          <div className="flex items-center gap-4 mt-1">
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+              ID: <span className="text-black">{order.order_code}</span>
+            </p>
+            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{orderDate} WIB</p>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => window.print()}>
-            <Download size={16} /> Unduh Invoice
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" className="h-8 text-[9px] font-black uppercase tracking-widest rounded-lg" onClick={() => window.print()}>
+          <Download size={12} className="mr-1" /> Invoice
+        </Button>
       </div>
 
-      <div className="bg-white rounded-3xl p-8 shadow-sm border border-neutral-100 mb-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-8">Lacak Pengiriman</h2>
+      <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 mb-4">
+        <h2 className="text-[10px] font-black text-gray-400 mb-6 uppercase tracking-widest">Lacak Pengiriman</h2>
         
         {/* Progress Tracker */}
         <div className="relative">
@@ -194,26 +194,23 @@ export default function OrderStatusPage() {
             style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
           ></div>
           
-          <div className="relative flex flex-col sm:flex-row justify-between gap-6 sm:gap-0">
+          <div className="relative flex justify-between">
             {steps.map((step, index) => {
               const isCompleted = index <= currentStepIndex;
               const isCurrent = index === currentStepIndex;
               const Icon = step.icon;
               
               return (
-                <div key={step.id} className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-3 z-10">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 ${
+                <div key={step.id} className="flex flex-col items-center text-center gap-2 z-10">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 ${
                     isCompleted ? 'bg-black border-neutral-100 text-white' : 'bg-white border-neutral-100 text-gray-400'
                   } ${isCurrent ? 'ring-4 ring-neutral-100' : ''} transition-colors`}>
-                    <Icon size={20} />
+                    <Icon size={16} />
                   </div>
-                  <div>
-                    <p className={`font-bold text-sm ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>
+                  <div className="hidden sm:block">
+                    <p className={`font-black text-[9px] uppercase tracking-tight ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>
                       {step.label}
                     </p>
-                    {isCurrent && (
-                      <p className="text-[10px] font-black text-black uppercase tracking-widest mt-1 sm:mt-0">Sedang berlangsung</p>
-                    )}
                   </div>
                 </div>
               );
@@ -222,63 +219,63 @@ export default function OrderStatusPage() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Detail Produk</h2>
-          <div className="space-y-4 mb-6">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-neutral-100">
+          <h2 className="text-[10px] font-black text-gray-400 mb-3 uppercase tracking-widest">Detail Produk</h2>
+          <div className="space-y-2 mb-4">
             {items.map((item, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b border-neutral-50 last:border-0">
+              <div key={i} className="flex justify-between items-center py-1.5 border-b border-neutral-50 last:border-0">
                 <div>
-                  <p className="font-medium text-gray-900">{(item.products as any)?.name || 'Produk'}</p>
-                  <p className="text-sm text-gray-500">{item.quantity} x Rp {item.price_at_time.toLocaleString('id-ID')}</p>
+                  <p className="text-xs font-bold text-gray-900 uppercase tracking-tight">{(item.products as any)?.name || 'Produk'}</p>
+                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{item.quantity} x Rp {item.price_at_time.toLocaleString('id-ID')}</p>
                 </div>
-                <p className="font-bold text-gray-900">
+                <p className="text-xs font-black text-black">
                   Rp {(item.quantity * item.price_at_time).toLocaleString('id-ID')}
                 </p>
               </div>
             ))}
           </div>
-          <div className="pt-4 border-t border-neutral-100">
-            <div className="flex justify-between items-center text-lg">
-              <span className="font-bold text-gray-900">Total</span>
-              <span className="font-black text-black text-2xl tracking-tighter">Rp {(order.total_amount || 0).toLocaleString('id-ID')}</span>
-            </div>
+          <div className="pt-3 border-t border-neutral-100 flex justify-between items-center">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total</span>
+            <span className="font-black text-black text-xl tracking-tighter">Rp {(order.total_amount || 0).toLocaleString('id-ID')}</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100 h-fit">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Informasi Pengiriman</h2>
-          <div className="space-y-4 text-sm">
-            <div>
-              <p className="text-gray-500 mb-1">Nama Penerima</p>
-              <p className="font-medium text-gray-900">{customer?.full_name || '-'}</p>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-neutral-100 h-fit">
+          <h2 className="text-[10px] font-black text-gray-400 mb-3 uppercase tracking-widest">Pengiriman & Pembayaran</h2>
+          <div className="space-y-3 text-xs">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Penerima</p>
+                <p className="text-[11px] font-black text-black uppercase tracking-tight">{customer?.full_name || '-'}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">WhatsApp</p>
+                <p className="text-[11px] font-black text-black uppercase tracking-tight">{customer?.whatsapp || '-'}</p>
+              </div>
             </div>
             <div>
-              <p className="text-gray-500 mb-1">Nomor Telepon / WhatsApp</p>
-              <p className="font-medium text-gray-900">{customer?.whatsapp || '-'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Alamat Pengiriman</p>
-              <p className="font-medium text-gray-900">
-                {customer?.address || '-'} <br />
-                {customer?.district ? `Kec. ${customer.district}` : ''} <br />
-                {customer?.city ? `${customer.city}` : ''}
+              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Alamat</p>
+              <p className="text-[11px] font-bold text-gray-600 leading-relaxed">
+                {customer?.address || '-'}, {customer?.district ? `Kec. ${customer.district}` : ''}, {customer?.city || ''}
               </p>
             </div>
-            <div>
-              <p className="text-gray-500 mb-1">Metode Pembayaran</p>
-              <p className="font-medium flex items-center justify-between text-gray-900">
-                <span>{order.payment_method || '-'}</span>
+            <div className="pt-2 border-t border-neutral-50 flex items-center justify-between">
+              <div>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Pembayaran</p>
+                <p className="text-[10px] font-black text-black uppercase tracking-widest">{order.payment_method || '-'}</p>
+              </div>
+              <div>
                 {payment?.status === 'verified' && (
-                  <span className="bg-neutral-900 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest">LUNAS</span>
+                  <span className="bg-black text-white text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest">LUNAS</span>
                 )}
                 {payment?.status === 'submitted' && (
-                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">MENUNGGU VERIFIKASI</span>
+                  <span className="bg-blue-50 text-blue-700 text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest">DIPROSES</span>
                 )}
                 {payment?.status === 'pending' && (
-                  <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-bold">BELUM BAYAR</span>
+                  <span className="bg-orange-50 text-orange-700 text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest">PENDING</span>
                 )}
-              </p>
+              </div>
             </div>
           </div>
         </div>
