@@ -13,10 +13,10 @@ export default function AboutPage() {
     );
   }
 
-  const rawIntro = settings.about_intro || "Mapailli adalah pabrik beras yang berlokasi di Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Polewali Mandar.\n\nSudah berdiri sejak tahun 1987, fokus kami menyediakan beras segar yang diambil langsung dari petani lokal. Sebagai satu-satunya tempat giling padi di Desa Kurma, kami selalu memastikan setiap butir beras diproses dengan bersih dan dijemur alami di bawah matahari supaya kualitasnya tetap terjaga.\n\nKami selalu memegang teguh kejujuran dalam timbangan dan pelayanan yang cepat, jadi Anda bisa mendapatkan beras lokal yang pulen dan sehat untuk keluarga dengan harga yang jujur dan terpercaya.";
+  const rawIntro: string = (settings.about_intro as string) || "Mapailli adalah pabrik beras yang berlokasi di Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Polewali Mandar.\n\nSudah berdiri sejak tahun 1987, fokus kami menyediakan beras segar yang diambil langsung dari petani lokal. Sebagai satu-satunya tempat giling padi di Desa Kurma, kami selalu memastikan setiap butir beras diproses dengan bersih dan dijemur alami di bawah matahari supaya kualitasnya tetap terjaga.\n\nKami selalu memegang teguh kejujuran dalam timbangan dan pelayanan yang cepat, jadi Anda bisa mendapatkan beras lokal yang pulen dan sehat untuk keluarga dengan harga yang jujur dan terpercaya.";
 
   // Parse text intro menjadi beberapa paragraf agar mudah dibaca
-  const introParagraphs = rawIntro.split('\n').filter((p: string) => p.trim() !== '');
+  const introParagraphs: string[] = rawIntro.split('\n').filter((p) => p.trim() !== '');
   const leadParagraph = introParagraphs.length > 0 ? introParagraphs[0] : "";
   const remainingParagraphs = introParagraphs.slice(1);
 
@@ -41,12 +41,12 @@ export default function AboutPage() {
           {remainingParagraphs.length > 0 && (
             <div className="grid md:grid-cols-2 gap-6 md:gap-12 mt-8 text-base md:text-lg text-gray-600 leading-loose">
               <div className="space-y-6">
-                  {remainingParagraphs.slice(0, Math.ceil(remainingParagraphs.length / 2)).map((p: string, i: number) => (
+                  {remainingParagraphs.slice(0, Math.ceil(remainingParagraphs.length / 2)).map((p, i) => (
                     <p key={`left-${i}`}>{p}</p>
                   ))}
               </div>
               <div className="space-y-6">
-                  {remainingParagraphs.slice(Math.ceil(remainingParagraphs.length / 2)).map((p: string, i: number) => (
+                  {remainingParagraphs.slice(Math.ceil(remainingParagraphs.length / 2)).map((p, i) => (
                     <p key={`right-${i}`}>{p}</p>
                   ))}
               </div>
