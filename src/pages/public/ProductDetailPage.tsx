@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Minus, Plus, ShoppingBag, MessageCircle, ShieldCheck, Truck, Award } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronUp, Minus, Plus, ShoppingBag, MessageCircle, ShieldCheck, Truck, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
@@ -12,6 +12,7 @@ export default function ProductDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,11 +120,24 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="space-y-3 border-y border-gray-100 py-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300">Deskripsi Produk</p>
-              <p className="text-gray-600 text-sm lg:text-base leading-relaxed font-medium text-justify">
-                {product.description || "Beras kualitas premium kami diproses dengan teknologi modern untuk menjamin keaslian, tekstur, dan rasa. Langsung dari Pabrik Desa Kurma, kami menjamin kualitas paling segar untuk makanan harian keluarga Anda."}
-              </p>
+            <div className="border-y border-gray-100 py-4 lg:py-6">
+              <button 
+                onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+                className="w-full flex items-center justify-between py-2 group"
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 group-hover:text-[#1F331E] transition-colors">Deskripsi Produk</p>
+                {isDescriptionOpen ? (
+                  <ChevronUp size={16} className="text-gray-400 group-hover:text-[#1F331E] transition-colors" />
+                ) : (
+                  <ChevronDown size={16} className="text-gray-400 group-hover:text-[#1F331E] transition-colors" />
+                )}
+              </button>
+              
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isDescriptionOpen ? "max-h-[500px] opacity-100 mt-2 lg:mt-3" : "max-h-0 opacity-0"}`}>
+                <p className="text-gray-600 text-sm lg:text-base leading-relaxed font-medium text-justify pb-2">
+                  {product.description || "Beras kualitas premium kami diproses dengan teknologi modern untuk menjamin keaslian, tekstur, dan rasa. Langsung dari Pabrik Desa Kurma, kami menjamin kualitas paling segar untuk makanan harian keluarga Anda."}
+                </p>
+              </div>
             </div>
 
             {/* Feature Icons */}
