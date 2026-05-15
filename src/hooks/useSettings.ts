@@ -13,7 +13,11 @@ export function useSettings() {
 
         const map: Record<string, any> = {};
         ((data as any[]) || []).forEach((row) => {
-          map[row.key] = row.value;
+          let val = row.value;
+          if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
+            try { val = JSON.parse(val); } catch (e) {}
+          }
+          map[row.key] = val;
         });
         setSettings(map);
       } catch (err) {

@@ -13,7 +13,7 @@ export default function HomePage() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const slides = settings.hero_slides || [];
+  const slides = Array.isArray(settings.hero_slides) ? settings.hero_slides : [];
   const hasSlides = slides.length > 0;
 
   useEffect(() => {
