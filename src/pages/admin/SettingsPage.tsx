@@ -80,7 +80,11 @@ export default function SettingsPage() {
         setSiteSettings(data || []);
         const map: Record<string, any> = {};
         (data || []).forEach((s: SiteSetting) => {
-          map[s.key] = s.value;
+          let val = s.value;
+          if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
+            try { val = JSON.parse(val); } catch (e) {}
+          }
+          map[s.key] = val;
         });
         setSettingsMap(map);
       }
@@ -153,7 +157,11 @@ export default function SettingsPage() {
       for (const key of keys) {
         const newValue = settingsMap[key];
         if (newValue !== undefined) {
-          const { error } = await (supabase as any).from("site_settings").upsert({ key, value: newValue }, { onConflict: 'key' });
+          let valueToSave = newValue;
+          if (typeof newValue === 'object' && newValue !== null) {
+            valueToSave = JSON.stringify(newValue);
+          }
+          const { error } = await (supabase as any).from("site_settings").upsert({ key, value: valueToSave }, { onConflict: 'key' });
           if (error) throw error;
         }
       }
@@ -480,7 +488,7 @@ export default function SettingsPage() {
                               size="sm" 
                               className="h-8 rounded-lg text-[10px] font-black uppercase"
                               onClick={() => {
-                                const currentSlides = settingsMap["hero_slides"] || [];
+                                const currentSlides = Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [];
                                 setSettingsMap({
                                   ...settingsMap,
                                   "hero_slides": [...currentSlides, { image_url: "", cta_text: "", cta_link: "" }]
@@ -499,14 +507,14 @@ export default function SettingsPage() {
                               </div>
                             )}
 
-                            {(settingsMap["hero_slides"] || []).map((slide: any, index: number) => (
+                            {(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : []).map((slide: any, index: number) => (
                               <div key={index} className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide">
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
                                   className="absolute top-2 right-2 h-8 w-8 text-gray-300 hover:text-red-500 rounded-lg"
                                   onClick={() => {
-                                    const newSlides = [...settingsMap["hero_slides"]];
+                                    const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
                                     newSlides.splice(index, 1);
                                     setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
                                   }}
@@ -528,7 +536,7 @@ export default function SettingsPage() {
                                         placeholder="Image URL"
                                         value={slide.image_url || ""}
                                         onChange={(e) => {
-                                          const newSlides = [...settingsMap["hero_slides"]];
+                                          const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
                                           newSlides[index].image_url = e.target.value;
                                           setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
                                         }}
@@ -549,7 +557,7 @@ export default function SettingsPage() {
                                               const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, file);
                                               if (!uploadError) {
                                                 const { data: { publicUrl } } = supabase.storage.from('product_images').getPublicUrl(filePath);
-                                                const newSlides = [...settingsMap["hero_slides"]];
+                                                const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
                                                 newSlides[index].image_url = publicUrl;
                                                 setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
                                                 toast.success("Gambar berhasil diunggah");
@@ -570,7 +578,7 @@ export default function SettingsPage() {
                                         placeholder="Belanja Sekarang" 
                                         value={slide.cta_text || ""}
                                         onChange={(e) => {
-                                          const newSlides = [...settingsMap["hero_slides"]];
+                                          const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
                                           newSlides[index].cta_text = e.target.value;
                                           setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
                                         }}
@@ -583,7 +591,7 @@ export default function SettingsPage() {
                                         placeholder="/products" 
                                         value={slide.cta_link || ""}
                                         onChange={(e) => {
-                                          const newSlides = [...settingsMap["hero_slides"]];
+                                          const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
                                           newSlides[index].cta_link = e.target.value;
                                           setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
                                         }}
