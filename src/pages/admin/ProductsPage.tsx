@@ -39,6 +39,7 @@ type Product = {
   main_image_url: string;
   is_featured: boolean;
   is_active: boolean;
+  unit: string;
 };
 
 export default function ProductsPage() {
@@ -59,6 +60,7 @@ export default function ProductsPage() {
     stock: "",
     is_featured: false,
     is_active: true,
+    unit: "kg",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -102,6 +104,7 @@ export default function ProductsPage() {
         stock: prod.stock.toString(),
         is_featured: prod.is_featured,
         is_active: prod.is_active,
+        unit: prod.unit || "kg",
       });
       setImagePreview(prod.main_image_url || "");
     } else {
@@ -114,6 +117,7 @@ export default function ProductsPage() {
         stock: "",
         is_featured: false,
         is_active: true,
+        unit: "kg",
       });
       setImagePreview("");
     }
@@ -202,6 +206,7 @@ export default function ProductsPage() {
         stock: Math.floor(stock),
         is_featured: prodForm.is_featured,
         is_active: prodForm.is_active,
+        unit: prodForm.unit || "kg",
         main_image_url: finalImageUrl
       };
 
@@ -301,7 +306,7 @@ export default function ProductsPage() {
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg border border-gray-100 overflow-hidden bg-white flex items-center justify-center shrink-0">
                         {prod.main_image_url ? (
-                          <img src={prod.main_image_url} alt={prod.name} className="w-full h-full object-cover" />
+                          <img src={prod.main_image_url} alt={prod.name} className="w-full h-full object-contain p-1" />
                         ) : (
                           <ImageIcon className="h-5 w-5 text-gray-200" />
                         )}
@@ -407,7 +412,7 @@ export default function ProductsPage() {
                 <div className="flex flex-col sm:flex-row items-center gap-6 p-6 border-2 border-dashed border-gray-50 rounded-xl bg-gray-50/50">
                   <div className="w-24 h-24 rounded-lg border border-gray-100 overflow-hidden bg-white shrink-0 flex items-center justify-center relative">
                     {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-contain p-2" />
                     ) : (
                       <ImageIcon className="text-gray-100 h-8 w-8" />
                     )}

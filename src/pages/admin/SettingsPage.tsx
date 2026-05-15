@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Loader2,
@@ -55,9 +55,23 @@ export default function SettingsPage() {
   // Dynamic Settings Map
   const [settingsMap, setSettingsMap] = useState<Record<string, any>>({});
 
+  // Drag and drop refs
+  const dragItemRef = useRef<number | null>(null);
+  const dragOverItemRef = useRef<number | null>(null);
+
   // Track which data categories have already been loaded to avoid overwriting
   // unsaved edits when switching between tabs.
   const loadedRef = useRef<Set<string>>(new Set());
+
+  // Force a re-fetch for the current tab (used after save/delete)
+  const forceRefetchCurrentTab = useCallback(() => {
+    const settingsTabs = ["appearance", "business", "seo"];
+    if (settingsTabs.includes(activeTab)) {
+      loadedRef.current.delete("site_settings");
+    } else {
+      loadedRef.current.delete(activeTab);
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     fetchData();
@@ -146,6 +160,7 @@ export default function SettingsPage() {
         toast.success("Created successfully");
       }
       setIsModalOpen(false);
+      forceRefetchCurrentTab();
       fetchData();
     } catch (err: any) {
       toast.error(err.message);
@@ -165,6 +180,7 @@ export default function SettingsPage() {
       const { error } = await supabase.from(table).delete().eq("id", id);
       if (error) throw error;
       toast.success("Deleted successfully");
+      forceRefetchCurrentTab();
       fetchData();
     } catch (err: any) {
       toast.error(err.message);
@@ -186,18 +202,19 @@ export default function SettingsPage() {
         }
       }
       toast.success("Settings updated successfully!");
-      fetchData();
+      // Don't re-fetch after saving settings — we already have the latest data in state
     } catch (err: any) { toast.error(err.message); } finally { setIsSaving(false); }
   };
 
   const handleImageUpload = async (key: string, file: File) => {
     setIsSaving(true);
+    const toastId = toast.loading("Mengunggah dan mengompresi gambar...");
     try {
       const compressedFile = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
 
       const validationError = validateImageFile(compressedFile, { maxSizeMB: 2 });
       if (validationError) {
-        toast.error(validationError);
+        toast.error(validationError, { id: toastId });
         setIsSaving(false);
         return;
       }
@@ -215,15 +232,15 @@ export default function SettingsPage() {
         .getPublicUrl(filePath);
 
       setSettingsMap(prev => ({ ...prev, [key]: publicUrl }));
-      toast.success("Image uploaded successfully!");
+      toast.success("Image uploaded successfully!", { id: toastId });
     } catch (err: any) {
-      toast.error("Upload failed: " + err.message);
+      toast.error("Upload failed: " + err.message, { id: toastId });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const renderSettingField = (key: string, label: string, type: "text" | "textarea" | "number" | "image" = "text", description?: string) => (
+  const renderSettingField = (key: string, label: string, type: "text" | "textarea" | "number" | "image" | "images" = "text", description?: string) => (
     <div key={key} className="space-y-2">
       <div className="flex justify-between items-center">
         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</Label>
@@ -283,6 +300,78 @@ export default function SettingsPage() {
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
                       handleImageUpload(key, e.target.files[0]);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : type === "images" ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-4">
+            {(Array.isArray(settingsMap[key]) ? settingsMap[key] : (settingsMap[key] ? [settingsMap[key]] : [])).map((url: string, index: number) => (
+              <div key={index} className="w-24 h-24 rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm relative group flex items-center justify-center shrink-0">
+                <img src={url} alt={`${label} ${index + 1}`} className="w-full h-full object-cover" />
+                <Button 
+                  type="button" 
+                  variant="destructive" 
+                  size="icon" 
+                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"
+                  onClick={() => {
+                    const newUrls = (Array.isArray(settingsMap[key]) ? [...settingsMap[key]] : [settingsMap[key]]).filter((_, i) => i !== index);
+                    setSettingsMap({ ...settingsMap, [key]: newUrls });
+                  }}
+                >
+                  <Trash2 size={12} />
+                </Button>
+              </div>
+            ))}
+            <div className="flex-1 space-y-2 flex flex-col justify-center min-w-[200px]">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 rounded-xl border-gray-100 flex-1 gap-2 text-xs font-bold"
+                  onClick={() => document.getElementById(`file-${key}`)?.click()}
+                  disabled={isSaving}
+                >
+                  <Upload size={14} /> Upload Images
+                </Button>
+                <input
+                  type="file"
+                  id={`file-${key}`}
+                  className="hidden"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={async (e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setIsSaving(true);
+                      const currentUrls = Array.isArray(settingsMap[key]) ? [...settingsMap[key]] : (settingsMap[key] ? [settingsMap[key]] : []);
+                      const toastId = toast.loading("Mengunggah dan mengompresi gambar...");
+                      try {
+                        for (let i = 0; i < e.target.files.length; i++) {
+                          const file = e.target.files[i];
+                          const compressedFile = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
+                          const validationError = validateImageFile(compressedFile, { maxSizeMB: 2 });
+                          if (validationError) {
+                            toast.error(`File ${file.name}: ${validationError}`, { id: toastId });
+                            continue;
+                          }
+                          const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+                          const filePath = createImageStoragePath(`settings/${key}_${uniqueId}`, compressedFile);
+                          const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, compressedFile);
+                          if (uploadError) throw uploadError;
+                          const { data: { publicUrl } } = supabase.storage.from('product_images').getPublicUrl(filePath);
+                          currentUrls.push(publicUrl);
+                        }
+                        setSettingsMap({ ...settingsMap, [key]: currentUrls });
+                        toast.success("Images uploaded successfully!", { id: toastId });
+                      } catch (err: any) {
+                        toast.error("Upload failed: " + err.message, { id: toastId });
+                      } finally {
+                        setIsSaving(false);
+                      }
                     }
                   }}
                 />
@@ -506,10 +595,8 @@ export default function SettingsPage() {
                           {renderSettingField("hero_subheadline", "Sub-headline", "textarea")}
                         </div>
                         <div className="space-y-6">
-                          {renderSettingField("hero_image_url", "Gambar Hero Default (Fallback)", "image", "Gambar ini akan tampil di beranda utama jika Anda tidak memiliki slide apa pun.")}
-
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slide Carousel</p>
+                          <div className="flex items-center justify-between pt-0 border-t-0 border-gray-50">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slide Carousel (Geser untuk mengurutkan)</p>
                             <Button 
                               type="button"
                               variant="outline" 
@@ -535,14 +622,47 @@ export default function SettingsPage() {
                             )}
 
                             {(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : []).map((slide: any, index: number) => (
-                              <div key={index} className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide">
+                              <div 
+                                key={index} 
+                                className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide cursor-move active:cursor-grabbing hover:border-gray-300 transition-colors"
+                                draggable
+                                onDragStart={() => (dragItemRef.current = index)}
+                                onDragEnter={() => (dragOverItemRef.current = index)}
+                                onDragEnd={() => {
+                                  if (dragItemRef.current !== null && dragOverItemRef.current !== null && dragItemRef.current !== dragOverItemRef.current) {
+                                    const currentSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                    const draggedItemContent = currentSlides.splice(dragItemRef.current, 1)[0];
+                                    currentSlides.splice(dragOverItemRef.current, 0, draggedItemContent);
+                                    setSettingsMap({ ...settingsMap, "hero_slides": currentSlides });
+                                  }
+                                  dragItemRef.current = null;
+                                  dragOverItemRef.current = null;
+                                }}
+                                onDragOver={(e) => e.preventDefault()}
+                              >
                                 <Button 
                                   type="button"
                                   variant="ghost" 
                                   size="icon" 
                                   className="absolute top-2 right-2 h-8 w-8 text-gray-300 hover:text-red-500 rounded-lg"
-                                  onClick={() => {
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
                                     const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                    const slideToDelete = newSlides[index];
+                                    
+                                    // Delete from Supabase Storage
+                                    if (slideToDelete.image_url) {
+                                      try {
+                                        const urlObj = new URL(slideToDelete.image_url);
+                                        const bucketPath = urlObj.pathname.split('/product_images/')[1];
+                                        if (bucketPath) {
+                                          await supabase.storage.from('product_images').remove([bucketPath]);
+                                        }
+                                      } catch (err) {
+                                        console.error("Failed to delete from storage:", err);
+                                      }
+                                    }
+                                    
                                     newSlides.splice(index, 1);
                                     setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
                                   }}
@@ -581,14 +701,29 @@ export default function SettingsPage() {
                                           input.onchange = async (e: any) => {
                                             const file = e.target.files[0];
                                             if (file) {
-                                              const filePath = createImageStoragePath(`settings/hero_slide_${index}`, file);
-                                              const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, file);
-                                              if (!uploadError) {
+                                              try {
+                                                const toastId = toast.loading("Mengunggah dan mengompresi gambar...");
+                                                const compressedFile = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
+                                                const validationError = validateImageFile(compressedFile, { maxSizeMB: 2 });
+                                                
+                                                if (validationError) {
+                                                  toast.error(validationError, { id: toastId });
+                                                  return;
+                                                }
+
+                                                const filePath = createImageStoragePath(`settings/hero_slide_${Date.now()}`, compressedFile);
+                                                const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, compressedFile);
+                                                
+                                                if (uploadError) throw uploadError;
+                                                
                                                 const { data: { publicUrl } } = supabase.storage.from('product_images').getPublicUrl(filePath);
                                                 const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
                                                 newSlides[index].image_url = publicUrl;
                                                 setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
-                                                toast.success("Gambar berhasil diunggah");
+                                                
+                                                toast.success("Gambar berhasil diunggah!", { id: toastId });
+                                              } catch (err: any) {
+                                                toast.error("Gagal mengunggah: " + err.message);
                                               }
                                             }
                                           };
@@ -660,7 +795,7 @@ export default function SettingsPage() {
                           {renderSettingField("about_history", "Sejarah", "textarea")}
                         </div>
                         <div className="space-y-4">
-                          {renderSettingField("about_image_url", "Foto Profil", "image")}
+                          {renderSettingField("about_image_url", "Foto Profil", "images")}
                           <div className="grid grid-cols-2 gap-4">
                             {renderSettingField("about_vision", "Visi", "text")}
                             {renderSettingField("about_mission", "Misi", "text")}
@@ -879,6 +1014,10 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Isi Testimoni</Label>
                     <Textarea id="content" name="content" defaultValue={editingItem?.content} required className="min-h-[100px] rounded-xl border-gray-100 focus:border-black transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">URL Foto Pelanggan</Label>
+                    <Input id="avatar_url" name="avatar_url" defaultValue={editingItem?.avatar_url} placeholder="https://..." className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

@@ -83,9 +83,9 @@ export default function ProductsPage() {
         ) : products.length > 0 ? (
           products.map((product) => (
             <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-[1.25rem] lg:rounded-[2.5rem] p-2.5 lg:p-6 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500">
-              <Link to={`/products/${product.slug}`} className="relative aspect-square mb-3 lg:mb-6 overflow-hidden rounded-[1rem] lg:rounded-[1.5rem] bg-dust-grey/10 border border-dust-grey/20">
+              <Link to={`/products/${product.slug}`} className="relative aspect-square mb-3 lg:mb-6 overflow-hidden rounded-[1rem] lg:rounded-[1.5rem] bg-white border border-dust-grey/20">
                 {product.main_image_url ? (
-                  <img src={product.main_image_url} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img src={product.main_image_url} alt={product.name} className="h-full w-full object-contain p-2 lg:p-6 transition-transform duration-700" />
                 ) : (
                   <div className="h-full w-full flex items-center justify-center text-gray-200">Tidak Ada Gambar</div>
                 )}

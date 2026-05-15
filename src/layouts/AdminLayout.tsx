@@ -25,7 +25,7 @@ export default function AdminLayout() {
     { name: "Pesanan", path: "/admin/orders", icon: ShoppingCart },
     { name: "Pembayaran", path: "/admin/payments", icon: CreditCard },
     { name: "Produk", path: "/admin/products", icon: Package },
-    { name: "Pelanggan", path: "/admin/customers", icon: Users },
+    { name: "Pelanggan & Mitra", path: "/admin/customers", icon: Users },
     { name: "Laporan", path: "/admin/reports", icon: FileText },
     { name: "Pengaturan", path: "/admin/settings", icon: Settings },
   ];

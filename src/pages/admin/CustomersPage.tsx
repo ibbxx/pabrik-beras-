@@ -113,6 +113,9 @@ export default function CustomersPage() {
   const [selectedReseller, setSelectedReseller] = useState<ResellerApp | null>(null);
   const [isResellerModalOpen, setIsResellerModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isManageMode, setIsManageMode] = useState(false);
+  const [selectedResellerIds, setSelectedResellerIds] = useState<Set<string>>(new Set());
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
@@ -172,6 +175,35 @@ export default function CustomersPage() {
     const clean = phone.replace(/\D/g, "").replace(/^0/, "62");
     const msg = encodeURIComponent(`Halo ${name}, terima kasih sudah mendaftar sebagai mitra reseller Pabrik Beras Desa Kurma. Kami ingin menindaklanjuti pendaftaran Anda.`);
     window.open(`https://wa.me/${clean}?text=${msg}`, "_blank");
+  };
+
+  const toggleResellerSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSet = new Set(selectedResellerIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedResellerIds(newSet);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedResellerIds.size === 0) return;
+    if (!confirm(`Yakin ingin menghapus ${selectedResellerIds.size} mitra terpilih? Data tidak dapat dikembalikan.`)) return;
+
+    setIsDeletingBulk(true);
+    try {
+      const ids = Array.from(selectedResellerIds);
+      const { error } = await supabase.from("reseller_applications").delete().in("id", ids);
+      if (error) throw error;
+      
+      toast.success(`${ids.length} mitra berhasil dihapus`);
+      setSelectedResellerIds(new Set());
+      setIsManageMode(false);
+      fetchData();
+    } catch (err: any) {
+      toast.error("Gagal menghapus: " + err.message);
+    } finally {
+      setIsDeletingBulk(false);
+    }
   };
 
   /* ── Derived data ── */
@@ -297,20 +329,45 @@ export default function CustomersPage() {
             <StatCard icon={CheckCircle2} label="Disetujui" value={resellerStats.approved} accent="bg-emerald-500" />
           </div>
 
-          {/* Search */}
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
-            <Input
-              placeholder="Cari nama atau bisnis..."
-              className="pl-10 h-11 border-gray-100 rounded-xl text-xs font-medium focus-visible:ring-black/20 bg-white shadow-sm"
-              value={resellerSearch}
-              onChange={(e) => setResellerSearch(e.target.value)}
-            />
-            {resellerSearch && (
-              <button onClick={() => setResellerSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-3.5 h-3.5 text-gray-300 hover:text-black transition-colors" />
-              </button>
-            )}
+          {/* Search and Manage */}
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
+              <Input
+                placeholder="Cari nama atau bisnis..."
+                className="pl-10 h-11 border-gray-100 rounded-xl text-xs font-medium focus-visible:ring-black/20 bg-white shadow-sm"
+                value={resellerSearch}
+                onChange={(e) => setResellerSearch(e.target.value)}
+              />
+              {resellerSearch && (
+                <button onClick={() => setResellerSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <X className="w-3.5 h-3.5 text-gray-300 hover:text-black transition-colors" />
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {isManageMode && selectedResellerIds.size > 0 && (
+                <Button 
+                  variant="destructive" 
+                  className="rounded-xl h-11 text-xs font-bold"
+                  onClick={handleBulkDelete}
+                  disabled={isDeletingBulk}
+                >
+                  {isDeletingBulk ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Hapus ({selectedResellerIds.size})
+                </Button>
+              )}
+              <Button
+                variant={isManageMode ? "outline" : "default"}
+                className={`rounded-xl h-11 text-xs font-bold ${!isManageMode ? "bg-black text-white hover:bg-black/90" : "border-gray-200"}`}
+                onClick={() => {
+                  setIsManageMode(!isManageMode);
+                  setSelectedResellerIds(new Set());
+                }}
+              >
+                {isManageMode ? "Batal" : "Kelola"}
+              </Button>
+            </div>
           </div>
 
           {/* List */}
@@ -323,12 +380,26 @@ export default function CustomersPage() {
           ) : (
             <div className="grid gap-2.5">
               {filteredResellers.map((r) => (
-                <button
+                <div
                   key={r.id}
-                  onClick={() => handleViewReseller(r)}
-                  className="w-full text-left bg-white border border-gray-100 rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 flex items-center gap-4 hover:border-gray-200 hover:shadow-sm transition-all group"
+                  onClick={(e) => {
+                    if (isManageMode) toggleResellerSelection(r.id, e);
+                    else handleViewReseller(r);
+                  }}
+                  className={`w-full text-left bg-white border ${selectedResellerIds.has(r.id) ? "border-black shadow-md ring-1 ring-black" : "border-gray-100 hover:border-gray-200"} rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 flex items-center gap-4 hover:shadow-sm transition-all group cursor-pointer`}
                 >
-                  <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-black group-hover:text-white transition-colors text-gray-400">
+                  {isManageMode && (
+                    <div className="shrink-0 mr-1">
+                      <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                        selectedResellerIds.has(r.id) ? "bg-black border-black text-white" : "border-gray-300 bg-gray-50"
+                      }`}>
+                        {selectedResellerIds.has(r.id) && <CheckCircle2 className="w-3 h-3" />}
+                      </div>
+                    </div>
+                  )}
+                  <div className={`w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors text-gray-400 ${
+                    selectedResellerIds.has(r.id) ? "bg-black text-white" : "bg-gray-50 group-hover:bg-black group-hover:text-white"
+                  }`}>
                     <Store className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -351,8 +422,8 @@ export default function CustomersPage() {
                   <span className="text-[10px] text-gray-300 font-medium hidden sm:block whitespace-nowrap">
                     {new Date(r.created_at).toLocaleDateString("id-ID")}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-black transition-colors shrink-0" />
-                </button>
+                  {!isManageMode && <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-black transition-colors shrink-0" />}
+                </div>
               ))}
             </div>
           )}

@@ -75,12 +75,12 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           
           {/* Image Display */}
-          <div className="relative aspect-square rounded-[3rem] overflow-hidden bg-gray-50 border border-gray-100 shadow-2xl shadow-black/5 group">
+          <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-white border border-gray-100 shadow-xl shadow-black/5 group">
             {product.main_image_url ? (
-              <img src={product.main_image_url} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img src={product.main_image_url} alt={product.name} className="h-full w-full object-contain p-6 transition-transform duration-700" />
             ) : (
               <div className="h-full w-full flex items-center justify-center text-gray-200">Tidak Ada Gambar</div>
             )}
@@ -92,9 +92,9 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product Details */}
-          <div className="flex flex-col space-y-10">
-            <div className="space-y-4">
-              <h1 className="text-3xl lg:text-5xl font-black text-black tracking-tighter leading-none">{product.name}</h1>
+          <div className="flex flex-col space-y-6 lg:space-y-8">
+            <div className="space-y-3">
+              <h1 className="text-2xl lg:text-4xl font-black text-black tracking-tighter leading-tight">{product.name}</h1>
               <div className="flex items-center gap-4">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">Berat Bersih: {product.weight_kg ? `${product.weight_kg}kg` : "Grosir / Kustom"}</span>
                 <span className="h-1 w-1 rounded-full bg-gray-200"></span>
@@ -102,52 +102,52 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Harga per KG</p>
-              <p className="text-3xl lg:text-5xl font-black text-black tracking-tighter">
+              <p className="text-2xl lg:text-4xl font-black text-black tracking-tighter">
                 Rp {product.price.toLocaleString('id-ID')}
               </p>
             </div>
 
-            <div className="space-y-4 border-y border-gray-50 py-8">
+            <div className="space-y-3 border-y border-gray-50 py-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Deskripsi Produk</p>
-              <p className="text-gray-500 leading-relaxed font-medium">
+              <p className="text-gray-500 text-sm leading-relaxed font-medium">
                 {product.description || "Beras kualitas premium kami diproses dengan teknologi modern untuk menjamin keaslian, tekstur, dan rasa. Langsung dari Pabrik Desa Kurma, kami menjamin kualitas paling segar untuk makanan harian keluarga Anda."}
               </p>
             </div>
 
             {/* Feature Icons */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
-                <ShieldCheck size={20} className="text-black" />
+            <div className="grid grid-cols-3 gap-3">
+              <div className="flex flex-col items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+                <ShieldCheck size={18} className="text-black" />
                 <span className="text-[8px] font-black uppercase tracking-widest text-center">Murni & Alami</span>
               </div>
-              <div className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
-                <Truck size={20} className="text-black" />
+              <div className="flex flex-col items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+                <Truck size={18} className="text-black" />
                 <span className="text-[8px] font-black uppercase tracking-widest text-center">Pengiriman Cepat</span>
               </div>
-              <div className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-2xl border border-gray-100/50">
-                <Award size={20} className="text-black" />
+              <div className="flex flex-col items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100/50">
+                <Award size={18} className="text-black" />
                 <span className="text-[8px] font-black uppercase tracking-widest text-center">Harga Terbaik</span>
               </div>
             </div>
 
-            <div className="space-y-6 pt-6">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center bg-gray-50 rounded-2xl p-2 border border-gray-100">
+            <div className="space-y-5 pt-2">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center bg-gray-50 rounded-xl p-1.5 border border-gray-100">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="h-12 w-12 flex items-center justify-center rounded-xl hover:bg-white hover:shadow-sm transition-all active:scale-90"
+                    className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm transition-all active:scale-90"
                   >
-                    <Minus size={16} />
+                    <Minus size={14} />
                   </button>
-                  <span className="w-16 text-center font-black text-xl">{quantity}</span>
+                  <span className="w-12 text-center font-black text-lg">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                     disabled={quantity >= product.stock}
-                    className="h-12 w-12 flex items-center justify-center rounded-xl hover:bg-white hover:shadow-sm transition-all active:scale-90"
+                    className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm transition-all active:scale-90"
                   >
-                    <Plus size={16} />
+                    <Plus size={14} />
                   </button>
                 </div>
                 <div className="flex-1">
@@ -156,9 +156,9 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
-                  className="flex-[2] bg-black text-white hover:bg-gray-800 h-16 rounded-[1.5rem] font-black uppercase tracking-widest shadow-2xl shadow-black/20 transition-all hover:scale-[1.02] active:scale-95"
+                  className="flex-[2] bg-black text-white hover:bg-gray-800 h-14 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-black/10 transition-all hover:scale-[1.02] active:scale-95"
                   disabled={product.stock <= 0}
                   onClick={() => {
                     addToCart({
@@ -176,10 +176,10 @@ export default function ProductDetailPage() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="flex-1 border-gray-100 rounded-[1.5rem] h-16 font-black uppercase tracking-widest hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95"
+                  className="flex-1 border-gray-100 rounded-xl h-14 text-xs font-black uppercase tracking-widest hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95"
                   onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, `Halo, saya tertarik dengan produk ${product.name}`), "_blank")}
                 >
-                  <MessageCircle size={20} className="mr-3" /> WhatsApp
+                  <MessageCircle size={18} className="mr-2" /> WhatsApp
                 </Button>
               </div>
             </div>
