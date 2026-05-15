@@ -147,42 +147,44 @@ export default function HomePage() {
             {loading ? (
               // Skeleton loading
               [1, 2, 3, 4].map((i) => (
-                <div key={i} className="group rounded-2xl bg-background p-4 shadow-sm border border-dust-grey/20">
-                  <div className="aspect-square mb-4 overflow-hidden rounded-xl bg-neutral-100 animate-pulse" />
-                  <div className="h-4 w-24 bg-neutral-200 rounded animate-pulse mb-2" />
-                  <div className="h-6 w-full bg-neutral-200 rounded animate-pulse mb-2" />
-                  <div className="h-4 w-16 bg-neutral-200 rounded animate-pulse mb-4" />
-                  <div className="flex justify-between items-center">
-                    <div className="h-6 w-20 bg-neutral-200 rounded animate-pulse" />
-                    <div className="h-8 w-8 bg-neutral-200 rounded-full animate-pulse" />
-                  </div>
-                </div>
+                <div key={i} className="aspect-[4/5] rounded-[1.5rem] lg:rounded-[2rem] bg-dust-grey/10 animate-pulse" />
               ))
             ) : featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
-                <div key={product.id} className="group flex flex-col bg-background p-2.5 lg:p-4 rounded-[1.5rem] lg:rounded-[2rem] shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 border border-dust-grey/20">
-                  <Link to={`/products/${product.slug}`}>
-                    <div className="aspect-square mb-4 overflow-hidden rounded-xl bg-white relative border border-dust-grey/10">
-                      {product.main_image_url ? (
-                        <img src={product.main_image_url} alt={product.name} className="h-full w-full object-contain p-4 transition-transform" />
-                      ) : (
-                        <div className="h-full w-full bg-neutral-200 flex items-center justify-center text-neutral-400 text-sm">Tidak Ada Gambar</div>
-                      )}
+                <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-2xl lg:rounded-[2rem] p-4 lg:p-7 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+                  <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50">
+                    {product.main_image_url ? (
+                      <img 
+                        src={product.main_image_url} 
+                        alt={product.name} 
+                        className="h-full w-full object-contain p-4 lg:p-8 transition-transform duration-700" 
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center text-gray-200 text-[10px] font-bold uppercase tracking-widest">Tidak Ada Gambar</div>
+                    )}
+                    {product.is_featured && (
+                      <div className="absolute top-3 left-3 lg:top-5 lg:left-5 bg-primary text-primary-foreground text-[7px] lg:text-[8px] font-black uppercase tracking-widest px-2.5 lg:px-4 py-1 lg:py-2 rounded-full shadow-xl">
+                        Unggulan
+                      </div>
+                    )}
+                  </Link>
+
+                  <div className="flex-1 flex flex-col">
+                    <div className="space-y-1 lg:space-y-2 mb-4">
+                      <h3 className="text-sm lg:text-xl font-black text-foreground tracking-tight uppercase leading-tight">{product.name}</h3>
+                      <p className="text-[10px] lg:text-sm font-black text-dust-grey uppercase tracking-widest">
+                        Netto: {product.weight_kg ? `${product.weight_kg}kg` : (product.unit || '5kg')}
+                      </p>
                     </div>
-                  </Link>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-black uppercase tracking-wider">Premium</span>
-                    <span className="text-xs text-gray-500">Stok: {product.stock > 0 ? 'Tersedia' : 'Habis'}</span>
-                  </div>
-                  <Link to={`/products/${product.slug}`}>
-                    <h3 className="font-black text-xs lg:text-xl text-foreground mb-0.5 lg:mb-1 group-hover:text-primary transition-colors line-clamp-1">{product.name}</h3>
-                  </Link>
-                  <p className="text-muted-foreground text-[9px] lg:text-sm mb-2 lg:mb-4">Kemasan {product.weight_kg ? `${product.weight_kg}kg` : product.unit}</p>
-                  <div className="flex items-center justify-between mt-auto">
-                    <span className="font-black text-xs lg:text-xl text-primary">Rp {product.price.toLocaleString('id-ID')}</span>
-                    <Button size="sm" className="bg-primary hover:bg-evergreen rounded-full h-6 w-6 lg:h-10 lg:w-10 p-0 shadow-lg shadow-primary/10" disabled={product.stock <= 0}>
-                      <ShoppingBag className="h-3 w-3 lg:h-4 lg:w-4" />
-                    </Button>
+
+                    <div className="mt-auto pt-4 lg:pt-6 border-t border-dust-grey/10">
+                      <p className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-dust-grey mb-1 lg:mb-2">Harga</p>
+                      <p className="text-base lg:text-3xl font-black text-primary tracking-tighter">
+                        Rp {product.price.toLocaleString('id-ID')}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))
