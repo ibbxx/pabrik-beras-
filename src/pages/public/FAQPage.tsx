@@ -40,8 +40,8 @@ export default function FAQPage() {
     if (!searchQuery) return faqs;
     const lowerQuery = searchQuery.toLowerCase();
     return faqs.filter(
-      (faq) => 
-        faq.question.toLowerCase().includes(lowerQuery) || 
+      (faq) =>
+        faq.question.toLowerCase().includes(lowerQuery) ||
         faq.answer.toLowerCase().includes(lowerQuery)
     );
   }, [faqs, searchQuery]);
@@ -56,12 +56,12 @@ export default function FAQPage() {
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
           Temukan jawaban cepat untuk pertanyaan-pertanyaan yang sering diajukan oleh pelanggan kami.
         </p>
-        
+
         <div className="relative max-w-xl mx-auto">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <Input 
-            className="w-full pl-12 h-14 rounded-full text-base bg-white border-neutral-200 shadow-sm focus-visible:ring-[#1F331E]" 
-            placeholder="Cari pertanyaan Anda di sini..." 
+          <Input
+            className="w-full pl-12 h-14 rounded-full text-base bg-white border-neutral-200 shadow-sm focus-visible:ring-[#1F331E]"
+            placeholder="Cari pertanyaan Anda di sini..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -93,12 +93,12 @@ export default function FAQPage() {
         )}
       </div>
 
-      <div className="mt-12 bg-evergreen rounded-3xl p-8 text-center text-white">
-        <h2 className="text-2xl font-bold mb-4">Masih Butuh Bantuan?</h2>
-        <p className="text-neutral-400 mb-6 max-w-lg mx-auto">
+      <div className="mt-12 bg-evergreen rounded-3xl p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-[#e8e4da] uppercase tracking-wider">Masih Butuh Bantuan?</h2>
+        <p className="text-[#e8e4da]/80 mb-6 max-w-lg mx-auto">
           Jika Anda tidak menemukan jawaban yang dicari, tim kami siap membantu Anda kapan saja.
         </p>
-        <Button size="lg" className="bg-white text-black hover:bg-neutral-100 h-12 rounded-xl font-bold">
+        <Button size="lg" className="bg-white text-evergreen hover:bg-neutral-100 h-12 rounded-xl font-bold uppercase tracking-wider">
           Hubungi Admin Sekarang
         </Button>
       </div>

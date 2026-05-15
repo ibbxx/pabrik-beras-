@@ -39,8 +39,8 @@ export default function HomePage() {
 
   const slides = Array.isArray(settings.hero_slides)
     ? settings.hero_slides
-        .filter((slide: any) => slide?.image_url)
-        .map((slide: any) => ({ ...slide, image_url: optimizeSupabaseUrl(slide.image_url, { width: 1000, quality: 85 }) }))
+      .filter((slide: any) => slide?.image_url)
+      .map((slide: any) => ({ ...slide, image_url: optimizeSupabaseUrl(slide.image_url, { width: 1000, quality: 85 }) }))
     : [];
   if (slides.length === 0 && settings.hero_image_url) {
     slides.push({ image_url: optimizeSupabaseUrl(settings.hero_image_url, { width: 1000, quality: 85 }) });
@@ -56,7 +56,7 @@ export default function HomePage() {
               <div className="space-y-3 lg:space-y-6">
                 <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[12px] lg:text-[14px] font-black uppercase tracking-widest text-primary">
                   <CheckCircle2 size={14} className="text-primary" />
-                  {settings.hero_badge || "Langsung dari Penggilingan"}
+                  {settings.hero_badge || "Langsung dari Pabrik"}
                 </div>
                 <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] lg:leading-[1.05] tracking-tight text-foreground">
                   {settings.hero_headline ? (
@@ -66,7 +66,7 @@ export default function HomePage() {
                   )}
                 </h1>
                 <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-[280px] sm:max-w-md lg:max-w-[580px] leading-relaxed font-medium text-left">
-                  {settings.hero_subheadline || "Menghadirkan beras kualitas terbaik langsung dari penggilingan. Segar, pulen, dan tanpa bahan pengawet."}
+                  {settings.hero_subheadline || "Menghadirkan beras kualitas terbaik langsung dari pabrik penggilingan. Segar, pulen, dan tanpa bahan pengawet."}
                 </p>
               </div>
 
@@ -126,7 +126,7 @@ export default function HomePage() {
                   <CheckCircle2 size={32} className="hidden lg:block" />
                 </div>
                 <h3 className="mb-1 lg:mb-2 text-base lg:text-xl font-black text-foreground">{benefit.title}</h3>
-                <p className="text-[10px] lg:text-base text-muted-foreground leading-relaxed text-justify">{benefit.desc}</p>
+                <p className="text-[11px] lg:text-base text-gray-600 leading-relaxed text-center px-2">{benefit.desc}</p>
               </div>
             ))}
           </div>
@@ -157,10 +157,10 @@ export default function HomePage() {
                 <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-2xl lg:rounded-[2rem] p-4 lg:p-7 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
                   <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50 flex items-center justify-center p-4 lg:p-8">
                     {product.main_image_url ? (
-                      <img 
-                        src={optimizeSupabaseUrl(product.main_image_url, { width: 500, quality: 80, resize: 'contain' })} 
-                        alt={product.name} 
-                        className="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-105" 
+                      <img
+                        src={optimizeSupabaseUrl(product.main_image_url, { width: 500, quality: 80, resize: 'contain' })}
+                        alt={product.name}
+                        className="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
                         decoding="async"
                       />

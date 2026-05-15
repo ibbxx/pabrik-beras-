@@ -148,27 +148,27 @@ export default function PaymentConfirmationPage() {
   return (
     <div className="container mx-auto py-4 px-4 max-w-2xl">
       <div className="text-center mb-4">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-neutral-100 text-black mb-2">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-2">
           <CheckCircle2 size={24} />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 leading-tight">Pesanan Berhasil!</h1>
-        <p className="text-sm text-gray-500">ID: <span className="font-bold text-gray-900">{order.order_code}</span></p>
+        <h1 className="text-2xl font-black text-evergreen leading-tight uppercase tracking-tight">Pesanan Berhasil!</h1>
+        <p className="text-sm text-gray-500">ID: <span className="font-black text-primary">{order.order_code}</span></p>
       </div>
 
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 mb-4">
-        <h2 className="text-base font-bold text-gray-900 mb-3 text-center uppercase tracking-widest">Instruksi Pembayaran</h2>
+        <h2 className="text-base font-black text-evergreen mb-3 text-center uppercase tracking-widest">Instruksi Pembayaran</h2>
         
-        <div className="bg-neutral-50 rounded-xl p-4 border border-neutral-200 mb-4 text-center">
-          <p className="text-[10px] text-gray-500 mb-1 font-bold uppercase tracking-widest">Total Pembayaran</p>
-          <p className="text-3xl font-black text-black tracking-tighter">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
+        <div className="bg-neutral-50 rounded-xl p-4 border border-neutral-100 mb-4 text-center">
+          <p className="text-[10px] text-gray-400 mb-1 font-black uppercase tracking-widest">Total Pembayaran</p>
+          <p className="text-3xl font-black text-primary tracking-tighter">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
         </div>
 
         {order.payment_method === 'Transfer Bank' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-neutral-50">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Bank Mandiri</p>
-                <p className="font-mono font-bold text-base text-black">1740012489571</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Bank Mandiri</p>
+                <p className="font-mono font-black text-base text-primary">1740012489571</p>
                 <p className="text-xs text-gray-500">a.n Aris Abrar</p>
               </div>
               <Button variant="outline" size="sm" onClick={() => handleCopy("1740012489571")} className="h-9 text-[10px] font-bold uppercase tracking-widest">
@@ -195,15 +195,15 @@ export default function PaymentConfirmationPage() {
       </div>
 
       {!isSubmitted && (
-        <div className="bg-neutral-900 rounded-2xl p-5 shadow-sm border border-neutral-800 text-center">
-          <h2 className="text-sm font-bold text-white mb-1 uppercase tracking-widest">Konfirmasi Pembayaran</h2>
-          <p className="text-neutral-400 text-[10px] mb-4">Upload bukti transfer agar pesanan segera diproses.</p>
+        <div className="bg-evergreen rounded-2xl p-5 shadow-xl shadow-evergreen/20 border border-evergreen/10 text-center">
+          <h2 className="text-sm font-black text-white mb-1 uppercase tracking-widest">Konfirmasi Pembayaran</h2>
+          <p className="text-white/60 text-[10px] mb-4">Upload bukti transfer agar pesanan segera diproses.</p>
           
           <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
 
           <div className="grid grid-cols-2 gap-3">
             <Button 
-              className="bg-white text-black hover:bg-neutral-100 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg"
+              className="bg-white text-evergreen hover:bg-neutral-50 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
@@ -222,15 +222,15 @@ export default function PaymentConfirmationPage() {
       )}
 
       {isSubmitted && (
-        <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-200 text-center">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black text-white mb-3">
+        <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-100 text-center">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white mb-3">
             <CheckCircle2 size={20} />
           </div>
-          <h2 className="text-sm font-bold text-black mb-1 uppercase tracking-widest">Bukti Terkirim!</h2>
+          <h2 className="text-sm font-black text-evergreen mb-1 uppercase tracking-widest">Bukti Terkirim!</h2>
           <p className="text-neutral-500 text-[10px] mb-4">Pembayaran Anda sedang diverifikasi admin.</p>
           <Button 
             variant="outline" 
-            className="w-full border-black text-black hover:bg-black hover:text-white bg-white h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+            className="w-full border-primary text-primary hover:bg-primary hover:text-white bg-white h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
             onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, whatsappMessage), "_blank")}
           >
             Chat Admin via WhatsApp
