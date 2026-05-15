@@ -250,6 +250,11 @@ export default function SettingsPage() {
                 >
                   <Upload size={14} /> Upload Image
                 </Button>
+                {settingsMap[key] && (
+                  <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-red-500 hover:bg-red-50 rounded-xl shrink-0" onClick={() => setSettingsMap({ ...settingsMap, [key]: "" })}>
+                    <Trash2 size={16} />
+                  </Button>
+                )}
                 <input
                   type="file"
                   id={`file-${key}`}
@@ -305,6 +310,7 @@ export default function SettingsPage() {
               const active = activeTab === tab.id;
               return (
                 <button
+                  type="button"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
@@ -480,10 +486,12 @@ export default function SettingsPage() {
                           {renderSettingField("hero_subheadline", "Sub-headline", "textarea")}
                         </div>
                         <div className="space-y-6">
-                          <div className="flex items-center justify-between">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Gambar Hero & Slide</p>
+                          {renderSettingField("hero_image_url", "Gambar Hero Default (Fallback)", "image", "Gambar ini akan tampil di beranda utama jika Anda tidak memiliki slide apa pun.")}
+
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slide Carousel</p>
                             <Button 
-                              type="button" 
+                              type="button"
                               variant="outline" 
                               size="sm" 
                               className="h-8 rounded-lg text-[10px] font-black uppercase"
@@ -500,16 +508,16 @@ export default function SettingsPage() {
                           </div>
 
                           <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                            {!settingsMap["hero_slides"]?.length && (
-                              <div className="p-4 rounded-2xl border border-dashed border-gray-200 text-center">
-                                <p className="text-xs text-gray-400 mb-2">Belum ada slide. Klik "Tambah Slide".</p>
-                                {renderSettingField("hero_image_url", "Gambar Hero Default", "image")}
+                            {(!settingsMap["hero_slides"] || settingsMap["hero_slides"].length === 0) && (
+                              <div className="p-4 rounded-2xl border border-dashed border-gray-200 text-center bg-gray-50/50">
+                                <p className="text-xs text-gray-400">Belum ada slide tambahan. Klik "Tambah Slide".</p>
                               </div>
                             )}
 
                             {(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : []).map((slide: any, index: number) => (
                               <div key={index} className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide">
                                 <Button 
+                                  type="button"
                                   variant="ghost" 
                                   size="icon" 
                                   className="absolute top-2 right-2 h-8 w-8 text-gray-300 hover:text-red-500 rounded-lg"
