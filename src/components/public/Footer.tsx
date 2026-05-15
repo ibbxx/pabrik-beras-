@@ -26,26 +26,26 @@ export function Footer() {
               {settings.footer_description || "Penyedia beras lokal berkualitas dengan harga terbaik langsung dari pabrik penggilingan."}
             </p>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-primary transition-colors"><Globe size={20} /></a>
+              <a href="#" className="hover:text-background transition-colors"><Globe size={20} /></a>
             </div>
           </div>
 
           <div>
             <h4 className="text-lg font-black text-background mb-4 uppercase tracking-widest text-xs">Tautan</h4>
             <ul className="space-y-2 text-sm text-dust-grey/50">
-              <li><Link to="/about" className="hover:text-primary transition-colors">Tentang Kami</Link></li>
-              <li><Link to="/products" className="hover:text-primary transition-colors">Katalog Produk</Link></li>
-              <li><Link to="/reseller" className="hover:text-primary transition-colors">Daftar Reseller</Link></li>
-              <li><Link to="/articles" className="hover:text-primary transition-colors">Artikel</Link></li>
+              <li><Link to="/about" className="hover:text-background transition-colors">Tentang Kami</Link></li>
+              <li><Link to="/products" className="hover:text-background transition-colors">Katalog Produk</Link></li>
+              <li><Link to="/reseller" className="hover:text-background transition-colors">Daftar Reseller</Link></li>
+              <li><Link to="/articles" className="hover:text-background transition-colors">Artikel</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-lg font-black text-background mb-4 uppercase tracking-widest text-xs">Bantuan</h4>
             <ul className="space-y-2 text-sm text-dust-grey/50">
-              <li><Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
-              <li><Link to="/order-status" className="hover:text-primary transition-colors">Cek Status Pesanan</Link></li>
-              <li><Link to="/contact" className="hover:text-primary transition-colors">Hubungi Kami</Link></li>
+              <li><Link to="/faq" className="hover:text-background transition-colors">FAQ</Link></li>
+              <li><Link to="/order-status" className="hover:text-background transition-colors">Cek Status Pesanan</Link></li>
+              <li><Link to="/contact" className="hover:text-background transition-colors">Hubungi Kami</Link></li>
             </ul>
           </div>
 
