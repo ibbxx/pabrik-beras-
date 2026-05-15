@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Loader2,
@@ -55,26 +55,45 @@ export default function SettingsPage() {
   // Dynamic Settings Map
   const [settingsMap, setSettingsMap] = useState<Record<string, any>>({});
 
+  // Track which data categories have already been loaded to avoid overwriting
+  // unsaved edits when switching between tabs.
+  const loadedRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchData = async () => {
+    // For settings-type tabs, reuse already-loaded data to preserve edits
+    const settingsTabs = ["appearance", "business", "seo"];
+    const isSettingsTab = settingsTabs.includes(activeTab);
+    if (isSettingsTab && loadedRef.current.has("site_settings")) {
+      // Data sudah dimuat sebelumnya, jangan timpa settingsMap
+      return;
+    }
+    if (!isSettingsTab && loadedRef.current.has(activeTab)) {
+      return;
+    }
+
     setLoading(true);
     try {
       if (activeTab === "faq") {
         const { data, error } = await supabase.from("faqs").select("*").order("order_num");
         if (error) throw error;
         setFaqs(data || []);
+        loadedRef.current.add(activeTab);
       } else if (activeTab === "articles") {
         const { data, error } = await supabase.from("articles").select("*").order("created_at", { ascending: false });
         if (error) throw error;
         setArticles(data || []);
+        loadedRef.current.add(activeTab);
       } else if (activeTab === "testimonials") {
         const { data, error } = await supabase.from("testimonials").select("*").order("created_at", { ascending: false });
         if (error) throw error;
         setTestimonials(data || []);
-      } else if (["appearance", "business", "seo"].includes(activeTab)) {
+        loadedRef.current.add(activeTab);
+      } else if (isSettingsTab) {
         const { data, error } = await supabase.from("site_settings").select("*").order("key");
         if (error) throw error;
         setSiteSettings(data || []);
@@ -87,6 +106,7 @@ export default function SettingsPage() {
           map[s.key] = val;
         });
         setSettingsMap(map);
+        loadedRef.current.add("site_settings");
       }
     } catch (err: any) {
       toast.error("Failed to load data: " + err.message);

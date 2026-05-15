@@ -76,9 +76,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     // Pantau perubahan login/logout
+    // PENTING: Jangan set isLoading=true pada TOKEN_REFRESHED atau INITIAL_SESSION
+    // karena ini akan menghancurkan semua komponen anak (admin page) dan
+    // menghilangkan data yang sedang diedit user.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setIsLoading(true);
+      (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+          setIsLoading(true);
+        }
         void syncSession(session);
       }
     );
