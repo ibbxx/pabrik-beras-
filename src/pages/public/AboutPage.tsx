@@ -90,7 +90,7 @@ export default function AboutPage() {
           
           <div className="order-2 lg:order-1 space-y-6 md:space-y-8">
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1F331E] tracking-tight mb-6">Sejarah Kami</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-[#1F331E] tracking-tight mb-6 uppercase">Sejarah Kami</h2>
               <div className="w-20 h-1.5 bg-[#1F331E] rounded-full"></div>
             </div>
             <p className="text-base md:text-lg text-gray-600 leading-loose whitespace-pre-line text-justify">

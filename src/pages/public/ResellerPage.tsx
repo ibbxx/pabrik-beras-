@@ -82,8 +82,8 @@ export default function ResellerPage() {
         
         <div className="container relative z-10 mx-auto max-w-4xl text-center">
           <div className="flex flex-col items-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white animate-fade-in-up opacity-0 [animation-delay:200ms]">
-              <HandshakeIcon size={12} />
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm lg:text-base font-black uppercase tracking-widest text-white animate-fade-in-up opacity-0 [animation-delay:200ms]">
+              <HandshakeIcon size={16} />
               Kemitraan
             </div>
             
@@ -95,12 +95,12 @@ export default function ResellerPage() {
               Pasokan beras langsung dari pabrik dengan harga khusus.
             </p>
             
-            <div className="flex flex-row items-center justify-center gap-3 mt-8 animate-fade-in-up opacity-0 [animation-delay:800ms]">
-              <Button size="sm" className="bg-primary text-white font-black hover:bg-evergreen h-14 lg:h-16 px-6 lg:px-10 shadow-xl transition-all hover:-translate-y-1 active:scale-95 text-[16px] lg:text-[18px] uppercase tracking-widest rounded-2xl" onClick={() => document.getElementById('reseller-form')?.scrollIntoView({ behavior: 'smooth' })}>
-                Daftar Sekarang <ArrowRight className="ml-2 h-4 w-4" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 animate-fade-in-up opacity-0 [animation-delay:800ms] w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto bg-primary text-white font-black hover:bg-evergreen h-14 lg:h-16 px-8 lg:px-12 shadow-xl transition-all hover:-translate-y-1 active:scale-95 text-base lg:text-lg uppercase tracking-widest rounded-2xl lg:rounded-[2rem]" onClick={() => document.getElementById('reseller-form')?.scrollIntoView({ behavior: 'smooth' })}>
+                Daftar Sekarang <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" size="sm" className="bg-white/90 border-white text-[#1F331E] hover:bg-white hover:text-[#1F331E]/80 rounded-2xl h-14 lg:h-16 px-6 lg:px-10 font-black text-[16px] lg:text-[18px] transition-all hover:-translate-y-1 active:scale-95 shadow-lg shadow-[#1F331E]/10 uppercase tracking-widest" onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp || "082355148758", "Halo, saya ingin bertanya tentang kemitraan reseller."), "_blank")}>
-                <MessageCircle className="mr-1.5 h-3.5 w-3.5" /> Hubungi Admin
+              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-white/90 border-white text-[#1F331E] hover:bg-white hover:text-[#1F331E]/80 rounded-2xl lg:rounded-[2rem] h-14 lg:h-16 px-8 lg:px-12 font-black text-base lg:text-lg transition-all hover:-translate-y-1 active:scale-95 shadow-lg shadow-[#1F331E]/10 uppercase tracking-widest" onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp || "082355148758", "Halo, saya ingin bertanya tentang kemitraan reseller."), "_blank")}>
+                <MessageCircle className="mr-2 h-5 w-5" /> Hubungi Admin
               </Button>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function ResellerPage() {
         </div>
       </section>
 
-      <section id="reseller-form" className="py-6 lg:py-20 bg-background">
+      <section id="reseller-form" className="py-6 lg:py-20 bg-neutral-50">
         <div className="container mx-auto px-3 lg:px-4 max-w-3xl">
           <div className="bg-background rounded-xl lg:rounded-[2.5rem] shadow-2xl shadow-primary/5 border border-dust-grey/10 p-4 lg:p-12">
             {isSuccess ? (
