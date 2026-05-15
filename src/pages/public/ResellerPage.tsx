@@ -96,10 +96,10 @@ export default function ResellerPage() {
             </p>
             
             <div className="flex flex-row items-center justify-center gap-3 mt-8 animate-fade-in-up opacity-0 [animation-delay:800ms]">
-              <Button size="sm" className="bg-primary text-white font-black hover:bg-evergreen h-12 lg:h-14 px-6 lg:px-8 shadow-xl transition-all hover:-translate-y-1 active:scale-95 text-xs lg:text-sm uppercase tracking-widest rounded-2xl" onClick={() => document.getElementById('reseller-form')?.scrollIntoView({ behavior: 'smooth' })}>
+              <Button size="sm" className="bg-primary text-white font-black hover:bg-evergreen h-14 lg:h-16 px-6 lg:px-10 shadow-xl transition-all hover:-translate-y-1 active:scale-95 text-[16px] lg:text-[18px] uppercase tracking-widest rounded-2xl" onClick={() => document.getElementById('reseller-form')?.scrollIntoView({ behavior: 'smooth' })}>
                 Daftar Sekarang <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" className="bg-white/90 border-white text-[#1F331E] hover:bg-white hover:text-[#1F331E]/80 rounded-2xl h-12 lg:h-14 px-6 lg:px-8 font-black text-xs lg:text-sm transition-all hover:-translate-y-1 active:scale-95 shadow-lg shadow-[#1F331E]/10 uppercase tracking-widest" onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp || "082355148758", "Halo, saya ingin bertanya tentang kemitraan reseller."), "_blank")}>
+              <Button variant="outline" size="sm" className="bg-white/90 border-white text-[#1F331E] hover:bg-white hover:text-[#1F331E]/80 rounded-2xl h-14 lg:h-16 px-6 lg:px-10 font-black text-[16px] lg:text-[18px] transition-all hover:-translate-y-1 active:scale-95 shadow-lg shadow-[#1F331E]/10 uppercase tracking-widest" onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp || "082355148758", "Halo, saya ingin bertanya tentang kemitraan reseller."), "_blank")}>
                 <MessageCircle className="mr-1.5 h-3.5 w-3.5" /> Hubungi Admin
               </Button>
             </div>

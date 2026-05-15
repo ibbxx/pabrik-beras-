@@ -52,7 +52,7 @@ export default function FAQPage() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#1F331E] text-white mb-6">
           <HelpCircle size={32} />
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Pusat Bantuan & FAQ</h1>
+        <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Pusat Bantuan & FAQ</h1>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
           Temukan jawaban cepat untuk pertanyaan-pertanyaan yang sering diajukan oleh pelanggan kami.
         </p>

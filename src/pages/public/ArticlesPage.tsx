@@ -41,7 +41,7 @@ export default function ArticlesPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-6xl">
       <div className="text-center mb-16">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Artikel & Berita</h1>
+        <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Artikel & Berita</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Temukan tips bermanfaat, edukasi seputar beras, dan berita terbaru dari Pabrik Beras Desa Kurma.
         </p>
@@ -49,7 +49,7 @@ export default function ArticlesPage() {
 
       {loading ? (
         <div className="flex justify-center items-center py-20 w-full">
-          <Loader2 className="animate-spin h-10 w-10 text-black" />
+          <Loader2 className="animate-spin h-10 w-10 text-[#1F331E]" />
         </div>
       ) : articles.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -102,7 +102,7 @@ export default function ArticlesPage() {
       )}
       
       <div className="mt-16 text-center">
-        <Button variant="outline" size="lg" className="border-black text-black font-bold hover:bg-neutral-50 rounded-2xl px-10">
+        <Button variant="outline" size="lg" className="border-[#1F331E] text-[#1F331E] font-bold hover:bg-[#1F331E]/5 rounded-2xl px-10">
           Muat Lebih Banyak Artikel
         </Button>
       </div>
