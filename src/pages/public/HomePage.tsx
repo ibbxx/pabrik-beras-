@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, ShoppingBag } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings } from "@/hooks/useSettings";
@@ -12,18 +12,40 @@ export default function HomePage() {
   const { settings, loading: settingsLoading } = useSettings();
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
 
-  const slides = Array.isArray(settings.hero_slides) ? settings.hero_slides : [];
+  const slides = Array.isArray(settings.hero_slides)
+    ? settings.hero_slides.filter((slide: any) => slide?.image_url)
+    : [];
   const hasSlides = slides.length > 0;
+  const hasMultipleSlides = slides.length > 1;
+  const safeCurrentSlide = hasSlides ? currentSlide % slides.length : 0;
+  const activeSlide = hasSlides ? slides[safeCurrentSlide] : null;
 
   useEffect(() => {
-    if (hasSlides) {
+    if (hasMultipleSlides && !isHeroPaused) {
       const timer = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
       }, 5000);
       return () => clearInterval(timer);
     }
-  }, [hasSlides, slides.length]);
+  }, [hasMultipleSlides, isHeroPaused, slides.length]);
+
+  useEffect(() => {
+    if (hasSlides && currentSlide >= slides.length) {
+      setCurrentSlide(0);
+    }
+  }, [currentSlide, hasSlides, slides.length]);
+
+  const goToPreviousSlide = () => {
+    if (!hasMultipleSlides) return;
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToNextSlide = () => {
+    if (!hasMultipleSlides) return;
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,10 +99,10 @@ export default function HomePage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                <Link to={hasSlides ? slides[currentSlide].cta_link || "/products" : "/products"} className="w-full sm:w-auto">
+                <Link to={activeSlide?.cta_link || settings.hero_cta_link || "/products"} className="w-full sm:w-auto">
                   <Button size="lg" className="h-12 lg:h-16 px-8 lg:px-10 w-full rounded-2xl lg:rounded-[2rem] bg-primary hover:bg-evergreen text-primary-foreground font-black shadow-xl lg:shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 active:scale-95 group">
                     <ShoppingBag className="mr-2 h-4 w-4 lg:h-5 lg:w-5 transition-transform group-hover:rotate-12" /> 
-                    {hasSlides && slides[currentSlide].cta_text ? slides[currentSlide].cta_text : (settings.hero_cta_text || "Belanja Sekarang")}
+                    {activeSlide?.cta_text || settings.hero_cta_text || "Belanja Sekarang"}
                   </Button>
                 </Link>
                 <Link to="/contact" className="w-full sm:w-auto">
@@ -106,45 +128,93 @@ export default function HomePage() {
 
             {/* Right: Slide Image */}
             <div className="order-1 lg:order-2 relative animate-fade-in flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[240px] sm:max-w-md lg:max-w-2xl aspect-[4/5] lg:aspect-square flex items-center justify-center overflow-hidden rounded-[2rem] lg:rounded-[3rem]">
-                {hasSlides ? (
-                  <div className="relative w-full h-full">
-                    {slides.map((slide: any, index: number) => (
-                      <div
-                        key={index}
-                        className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-out flex items-center justify-center ${index === currentSlide ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-20 scale-90 pointer-events-none'}`}
-                      >
-                        <img
-                          src={slide.image_url}
-                          alt={`Slide ${index + 1}`}
-                          className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
-                        />
-                      </div>
-                    ))}
+              <div
+                className="relative w-full max-w-[300px] sm:max-w-md lg:max-w-2xl"
+                onMouseEnter={() => setIsHeroPaused(true)}
+                onMouseLeave={() => setIsHeroPaused(false)}
+                onFocus={() => setIsHeroPaused(true)}
+                onBlur={() => setIsHeroPaused(false)}
+              >
+                <div className="absolute inset-x-5 top-6 h-full rounded-[2.5rem] border border-dust-grey/30 bg-dust-grey/20 lg:inset-x-8 lg:top-8 lg:rounded-[3.5rem]" />
+                <div className="relative overflow-hidden rounded-[2rem] border border-dust-grey/40 bg-white p-1.5 shadow-2xl shadow-primary/10 sm:p-2 lg:rounded-[3rem] lg:p-2.5">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-transparent lg:aspect-square lg:rounded-[2.25rem]">
+                    {hasSlides ? (
+                      <div className="relative h-full w-full">
+                        {slides.map((slide: any, index: number) => {
+                          const isActive = index === safeCurrentSlide;
 
-                    {/* Progress Dots */}
-                    <div className="absolute bottom-4 lg:bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 lg:gap-2 z-20">
-                      {slides.map((_: any, i: number) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentSlide(i)}
-                          className={`h-1 lg:h-2 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-6 lg:w-8 bg-primary' : 'w-1 lg:w-2 bg-dust-grey hover:bg-dust-grey/50'}`}
-                        />
-                      ))}
-                    </div>
+                          return (
+                            <div
+                              key={`${slide.image_url}-${index}`}
+                              className={`absolute inset-0 flex h-full w-full items-center justify-center transition-all duration-700 ease-out ${
+                                isActive
+                                  ? "translate-x-0 scale-100 opacity-100 blur-0"
+                                  : "translate-x-6 scale-95 opacity-0 blur-sm pointer-events-none"
+                              }`}
+                              aria-hidden={!isActive}
+                            >
+                              <img
+                                src={slide.image_url}
+                                alt={slide.alt || `Slide ${index + 1}`}
+                                className="h-full w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.14)]"
+                              />
+                            </div>
+                          );
+                        })}
+
+                        {hasMultipleSlides && (
+                          <>
+                            <button
+                              type="button"
+                              aria-label="Slide sebelumnya"
+                              onClick={goToPreviousSlide}
+                              className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-foreground shadow-lg shadow-black/10 transition-all hover:scale-105 hover:bg-primary hover:text-primary-foreground active:scale-95 lg:left-5 lg:h-12 lg:w-12"
+                            >
+                              <ChevronLeft size={20} />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="Slide berikutnya"
+                              onClick={goToNextSlide}
+                              className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-foreground shadow-lg shadow-black/10 transition-all hover:scale-105 hover:bg-primary hover:text-primary-foreground active:scale-95 lg:right-5 lg:h-12 lg:w-12"
+                            >
+                              <ChevronRight size={20} />
+                            </button>
+
+                            <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/70 bg-white/90 px-3 py-2 shadow-lg shadow-black/10 backdrop-blur lg:bottom-5">
+                              {slides.map((_: any, i: number) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  aria-label={`Tampilkan slide ${i + 1}`}
+                                  onClick={() => setCurrentSlide(i)}
+                                  className={`h-2 rounded-full transition-all duration-500 ${
+                                    i === safeCurrentSlide
+                                      ? "w-7 bg-primary"
+                                      : "w-2 bg-dust-grey hover:bg-primary/40"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+
+                            <div className="absolute left-0 top-0 z-20 h-1 bg-primary transition-all duration-700" style={{ width: `${((safeCurrentSlide + 1) / slides.length) * 100}%` }} />
+                          </>
+                        )}
+                      </div>
+                    ) : settings.hero_image_url ? (
+                      <img
+                        src={settings.hero_image_url}
+                        alt="Beras premium Desa Kurma"
+                        className="h-full w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.14)]"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-dust-grey/10 p-8 text-center">
+                        <ShoppingBag size={80} className="text-dust-grey/30" />
+                        <span className="text-xs font-black uppercase tracking-widest text-dust-grey/50">Pabrik Beras Desa Kurma</span>
+                      </div>
+                    )}
                   </div>
-                ) : settings.hero_image_url ? (
-                  <img
-                    src={settings.hero_image_url}
-                    alt="Organic Rice"
-                    className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-dust-grey/10 flex flex-col items-center justify-center gap-4">
-                    <ShoppingBag size={80} className="text-dust-grey/30" />
-                    <span className="text-xs font-black uppercase tracking-widest text-dust-grey/50">Pabrik Beras Desa Kurma</span>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
