@@ -65,20 +65,20 @@ export default function HomePage() {
                     <>Beras Premium <br /> <span className="text-[#523F17]">Desa Kurma</span></>
                   )}
                 </h1>
-                <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-md lg:max-w-lg leading-relaxed font-medium text-justify">
+                <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-[280px] sm:max-w-md lg:max-w-[580px] leading-relaxed font-medium text-left">
                   {settings.hero_subheadline || "Menghadirkan beras kualitas terbaik langsung dari penggilingan. Segar, pulen, dan tanpa bahan pengawet."}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <Link to={settings.hero_cta_link || "/products"} className="w-full sm:w-auto">
-                  <Button size="lg" className="h-12 lg:h-16 px-8 lg:px-10 w-full rounded-2xl lg:rounded-[2rem] bg-primary hover:bg-evergreen text-primary-foreground font-black shadow-xl lg:shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 active:scale-95 group">
+                  <Button size="lg" className="h-12 lg:h-16 px-8 lg:px-10 w-full rounded-2xl lg:rounded-[2rem] bg-primary hover:bg-evergreen text-primary-foreground font-black uppercase shadow-xl lg:shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 active:scale-95 group">
                     <ShoppingBag className="mr-2 h-4 w-4 lg:h-5 lg:w-5 transition-transform group-hover:rotate-12" />
                     {settings.hero_cta_text || "Belanja Sekarang"}
                   </Button>
                 </Link>
                 <Link to="/contact" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="h-12 lg:h-16 px-8 lg:px-10 w-full rounded-2xl lg:rounded-[2rem] text-foreground font-black border-2 border-dust-grey hover:bg-dust-grey/10 transition-all hover:-translate-y-1">
+                  <Button size="lg" variant="outline" className="h-12 lg:h-16 px-8 lg:px-10 w-full rounded-2xl lg:rounded-[2rem] text-foreground font-black uppercase border-2 border-dust-grey hover:bg-dust-grey/10 transition-all hover:-translate-y-1">
                     Hubungi Kami
                   </Button>
                 </Link>
