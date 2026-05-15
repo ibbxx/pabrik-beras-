@@ -1,9 +1,10 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Clock, Package, Truck, ArrowLeft, Download, Search, Loader2 } from "lucide-react";
+import { CheckCircle2, Clock, Package, Truck, ArrowLeft, Download, Search, Loader2, Copy } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function OrderStatusPage() {
   const { orderId } = useParams();
@@ -89,6 +90,11 @@ export default function OrderStatusPage() {
     }
   };
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Kode pesanan disalin!');
+  };
+
   // --- SEARCH MODE ---
   if (!orderId) {
     return (
@@ -172,8 +178,15 @@ export default function OrderStatusPage() {
         <div>
           <h1 className="text-xl font-black text-gray-900 tracking-tighter uppercase">Status Pesanan</h1>
           <div className="flex items-center gap-4 mt-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
               ID: <span className="text-black">{order.order_code}</span>
+              <button 
+                onClick={() => handleCopy(order.order_code)}
+                className="hover:text-black transition-colors"
+                title="Salin Kode Pesanan"
+              >
+                <Copy size={10} />
+              </button>
             </p>
             <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{orderDate} WIB</p>
           </div>
