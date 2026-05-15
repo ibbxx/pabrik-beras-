@@ -49,10 +49,10 @@ export default function FAQPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-4xl">
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#1F331E] text-white mb-6">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-evergreen text-white mb-6">
           <HelpCircle size={32} />
         </div>
-        <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Pusat Bantuan & FAQ</h1>
+        <h1 className="text-3xl md:text-5xl font-black text-evergreen mb-4 uppercase tracking-widest leading-relaxed">Pusat Bantuan & FAQ</h1>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
           Temukan jawaban cepat untuk pertanyaan-pertanyaan yang sering diajukan oleh pelanggan kami.
         </p>
@@ -93,7 +93,7 @@ export default function FAQPage() {
         )}
       </div>
 
-      <div className="mt-12 bg-[#1F331E] rounded-3xl p-8 text-center text-white">
+      <div className="mt-12 bg-evergreen rounded-3xl p-8 text-center text-white">
         <h2 className="text-2xl font-bold mb-4">Masih Butuh Bantuan?</h2>
         <p className="text-neutral-400 mb-6 max-w-lg mx-auto">
           Jika Anda tidak menemukan jawaban yang dicari, tim kami siap membantu Anda kapan saja.

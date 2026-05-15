@@ -6,6 +6,14 @@ export function useSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const cached = localStorage.getItem("site_settings");
+    if (cached) {
+      try {
+        setSettings(JSON.parse(cached));
+        setLoading(false);
+      } catch (e) {}
+    }
+
     async function fetchSettings() {
       try {
         const { data, error } = await supabase.from("site_settings").select("key, value");
@@ -19,6 +27,8 @@ export function useSettings() {
           }
           map[row.key] = val;
         });
+        
+        localStorage.setItem("site_settings", JSON.stringify(map));
         setSettings(map);
       } catch (err) {
         console.error("Error fetching site settings:", err);

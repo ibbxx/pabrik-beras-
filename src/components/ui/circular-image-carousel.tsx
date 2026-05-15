@@ -174,7 +174,7 @@ export const CircularImageCarousel = ({ images, autoplay = true }: CircularImage
         <div className="flex gap-4 z-10">
           <button
             onClick={handlePrev}
-            style={{ backgroundColor: hoverPrev ? "#00a6fb" : "#141414" }}
+            style={{ backgroundColor: hoverPrev ? "#2d4a2c" : "#1F331E" }}
             onMouseEnter={() => setHoverPrev(true)}
             onMouseLeave={() => setHoverPrev(false)}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-lg"
@@ -184,7 +184,7 @@ export const CircularImageCarousel = ({ images, autoplay = true }: CircularImage
           </button>
           <button
             onClick={handleNext}
-            style={{ backgroundColor: hoverNext ? "#00a6fb" : "#141414" }}
+            style={{ backgroundColor: hoverNext ? "#2d4a2c" : "#1F331E" }}
             onMouseEnter={() => setHoverNext(true)}
             onMouseLeave={() => setHoverNext(false)}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-lg"

@@ -56,7 +56,7 @@ export default {
         },
         // Custom palette
         "emerald-depths": "#1D543F",
-        "evergreen": "#20341E",
+        "evergreen": "#1F331E",
         "dust-grey": "#CCC8C3",
         "dark-khaki": "#523F17",
         "soft-linen": "#E7E3DB",

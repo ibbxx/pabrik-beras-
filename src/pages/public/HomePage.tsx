@@ -6,6 +6,7 @@ import { HeroCarousel } from "@/components/ui/hero-carousel";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings } from "@/hooks/useSettings";
 import { renderGreenMarkup } from "@/lib/content";
+import { optimizeSupabaseUrl } from "@/lib/images";
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
@@ -37,10 +38,12 @@ export default function HomePage() {
   const loading = productsLoading || settingsLoading;
 
   const slides = Array.isArray(settings.hero_slides)
-    ? settings.hero_slides.filter((slide: any) => slide?.image_url)
+    ? settings.hero_slides
+        .filter((slide: any) => slide?.image_url)
+        .map((slide: any) => ({ ...slide, image_url: optimizeSupabaseUrl(slide.image_url, { width: 1000, quality: 85 }) }))
     : [];
   if (slides.length === 0 && settings.hero_image_url) {
-    slides.push({ image_url: settings.hero_image_url });
+    slides.push({ image_url: optimizeSupabaseUrl(settings.hero_image_url, { width: 1000, quality: 85 }) });
   }
 
   return (
@@ -51,8 +54,8 @@ export default function HomePage() {
             {/* Left: Text Content */}
             <div className="order-2 lg:order-1 space-y-4 lg:space-y-8 flex flex-col items-start text-left animate-fade-in-up px-4 lg:px-0 mt-6 lg:mt-0">
               <div className="space-y-3 lg:space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
-                  <CheckCircle2 size={12} className="text-primary" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[12px] lg:text-[14px] font-black uppercase tracking-widest text-primary">
+                  <CheckCircle2 size={14} className="text-primary" />
                   {settings.hero_badge || "Langsung dari Penggilingan"}
                 </div>
                 <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] lg:leading-[1.05] tracking-tight text-foreground">
@@ -62,7 +65,7 @@ export default function HomePage() {
                     <>Beras Premium <br /> <span className="text-[#523F17]">Desa Kurma</span></>
                   )}
                 </h1>
-                <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-md lg:max-w-lg leading-relaxed font-medium text-justify line-clamp-2">
+                <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-md lg:max-w-lg leading-relaxed font-medium text-justify">
                   {settings.hero_subheadline || "Menghadirkan beras kualitas terbaik langsung dari penggilingan. Segar, pulen, dan tanpa bahan pengawet."}
                 </p>
               </div>
@@ -87,8 +90,8 @@ export default function HomePage() {
                   { label: settings.trust_2 || "Harga Pabrik", icon: "✓" },
                   { label: settings.trust_3 || "Kirim Cepat", icon: "✓" },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-muted-foreground text-[9px] lg:text-[11px] font-black uppercase tracking-widest">
-                    <span className="w-5 h-5 lg:w-6 lg:h-6 rounded-md lg:rounded-lg bg-dust-grey/20 text-foreground flex items-center justify-center font-black">{item.icon}</span>
+                  <div key={i} className="flex items-center gap-2 text-muted-foreground text-[11px] lg:text-[13px] font-black uppercase tracking-widest">
+                    <span className="w-6 h-6 lg:w-7 lg:h-7 rounded-md lg:rounded-lg bg-dust-grey/20 text-foreground flex items-center justify-center font-black">{item.icon}</span>
                     {item.label}
                   </div>
                 ))}
@@ -152,12 +155,12 @@ export default function HomePage() {
             ) : featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
                 <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-2xl lg:rounded-[2rem] p-4 lg:p-7 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
-                  <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50">
+                  <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50 flex items-center justify-center p-4 lg:p-8">
                     {product.main_image_url ? (
                       <img 
-                        src={product.main_image_url} 
+                        src={optimizeSupabaseUrl(product.main_image_url, { width: 500, quality: 80, resize: 'contain' })} 
                         alt={product.name} 
-                        className="h-full w-full object-contain p-4 lg:p-8 transition-transform duration-700" 
+                        className="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-105" 
                         loading="lazy"
                         decoding="async"
                       />

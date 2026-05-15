@@ -9,7 +9,6 @@ export function Footer() {
   return (
     <footer className="bg-evergreen text-dust-grey/60 pt-10 lg:pt-16 pb-6 lg:pb-8 relative overflow-hidden">
       {/* Decorative subtle texture or gradient could go here */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-primary" />
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 lg:gap-8 mb-8 lg:mb-12">
           <div className="md:col-span-1">

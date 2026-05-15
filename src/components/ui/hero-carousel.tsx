@@ -53,7 +53,13 @@ export const HeroCarousel = ({
     if (autoplayIntervalRef.current) clearInterval(autoplayIntervalRef.current);
   }, [slidesLength]);
 
-  if (!slides || slides.length === 0) return null;
+  if (!slides || slides.length === 0) {
+    return (
+      <div className="relative w-full lg:max-w-sm xl:max-w-md flex flex-col items-center">
+        <div className="relative w-full aspect-square sm:aspect-[4/5] lg:aspect-[4/5] overflow-hidden rounded-none sm:rounded-[2rem] lg:rounded-[3rem] bg-gray-100 animate-pulse" />
+      </div>
+    );
+  }
 
   // Simple fade transition
   function getImageStyle(index: number): React.CSSProperties {
@@ -67,7 +73,7 @@ export const HeroCarousel = ({
 
   return (
     <div className="relative w-full lg:max-w-sm xl:max-w-md flex flex-col items-center">
-      <div 
+      <div
         className="relative w-full aspect-square sm:aspect-[4/5] lg:aspect-[4/5] overflow-hidden rounded-none sm:rounded-[2rem] lg:rounded-[3rem] sm:shadow-2xl mb-6"
       >
         {slides.map((slide, index) => (

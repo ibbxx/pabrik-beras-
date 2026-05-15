@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizeSupabaseUrl } from "@/lib/images";
 
 
 export default function ProductsPage() {
@@ -82,12 +83,12 @@ export default function ProductsPage() {
         ) : products.length > 0 ? (
           products.map((product) => (
             <div key={product.id} className="group flex flex-col h-full bg-background border border-dust-grey/10 rounded-2xl lg:rounded-[2rem] p-4 lg:p-7 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
-              <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50">
+              <Link to={`/products/${product.slug}`} className="relative aspect-square mb-5 lg:mb-8 overflow-hidden rounded-xl lg:rounded-[1.5rem] bg-gray-50/50 flex items-center justify-center p-4 lg:p-8">
                 {product.main_image_url ? (
                   <img 
-                    src={product.main_image_url} 
+                    src={optimizeSupabaseUrl(product.main_image_url, { width: 500, quality: 80, resize: 'contain' })} 
                     alt={product.name} 
-                    className="h-full w-full object-contain p-4 lg:p-8 transition-transform duration-700" 
+                    className="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-105" 
                     loading="lazy"
                     decoding="async"
                   />

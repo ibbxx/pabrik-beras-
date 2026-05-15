@@ -264,7 +264,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
               {settingsMap[key] ? (
-                <img src={settingsMap[key]} alt={label} className="w-full h-full object-cover" />
+                <img src={settingsMap[key]} alt={label} className="w-full h-full object-contain" />
               ) : (
                 <ImageIcon className="h-8 w-8 text-gray-200" />
               )}
@@ -312,7 +312,7 @@ export default function SettingsPage() {
           <div className="flex flex-wrap gap-4">
             {(Array.isArray(settingsMap[key]) ? settingsMap[key] : (settingsMap[key] ? [settingsMap[key]] : [])).map((url: string, index: number) => (
               <div key={index} className="w-24 h-24 rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm relative group flex items-center justify-center shrink-0">
-                <img src={url} alt={`${label} ${index + 1}`} className="w-full h-full object-cover" />
+                <img src={url} alt={`${label} ${index + 1}`} className="w-full h-full object-contain" />
                 <Button 
                   type="button" 
                   variant="destructive" 
@@ -674,7 +674,7 @@ export default function SettingsPage() {
                                   <div className="flex items-center gap-4">
                                     <div className="w-16 h-16 rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
                                       {slide.image_url ? (
-                                        <img src={slide.image_url} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
+                                        <img src={slide.image_url} alt={`Slide ${index + 1}`} className="w-full h-full object-contain" />
                                       ) : (
                                         <ImageIcon className="h-6 w-6 text-gray-200" />
                                       )}

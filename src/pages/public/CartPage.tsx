@@ -30,7 +30,13 @@ export default function CartPage() {
                   <div key={item.id} className={`flex gap-4 py-6 ${index !== cartItems.length - 1 ? 'border-b border-neutral-100' : ''}`}>
                     <div className="w-24 h-24 bg-neutral-100 rounded-xl flex-shrink-0 relative overflow-hidden">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <div className="w-full h-full flex items-center justify-center p-2">
+                          <img 
+                            src={item.image.includes('supabase.co') ? item.image.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=200&quality=80&resize=contain' : item.image} 
+                            alt={item.name} 
+                            className="max-h-full max-w-full object-contain" 
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs text-neutral-400">Tanpa Gambar</div>
                       )}
