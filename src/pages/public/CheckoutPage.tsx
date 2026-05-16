@@ -17,8 +17,9 @@ export default function CheckoutPage() {
     fullName: "",
     whatsapp: "",
     address: "",
-    city: "",
+    city: "Kota Makassar",
     district: "",
+    subdistrict: "",
     paymentMethod: "Transfer Bank"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,9 +50,9 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
-    if (!formData.fullName || !formData.whatsapp || !formData.address || !formData.city || !formData.district) {
+    if (!formData.fullName || !formData.whatsapp || !formData.address || !formData.city || !formData.district || !formData.subdistrict) {
       toast.error("Mohon lengkapi semua field yang wajib diisi (*)");
       return;
     }
@@ -63,14 +64,14 @@ export default function CheckoutPage() {
 
     try {
       setIsSubmitting(true);
-      
+
       // 1. Create or update customer
       const { data: customerData, error: customerError } = await supabase
         .from('customers')
         .insert({
           full_name: formData.fullName,
           whatsapp: formData.whatsapp,
-          address: formData.address,
+          address: `${formData.address}, Kel. ${formData.subdistrict}`,
           city: formData.city,
           district: formData.district
         } as any)
@@ -79,7 +80,7 @@ export default function CheckoutPage() {
 
       if (customerError) throw new Error("Gagal menyimpan data pelanggan: " + customerError.message);
       if (!customerData) throw new Error("Gagal menyimpan data pelanggan: data kosong");
-      
+
       const customerId = (customerData as any).id;
       const orderCode = generateOrderCode();
 
@@ -99,7 +100,7 @@ export default function CheckoutPage() {
 
       if (orderError) throw new Error("Gagal membuat pesanan: " + orderError.message);
       if (!orderData) throw new Error("Gagal membuat pesanan: data kosong");
-      
+
       const orderId = (orderData as any).id;
 
       // 3. Create order items
@@ -145,7 +146,7 @@ export default function CheckoutPage() {
       <Link to="/cart" className="inline-flex items-center text-black hover:opacity-70 mb-8 font-bold text-sm uppercase tracking-widest">
         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali ke Keranjang
       </Link>
-      
+
       <h1 className="text-3xl font-black text-evergreen mb-6 uppercase tracking-tight">Selesaikan Pesanan</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
@@ -156,26 +157,34 @@ export default function CheckoutPage() {
                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-xs font-black">1</span>
                 Informasi Pelanggan
               </h2>
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-5 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Nama Lengkap *</Label>
-                  <Input id="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Masukkan nama lengkap Anda" required />
+                  <Label htmlFor="fullName" className="text-xs font-black uppercase tracking-widest text-neutral-500">Nama Lengkap *</Label>
+                  <Input id="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Masukkan nama lengkap Anda" className="h-12 rounded-xl border-neutral-200 focus:ring-primary/20" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="whatsapp">Nomor WhatsApp *</Label>
-                  <Input id="whatsapp" value={formData.whatsapp} onChange={handleInputChange} placeholder="Contoh: 08123456789" required />
+                  <Label htmlFor="whatsapp" className="text-xs font-black uppercase tracking-widest text-neutral-500">Nomor WhatsApp *</Label>
+                  <Input id="whatsapp" value={formData.whatsapp} onChange={handleInputChange} placeholder="Contoh: 08123456789" className="h-12 rounded-xl border-neutral-200 focus:ring-primary/20" required />
                 </div>
+
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="address">Alamat Lengkap *</Label>
-                  <Textarea id="address" value={formData.address} onChange={handleInputChange} placeholder="Sertakan detail alamat, nama jalan, RT/RW" className="min-h-[100px]" required />
+                  <Label htmlFor="address" className="text-xs font-black uppercase tracking-widest text-neutral-500">Alamat Lengkap *</Label>
+                  <Textarea id="address" value={formData.address} onChange={handleInputChange} placeholder="Sertakan detail alamat, nama jalan, RT/RW" className="min-h-[100px] rounded-xl border-neutral-200 focus:ring-primary/20 p-4" required />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">Kota/Kabupaten *</Label>
-                  <Input id="city" value={formData.city} onChange={handleInputChange} placeholder="Pilih kota" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="district">Kecamatan *</Label>
-                  <Input id="district" value={formData.district} onChange={handleInputChange} placeholder="Pilih kecamatan" required />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="city" className="text-xs font-black uppercase tracking-widest text-neutral-500">Kota/Kabupaten *</Label>
+                    <Input id="city" value={formData.city} onChange={handleInputChange} placeholder="Pilih kota" required readOnly className="h-12 rounded-xl bg-neutral-50 border-neutral-200 cursor-not-allowed text-neutral-400 font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="district" className="text-xs font-black uppercase tracking-widest text-neutral-500">Kecamatan *</Label>
+                    <Input id="district" value={formData.district} onChange={handleInputChange} placeholder="Masukkan Kecamatan" className="h-12 rounded-xl border-neutral-200 focus:ring-primary/20" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subdistrict" className="text-xs font-black uppercase tracking-widest text-neutral-500">Kelurahan *</Label>
+                    <Input id="subdistrict" value={formData.subdistrict} onChange={handleInputChange} placeholder="Masukkan Kelurahan" className="h-12 rounded-xl border-neutral-200 focus:ring-primary/20" required />
+                  </div>
                 </div>
               </div>
             </div>
@@ -221,7 +230,7 @@ export default function CheckoutPage() {
         <div className="w-full lg:w-96">
           <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 sticky top-24">
             <h2 className="text-xl font-black text-evergreen mb-6 uppercase tracking-tight">Ringkasan Pesanan</h2>
-            
+
             <div className="space-y-4 mb-6">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
@@ -250,16 +259,16 @@ export default function CheckoutPage() {
               <p className="text-xs text-gray-500 text-right mt-1 font-medium">*Belum termasuk ongkos kirim</p>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               form="checkout-form"
-              size="lg" 
-              className="w-full bg-primary hover:bg-evergreen h-14 text-lg rounded-2xl font-black shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest"
+              size="lg"
+              className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white h-14 text-lg rounded-2xl font-black shadow-xl shadow-[#25D366]/20 transition-all active:scale-95 uppercase tracking-widest border-none"
               disabled={isSubmitting || cartItems.length === 0}
             >
               {isSubmitting ? "Memproses..." : "Buat Pesanan"}
             </Button>
-            
+
             <div className="mt-4 flex items-start gap-2 text-xs text-gray-500 bg-neutral-50 p-3 rounded-lg">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <p>Setelah menekan tombol "Buat Pesanan", Anda akan diarahkan ke halaman instruksi pembayaran.</p>
