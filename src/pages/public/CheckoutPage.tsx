@@ -221,6 +221,18 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 </label>
+                <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors ${formData.paymentMethod === 'QRIS' ? 'border-primary bg-primary/5' : 'border-neutral-200'}`}>
+                  <input type="radio" name="payment" value="QRIS" checked={formData.paymentMethod === 'QRIS'} onChange={handlePaymentChange} className="mt-1 accent-primary" />
+                  <div>
+                    <p className="font-black text-evergreen uppercase tracking-tight">QRIS</p>
+                    <p className="text-sm text-gray-500 mt-1">Scan QR Code dengan aplikasi m-banking atau e-wallet (Gopay, OVO, ShopeePay, dll).</p>
+                    {formData.paymentMethod === 'QRIS' && (
+                      <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                        <p className="text-xs font-bold text-gray-700">QR Code akan ditampilkan setelah Anda membuat pesanan.</p>
+                      </div>
+                    )}
+                  </div>
+                </label>
               </div>
             </div>
           </form>

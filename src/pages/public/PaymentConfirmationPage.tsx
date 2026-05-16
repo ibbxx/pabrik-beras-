@@ -15,6 +15,7 @@ export default function PaymentConfirmationPage() {
   const [payment, setPayment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { settings } = useSettings();
 
@@ -192,7 +193,33 @@ export default function PaymentConfirmationPage() {
             </div>
           </div>
         )}
+
+        {order.payment_method === 'QRIS' && (
+          <div className="space-y-4 text-center mt-4">
+            <div className="p-4 border border-gray-200 rounded-xl bg-white shadow-sm inline-block mx-auto cursor-zoom-in group relative overflow-hidden" onClick={() => setShowQRModal(true)}>
+              <img src="/qris.png" alt="QRIS" className="max-w-[220px] w-full h-auto mx-auto mb-1 rounded-lg transition-transform group-hover:scale-105" />
+              <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">Klik untuk memperbesar</p>
+              <p className="text-[10px] text-gray-500 mt-1">Scan kode ini menggunakan aplikasi e-wallet (Gopay, OVO, ShopeePay) atau m-banking Anda.</p>
+            </div>
+          </div>
+        )}
       </div>
+
+      {showQRModal && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 cursor-zoom-out animate-in fade-in duration-200"
+          onClick={() => setShowQRModal(false)}
+        >
+          <div className="relative max-w-full max-h-full">
+            <img 
+              src="/qris.png" 
+              alt="QRIS Full" 
+              className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300" 
+            />
+            <p className="text-white/60 text-center mt-4 text-xs font-black uppercase tracking-[0.2em]">Klik di mana saja untuk menutup</p>
+          </div>
+        </div>
+      )}
 
       {!isSubmitted && (
         <div className="bg-evergreen rounded-2xl p-5 shadow-xl shadow-evergreen/20 border border-evergreen/10 text-center">
