@@ -6,9 +6,9 @@ export function normalizeWhatsAppNumber(value?: string | null) {
   return digits;
 }
 
-export function buildWhatsAppUrl(phone: string | null | undefined, message: string) {
-  const normalized = normalizeWhatsAppNumber(phone);
-  return `https://wa.me/${normalized || "6281234567890"}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(_phone: string | null | undefined, message: string) {
+  const normalized = normalizeWhatsAppNumber("082355148758");
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
 }
 
 export function splitSettingLines(value: unknown) {

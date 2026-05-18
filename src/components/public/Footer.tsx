@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Globe, MapPin, Phone } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 import logo from "@/assets/logo.png";
+import { buildWhatsAppUrl } from "@/lib/contact";
 
 export function Footer() {
   const { settings } = useSettings();
@@ -54,11 +55,18 @@ export function Footer() {
             <ul className="space-y-4 text-sm text-dust-grey/50">
               <li className="flex items-start gap-3">
                 <MapPin size={20} className="shrink-0" />
-                <span>{settings.contact_address || "Jl. Desa Kurma No. 123, Kabupaten Demak, Jawa Tengah"}</span>
+                <span>{settings.contact_address || "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Sulawesi Barat"}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={20} className="shrink-0" />
-                <span>{settings.contact_whatsapp || "082355148758"}</span>
+                <a 
+                  href={buildWhatsAppUrl(settings.contact_whatsapp, "Halo, saya ingin bertanya tentang produk Pabrik Beras Desa Kurma.")} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="hover:text-background transition-colors"
+                >
+                  {settings.contact_whatsapp || "082355148758"}
+                </a>
               </li>
             </ul>
           </div>

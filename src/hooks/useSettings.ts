@@ -27,6 +27,13 @@ export function useSettings() {
           }
           map[row.key] = val;
         });
+
+        if (!map["contact_whatsapp"] || map["contact_whatsapp"].includes("082355148758") || map["contact_whatsapp"].includes("0812")) {
+          map["contact_whatsapp"] = "082355148758";
+        }
+        if (!map["contact_address"] || map["contact_address"].includes("Demak")) {
+          map["contact_address"] = "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Sulawesi Barat";
+        }
         
         localStorage.setItem("site_settings", JSON.stringify(map));
         setSettings(map);

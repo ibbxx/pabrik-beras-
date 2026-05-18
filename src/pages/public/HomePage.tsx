@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSettings } from "@/hooks/useSettings";
 import { renderGreenMarkup } from "@/lib/content";
 import { optimizeSupabaseUrl } from "@/lib/images";
+import { buildWhatsAppUrl } from "@/lib/contact";
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
@@ -269,7 +270,11 @@ export default function HomePage() {
         <div className="container relative z-10 mx-auto px-4 text-center">
           <h2 className="mb-4 lg:mb-6 text-2xl lg:text-6xl font-black tracking-tight uppercase">Butuh Bantuan?</h2>
           <p className="mb-8 lg:mb-10 text-primary-foreground/80 text-xs lg:text-2xl max-w-2xl mx-auto font-medium leading-relaxed">Pemesanan partai besar atau konsultasi produk, tim kami siap melayani Anda via WhatsApp.</p>
-          <Button size="lg" className="bg-background text-foreground hover:bg-dust-grey font-black px-8 lg:px-12 h-12 lg:h-16 rounded-xl lg:rounded-[2rem] text-sm lg:text-lg shadow-xl lg:shadow-2xl shadow-black/20 transition-all hover:-translate-y-1">
+          <Button 
+            size="lg" 
+            className="bg-background text-foreground hover:bg-dust-grey font-black px-8 lg:px-12 h-12 lg:h-16 rounded-xl lg:rounded-[2rem] text-sm lg:text-lg shadow-xl lg:shadow-2xl shadow-black/20 transition-all hover:-translate-y-1"
+            onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, "Halo, saya ingin bertanya tentang produk Pabrik Beras Desa Kurma."), "_blank")}
+          >
             Hubungi via WhatsApp
           </Button>
         </div>

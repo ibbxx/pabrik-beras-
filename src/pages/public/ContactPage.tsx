@@ -1,13 +1,28 @@
 import { Mail, MapPin, Phone, MessageSquare, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { useSettings } from "@/hooks/useSettings";
 import { sanitizeGoogleMapsIframe } from "@/lib/content";
+import { buildWhatsAppUrl } from "@/lib/contact";
 
 export default function ContactPage() {
   const { settings, loading } = useSettings();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: ""
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = `Halo Admin Pabrik Beras Desa Kurma,\n\nNama: ${formData.name}\nEmail: ${formData.email}\nNo. Telp/WA: ${formData.phone}\nSubjek: ${formData.subject}\n\nPesan:\n${formData.message}`;
+    window.open(buildWhatsAppUrl(settings.contact_whatsapp, text), "_blank");
+  };
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-6xl">
@@ -36,7 +51,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-gray-900">Alamat Pabrik</h3>
                     <p className="text-gray-600 mt-1 whitespace-pre-line">
-                      {settings.contact_address || "Desa Kurma RT 02/RW 03, Kec. Karangtengah,\nKab. Demak, Jawa Tengah 59561"}
+                      {settings.contact_address || "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Sulawesi Barat"}
                     </p>
                   </div>
                 </div>
@@ -88,34 +103,34 @@ export default function ContactPage() {
         {/* Contact Form */}
         <div className="bg-white p-8 md:p-10 rounded-3xl shadow-lg border border-neutral-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Kirim Pesan</h2>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="name">Nama Lengkap</Label>
-              <Input id="name" placeholder="Masukkan nama Anda" />
+              <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Masukkan nama Anda" required />
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Alamat email Anda" />
+                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Alamat email Anda" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Nomor Telepon/WA</Label>
-                <Input id="phone" placeholder="Contoh: 0812..." />
+                <Input id="phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="Contoh: 0812..." required />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="subject">Subjek</Label>
-              <Input id="subject" placeholder="Topik pesan" />
+              <Input id="subject" value={formData.subject} onChange={(e) => setFormData({...formData, subject: e.target.value})} placeholder="Topik pesan" required />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="message">Pesan Anda</Label>
-              <Textarea id="message" placeholder="Tuliskan detail pertanyaan atau pesan Anda di sini..." className="min-h-[150px]" />
+              <Textarea id="message" value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} placeholder="Tuliskan detail pertanyaan atau pesan Anda di sini..." className="min-h-[150px]" required />
             </div>
 
-            <Button size="lg" className="w-full bg-[#1F331E] hover:bg-[#1F331E]/90 h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-[#1F331E]/20">
+            <Button type="submit" size="lg" className="w-full bg-[#1F331E] hover:bg-[#1F331E]/90 h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-[#1F331E]/20">
               <MessageSquare className="mr-2 h-5 w-5" /> Kirim Pesan Sekarang
             </Button>
           </form>
