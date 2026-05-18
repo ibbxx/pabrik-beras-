@@ -85,17 +85,15 @@ export default function ContactPage() {
 
           <div className="bg-neutral-100 rounded-3xl overflow-hidden h-[300px] border border-neutral-200 flex items-center justify-center relative">
             {settings.contact_maps_iframe ? (
-              <div 
+              <div
                 className="absolute inset-0 w-full h-full"
                 dangerouslySetInnerHTML={{ __html: sanitizeGoogleMapsIframe(settings.contact_maps_iframe) }}
               />
             ) : (
-              <>
-                <div className="text-center p-6 z-10">
-                  <MapPin size={48} className="mx-auto text-neutral-400 mb-4 opacity-50" />
-                  <p className="text-gray-500 font-medium">Peta Lokasi Pabrik (Google Maps)</p>
-                </div>
-              </>
+              <div
+                className="absolute inset-0 w-full h-full"
+                dangerouslySetInnerHTML={{ __html: sanitizeGoogleMapsIframe('<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d17373.5431063401!2d119.18154817703702!3d-3.3740288827607685!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d949a7d374a6be1%3A0x60e8a4ef879cccb!2sJl.%20H.%20S.%20Mengga%2C%20Kec.%20Mapilli%2C%20Kabupaten%20Polewali%20Mandar%2C%20Sulawesi%20Barat!5e0!3m2!1sen!2sid!4v1779108849166!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>') }}
+              />
             )}
           </div>
         </div>
@@ -106,28 +104,28 @@ export default function ContactPage() {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="name">Nama Lengkap</Label>
-              <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Masukkan nama Anda" required />
+              <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Masukkan nama Anda" required />
             </div>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Alamat email Anda" required />
+                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="Alamat email Anda" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Nomor Telepon/WA</Label>
-                <Input id="phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="Contoh: 0812..." required />
+                <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="Contoh: 0812..." required />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="subject">Subjek</Label>
-              <Input id="subject" value={formData.subject} onChange={(e) => setFormData({...formData, subject: e.target.value})} placeholder="Topik pesan" required />
+              <Input id="subject" value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} placeholder="Topik pesan" required />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="message">Pesan Anda</Label>
-              <Textarea id="message" value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} placeholder="Tuliskan detail pertanyaan atau pesan Anda di sini..." className="min-h-[150px]" required />
+              <Textarea id="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder="Tuliskan detail pertanyaan atau pesan Anda di sini..." className="min-h-[150px]" required />
             </div>
 
             <Button type="submit" size="lg" className="w-full bg-[#1F331E] hover:bg-[#1F331E]/90 h-14 text-lg rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-[#1F331E]/20">
