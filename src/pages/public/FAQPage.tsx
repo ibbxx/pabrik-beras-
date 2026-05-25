@@ -9,8 +9,11 @@ import {
   AccordionTrigger,
 } from "../../components/ui/accordion";
 import { Button } from "../../components/ui/button";
+import { useSettings } from "@/hooks/useSettings";
+import { buildWhatsAppUrl } from "@/lib/contact";
 
 export default function FAQPage() {
+  const { settings } = useSettings();
   const [faqs, setFaqs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,7 +101,11 @@ export default function FAQPage() {
         <p className="text-[#e8e4da]/80 mb-6 max-w-lg mx-auto">
           Jika Anda tidak menemukan jawaban yang dicari, tim kami siap membantu Anda kapan saja.
         </p>
-        <Button size="lg" className="bg-white text-evergreen hover:bg-neutral-100 h-12 rounded-xl font-bold uppercase tracking-wider">
+        <Button 
+          size="lg" 
+          className="bg-white text-evergreen hover:bg-neutral-100 h-12 rounded-xl font-bold uppercase tracking-wider"
+          onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, "Halo Admin, saya ingin bertanya tentang FAQ / butuh bantuan lebih lanjut."), "_blank")}
+        >
           Hubungi Admin Sekarang
         </Button>
       </div>
