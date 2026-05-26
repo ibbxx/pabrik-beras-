@@ -392,7 +392,7 @@ export default function SettingsPage() {
 
   const sidebarItems = [
     { id: 'faq', icon: MessageSquare, label: 'FAQ', desc: 'Kelola pertanyaan umum pelanggan' },
-    { id: 'articles', icon: FileText, label: 'Artikel', desc: 'Publikasi berita & edukasi produk' },
+    { id: 'articles', icon: FileText, label: 'Berita', desc: 'Publikasi berita & edukasi produk' },
     { id: 'testimonials', icon: Star, label: 'Testimoni', desc: 'Tampilkan ulasan pelanggan' },
     { id: 'appearance', icon: Layout, label: 'Tampilan', desc: 'Hero, profil & benefit website' },
     { id: 'business', icon: Phone, label: 'Bisnis', desc: 'Kontak, pembayaran & layanan' },
@@ -487,11 +487,11 @@ export default function SettingsPage() {
             <div className="space-y-5">
               <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
-                  <h2 className="text-xl font-bold">Berita & Artikel</h2>
+                  <h2 className="text-xl font-bold">Berita & Edukasi</h2>
                   <p className="text-sm text-gray-500">Publikasikan pembaruan dan edukasi tentang produk Anda.</p>
                 </div>
                 <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
-                  <Plus size={18} className="mr-2" /> Artikel Baru
+                  <Plus size={18} className="mr-2" /> Berita Baru
                 </Button>
               </div>
               {loading ? (
@@ -499,7 +499,7 @@ export default function SettingsPage() {
               ) : articles.length === 0 ? (
                 <div className="flex flex-col items-center py-16 text-center">
                   <FileText className="w-8 h-8 text-gray-200 mb-3" />
-                  <p className="text-sm font-bold text-gray-400">Belum ada artikel</p>
+                  <p className="text-sm font-bold text-gray-400">Belum ada berita</p>
                 </div>
               ) : (
                 <div className="grid gap-2">
@@ -973,19 +973,19 @@ export default function SettingsPage() {
               {activeTab === "articles" && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Judul Artikel</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Judul Berita</Label>
                     <Input id="title" name="title" defaultValue={editingItem?.title} required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slug (URL)</Label>
-                    <Input id="slug" name="slug" defaultValue={editingItem?.slug} placeholder="judul-artikel-anda" required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all font-mono" />
+                    <Input id="slug" name="slug" defaultValue={editingItem?.slug} placeholder="judul-berita-anda" required className="h-12 rounded-xl border-gray-100 focus:border-black transition-all font-mono" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ringkasan (Excerpt)</Label>
                     <Textarea id="excerpt" name="excerpt" defaultValue={editingItem?.excerpt} className="h-20 rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Konten Artikel</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Konten Berita</Label>
                     <Textarea id="content" name="content" defaultValue={editingItem?.content} required className="min-h-[200px] rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
                   <div className="space-y-2">
@@ -994,7 +994,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <input type="checkbox" id="is_active" defaultChecked={editingItem ? editingItem.is_active : true} className="w-5 h-5 accent-black" />
-                    <Label htmlFor="is_active" className="text-sm font-bold">Terbitkan Artikel</Label>
+                    <Label htmlFor="is_active" className="text-sm font-bold">Terbitkan Berita</Label>
                   </div>
                 </>
               )}

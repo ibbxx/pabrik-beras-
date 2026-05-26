@@ -207,10 +207,8 @@ export default function ResellerPage() {
                       className="flex h-9 lg:h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1.5 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     >
                       <option value="">Pilih perkiraan volume</option>
-                      <option value="<500kg">Kurang dari 500 kg</option>
                       <option value="500-1000kg">500 kg - 1 Ton</option>
-                      <option value="1-5ton">1 Ton - 5 Ton</option>
-                      <option value=">5ton">Lebih dari 5 Ton</option>
+                      <option value="2-5ton">2 Ton - 5 Ton</option>
                     </select>
                   </div>
 

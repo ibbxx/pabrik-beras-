@@ -41,7 +41,7 @@ export default function ArticlesPage() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-6xl">
       <div className="text-center mb-16">
-        <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Artikel & Berita</h1>
+        <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Berita</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Temukan tips bermanfaat, edukasi seputar beras, dan berita terbaru dari Pabrik Beras Desa Kurma.
         </p>
@@ -69,7 +69,7 @@ export default function ArticlesPage() {
                 )}
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-black text-black rounded-full uppercase tracking-widest">
-                    Artikel
+                    Berita
                   </span>
                 </div>
               </div>
@@ -85,7 +85,7 @@ export default function ArticlesPage() {
                 </h2>
                 
                 <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-3">
-                  {article.excerpt || "Baca selengkapnya untuk melihat isi artikel ini."}
+                  {article.excerpt || "Baca selengkapnya untuk melihat isi berita ini."}
                 </p>
                 
                 <Button variant="ghost" className="text-black font-bold hover:bg-neutral-50 justify-start px-0 group">
@@ -97,13 +97,13 @@ export default function ArticlesPage() {
         </div>
       ) : (
         <div className="text-center py-20 text-gray-500 bg-white rounded-3xl border border-neutral-100">
-          Belum ada artikel yang dipublikasikan saat ini.
+          Belum ada berita yang dipublikasikan saat ini.
         </div>
       )}
       
       <div className="mt-16 text-center">
         <Button variant="outline" size="lg" className="border-[#1F331E] text-[#1F331E] font-bold hover:bg-[#1F331E]/5 rounded-2xl px-10">
-          Muat Lebih Banyak Artikel
+          Muat Lebih Banyak Berita
         </Button>
       </div>
     </div>

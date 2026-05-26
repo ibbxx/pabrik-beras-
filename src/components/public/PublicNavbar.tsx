@@ -18,7 +18,7 @@ export function PublicNavbar() {
     { name: "Tentang Kami", path: "/about" },
     { name: "Katalog", path: "/products" },
     { name: "Mitra/Reseller", path: "/reseller" },
-    { name: "Artikel", path: "/articles" },
+    { name: "Berita", path: "/articles" },
     { name: "FAQ", path: "/faq" },
   ];
 

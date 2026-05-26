@@ -37,7 +37,7 @@ export function Footer() {
               <li><Link to="/about" className="hover:text-background transition-colors">Tentang Kami</Link></li>
               <li><Link to="/products" className="hover:text-background transition-colors">Katalog Produk</Link></li>
               <li><Link to="/reseller" className="hover:text-background transition-colors">Daftar Reseller</Link></li>
-              <li><Link to="/articles" className="hover:text-background transition-colors">Artikel</Link></li>
+              <li><Link to="/articles" className="hover:text-background transition-colors">Berita</Link></li>
             </ul>
           </div>
 
