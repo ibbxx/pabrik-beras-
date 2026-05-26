@@ -95,7 +95,7 @@ export default function ArticlesPage() {
   };
 
   return (
-    <div className="container mx-auto py-12 px-4 max-w-6xl">
+    <div className="container mx-auto py-12 px-4 max-w-4xl">
       {/* Reverted Plain Header */}
       <div className="text-center mb-16">
         <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Berita</h1>
@@ -104,24 +104,24 @@ export default function ArticlesPage() {
         </p>
       </div>
 
-      {/* Grid of Articles */}
+      {/* Grid / List of Articles (Horizontal Layout) */}
       {loading ? (
         <div className="flex justify-center items-center py-20 w-full">
           <Loader2 className="animate-spin h-10 w-10 text-[#1F331E]" />
         </div>
       ) : articles.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-8">
           {articles.map((article) => {
             const category = getCategory(article);
             const readTime = calculateReadingTime(article.content);
             return (
               <article 
                 key={article.id} 
-                className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl border border-neutral-100 flex flex-col transition-all duration-300 hover:-translate-y-1.5 group cursor-pointer"
+                className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl border border-neutral-100 flex flex-col md:flex-row transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
                 onClick={() => openArticle(article)}
               >
-                {/* Image Wrap */}
-                <div className="relative h-60 overflow-hidden bg-neutral-100">
+                {/* Left Side: Image */}
+                <div className="relative w-full md:w-2/5 h-56 md:h-auto overflow-hidden bg-neutral-100 shrink-0">
                   {article.image_url ? (
                     <img 
                       src={article.image_url} 
@@ -143,23 +143,25 @@ export default function ArticlesPage() {
                   </div>
                 </div>
                 
-                {/* Body Content */}
-                <div className="p-6 md:p-8 flex-1 flex flex-col">
-                  {/* Meta */}
-                  <div className="flex items-center gap-4 text-[11px] text-gray-500 mb-4 font-medium">
-                    <span className="flex items-center gap-1"><Calendar size={13} /> {formatDate(article.published_at || article.created_at)}</span>
-                    <span className="flex items-center gap-1"><Clock size={13} /> {readTime} mnt baca</span>
+                {/* Right Side: Content */}
+                <div className="p-6 md:p-8 flex-1 flex flex-col justify-between">
+                  <div>
+                    {/* Meta */}
+                    <div className="flex items-center gap-4 text-[11px] text-gray-500 mb-3 font-medium">
+                      <span className="flex items-center gap-1"><Calendar size={13} /> {formatDate(article.published_at || article.created_at)}</span>
+                      <span className="flex items-center gap-1"><Clock size={13} /> {readTime} mnt baca</span>
+                    </div>
+                    
+                    {/* Title */}
+                    <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#1F331E] transition-colors">
+                      {article.title}
+                    </h2>
+                    
+                    {/* Excerpt */}
+                    <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-2 md:line-clamp-3">
+                      {article.excerpt || "Klik untuk membaca pembahasan lengkap tentang berita ini..."}
+                    </p>
                   </div>
-                  
-                  {/* Title */}
-                  <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 leading-snug line-clamp-2 group-hover:text-[#1F331E] transition-colors">
-                    {article.title}
-                  </h2>
-                  
-                  {/* Excerpt */}
-                  <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-3 leading-relaxed">
-                    {article.excerpt || "Klik untuk membaca pembahasan lengkap tentang berita ini..."}
-                  </p>
                   
                   {/* Footer Action */}
                   <div className="pt-4 border-t border-neutral-50 flex items-center justify-between">
@@ -191,54 +193,52 @@ export default function ArticlesPage() {
         </div>
       )}
 
-      {/* Premium Detail Article Dialog */}
+      {/* Premium Detail Article Dialog (Left-Right Split Layout) */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 rounded-[2.5rem] border border-neutral-100 bg-white shadow-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] md:max-h-[85vh] overflow-y-auto md:overflow-hidden p-0 rounded-[2.5rem] border border-neutral-100 bg-white shadow-2xl">
           {selectedArticle && (
-            <div className="flex flex-col">
-              {/* Banner Image */}
-              {selectedArticle.image_url ? (
-                <div className="relative h-64 md:h-[22rem] w-full overflow-hidden bg-neutral-100 rounded-t-[2.5rem]">
+            <div className="flex flex-col md:flex-row h-full">
+              {/* Left Side: Image */}
+              <div className="relative w-full md:w-1/2 h-64 md:h-auto overflow-hidden bg-neutral-100 shrink-0">
+                {selectedArticle.image_url ? (
                   <img 
                     src={selectedArticle.image_url} 
                     alt={selectedArticle.title} 
                     className="w-full h-full object-cover" 
                   />
-                  <div className="absolute top-6 left-6">
-                    <span className={`px-3 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border ${getCategoryColor(getCategory(selectedArticle))}`}>
-                      {getCategory(selectedArticle)}
-                    </span>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-neutral-300 font-bold bg-neutral-50">
+                    Pabrik Beras Desa Kurma
                   </div>
-                </div>
-              ) : (
-                <div className="h-24 bg-gradient-to-r from-[#1F331E]/5 via-[#1F331E]/2 to-transparent border-b border-neutral-100/60 flex items-center px-8 rounded-t-[2.5rem]">
+                )}
+                <div className="absolute top-6 left-6">
                   <span className={`px-3 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border ${getCategoryColor(getCategory(selectedArticle))}`}>
                     {getCategory(selectedArticle)}
                   </span>
                 </div>
-              )}
+              </div>
               
-              {/* Content Body */}
-              <div className="p-6 md:p-10 flex-1">
+              {/* Right Side: Scrollable Text Content */}
+              <div className="p-6 md:p-10 flex-1 overflow-y-auto max-h-[60vh] md:max-h-[85vh]">
                 {/* Meta Details */}
                 <div className="flex items-center gap-4 text-[11px] text-gray-500 mb-4 font-bold">
                   <span className="flex items-center gap-1"><Calendar size={13} /> {formatDate(selectedArticle.published_at || selectedArticle.created_at)}</span>
                   <span className="flex items-center gap-1"><Clock size={13} /> {calculateReadingTime(selectedArticle.content)} menit membaca</span>
                   <span>•</span>
-                  <span className="flex items-center gap-1"><User size={13} /> Ditulis oleh Admin Pabrik</span>
+                  <span className="flex items-center gap-1"><User size={13} /> Admin</span>
                 </div>
                 
                 {/* News Title */}
-                <DialogTitle className="text-2xl md:text-4xl font-black text-gray-900 mb-8 leading-tight text-left">
+                <DialogTitle className="text-2xl md:text-3xl font-black text-gray-900 mb-6 leading-tight text-left">
                   {selectedArticle.title}
                 </DialogTitle>
                 
                 {/* Main Article Content */}
-                <DialogDescription className="text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line text-left block border-b border-neutral-100 pb-10 mb-8 font-normal">
+                <DialogDescription className="text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line text-left block border-b border-neutral-100 pb-8 mb-6 font-normal">
                   {selectedArticle.content}
                 </DialogDescription>
 
-                {/* Related Recommendations inside Pop-up */}
+                {/* Related Recommendations */}
                 {getRelatedArticles(selectedArticle).length > 0 && (
                   <div className="text-left">
                     <h4 className="font-black text-[#1F331E] uppercase tracking-widest text-xs mb-4">
