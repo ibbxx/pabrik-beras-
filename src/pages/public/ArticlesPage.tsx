@@ -52,45 +52,46 @@ export default function ArticlesPage() {
           <Loader2 className="animate-spin h-10 w-10 text-[#1F331E]" />
         </div>
       ) : articles.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-12 max-w-3xl mx-auto">
           {articles.map((article) => (
             <article key={article.id} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-neutral-100 flex flex-col hover:shadow-md transition-shadow group">
-              <div className="relative h-60 overflow-hidden bg-neutral-100">
-                {article.image_url ? (
+              {article.image_url && (
+                <div className="relative h-72 md:h-96 overflow-hidden bg-neutral-100">
                   <img 
                     src={article.image_url} 
                     alt={article.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" 
                     loading="lazy"
                     decoding="async"
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-neutral-400">Tidak ada gambar</div>
-                )}
-                <div className="absolute top-4 left-4">
-                  <span className="bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-black text-black rounded-full uppercase tracking-widest">
-                    Berita
-                  </span>
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-black text-black rounded-full uppercase tracking-widest">
+                      Berita
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
               
-              <div className="p-6 flex-1 flex flex-col">
+              <div className="p-6 md:p-8 flex-1 flex flex-col">
+                {!article.image_url && (
+                  <div className="mb-4">
+                    <span className="bg-neutral-100 px-3 py-1 text-[10px] font-black text-neutral-800 rounded-full uppercase tracking-widest">
+                      Berita
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
                   <span className="flex items-center gap-1"><Calendar size={14} /> {formatDate(article.published_at || article.created_at)}</span>
                   <span className="flex items-center gap-1"><User size={14} /> Admin Pabrik</span>
                 </div>
                 
-                <h2 className="text-xl font-bold text-gray-900 mb-3 leading-snug line-clamp-2">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 leading-snug">
                   {article.title}
                 </h2>
                 
-                <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-3">
-                  {article.excerpt || "Baca selengkapnya untuk melihat isi berita ini."}
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                  {article.content}
                 </p>
-                
-                <Button variant="ghost" className="text-black font-bold hover:bg-neutral-50 justify-start px-0 group">
-                  Baca Selengkapnya <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
               </div>
             </article>
           ))}
