@@ -120,31 +120,15 @@ export default function ArticlesPage() {
                 className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl border border-neutral-100 flex flex-col transition-all duration-300 hover:-translate-y-1.5 group cursor-pointer"
                 onClick={() => openArticle(article)}
               >
-                {/* Image Wrap */}
-                <div className="relative h-60 overflow-hidden bg-neutral-100">
-                  {article.image_url ? (
-                    <img 
-                      src={article.image_url} 
-                      alt={article.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-neutral-300 font-bold bg-gradient-to-br from-neutral-50 to-neutral-100">
-                      Pabrik Beras Desa Kurma
-                    </div>
-                  )}
-                  {/* Category Tag Overlay */}
-                  <div className="absolute top-4 left-4">
+                {/* Body Content */}
+                <div className="p-6 md:p-8 flex-1 flex flex-col">
+                  {/* Category Tag (Placed inside card body now since images are removed) */}
+                  <div className="mb-4">
                     <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest border ${getCategoryColor(category)}`}>
                       {category}
                     </span>
                   </div>
-                </div>
-                
-                {/* Body Content */}
-                <div className="p-6 md:p-8 flex-1 flex flex-col">
+
                   {/* Meta */}
                   <div className="flex items-center gap-4 text-[11px] text-gray-500 mb-4 font-medium">
                     <span className="flex items-center gap-1"><Calendar size={13} /> {formatDate(article.published_at || article.created_at)}</span>
@@ -196,30 +180,15 @@ export default function ArticlesPage() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-0 rounded-[2.5rem] border border-neutral-100 bg-white shadow-2xl">
           {selectedArticle && (
             <div className="flex flex-col">
-              {/* Banner Image */}
-              {selectedArticle.image_url ? (
-                <div className="relative h-64 md:h-80 w-full overflow-hidden bg-neutral-100 rounded-t-[2.5rem]">
-                  <img 
-                    src={selectedArticle.image_url} 
-                    alt={selectedArticle.title} 
-                    className="w-full h-full object-cover" 
-                  />
-                  <div className="absolute top-6 left-6">
-                    <span className={`px-3 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border ${getCategoryColor(getCategory(selectedArticle))}`}>
-                      {getCategory(selectedArticle)}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-24 bg-gradient-to-r from-[#1F331E]/5 via-[#1F331E]/2 to-transparent border-b border-neutral-100/60 flex items-center px-8 rounded-t-[2.5rem]">
-                  <span className={`px-3 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border ${getCategoryColor(getCategory(selectedArticle))}`}>
-                    {getCategory(selectedArticle)}
-                  </span>
-                </div>
-              )}
+              {/* Category Tag Header (Clean text header instead of image banner) */}
+              <div className="p-6 md:p-8 pb-0 flex items-center rounded-t-[2.5rem]">
+                <span className={`px-3 py-1.5 text-[10px] font-black rounded-full uppercase tracking-widest border ${getCategoryColor(getCategory(selectedArticle))}`}>
+                  {getCategory(selectedArticle)}
+                </span>
+              </div>
               
               {/* Content Body */}
-              <div className="p-6 md:p-10 flex-1">
+              <div className="p-6 md:p-8 pt-4 flex-1">
                 {/* Meta Details */}
                 <div className="flex items-center gap-4 text-[11px] text-gray-500 mb-4 font-bold">
                   <span className="flex items-center gap-1"><Calendar size={13} /> {formatDate(selectedArticle.published_at || selectedArticle.created_at)}</span>
