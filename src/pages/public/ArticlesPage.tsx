@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, User, Loader2, Search, Clock, BookOpen, ArrowRight } from "lucide-react";
+import { Calendar, User, Loader2, Clock, ArrowRight } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,15 +9,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-const CATEGORIES = ["Semua", "Tips & Trik", "Edukasi", "Kemitraan", "Info Tani"];
-
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -90,17 +86,6 @@ export default function ArticlesPage() {
     setIsDialogOpen(true);
   };
 
-  // Filter articles based on search query and category tab selection
-  const filteredArticles = articles.filter((article) => {
-    const category = getCategory(article);
-    const matchesCategory = selectedCategory === "Semua" || category === selectedCategory;
-    const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (article.excerpt || "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
   // Fetch related articles (excluding the current opened one)
   const getRelatedArticles = (currentArticle: any) => {
     const category = getCategory(currentArticle);
@@ -111,62 +96,22 @@ export default function ArticlesPage() {
 
   return (
     <div className="container mx-auto py-12 px-4 max-w-6xl">
-      {/* Immersive Hero Header */}
-      <div className="bg-gradient-to-br from-[#1F331E]/10 via-[#1F331E]/2 to-transparent rounded-[2.5rem] p-8 md:p-16 mb-12 border border-[#1F331E]/5 text-center relative overflow-hidden">
-        <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-[#1F331E]/5 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-[#1F331E]/5 blur-3xl pointer-events-none" />
-        
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1F331E]/10 text-[#1F331E] rounded-full text-xs font-black uppercase tracking-widest mb-6">
-          <BookOpen size={12} /> Portal Informasi & Edukasi
-        </span>
-        <h1 className="text-4xl md:text-6xl font-black text-[#1F331E] mb-6 uppercase tracking-widest leading-none">
-          Kabar & Berita
-        </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
-          Temukan artikel menarik seputar beras, tips penyimpanan dapur, panduan kemitraan tani, dan informasi industri terbaru dari Pabrik Beras Desa Kurma.
+      {/* Reverted Plain Header */}
+      <div className="text-center mb-16">
+        <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Berita</h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Temukan tips bermanfaat, edukasi seputar beras, dan berita terbaru dari Pabrik Beras Desa Kurma.
         </p>
-      </div>
-
-      {/* Control Bar (Filters & Search) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 bg-neutral-50/50 p-4 rounded-3xl border border-neutral-100/80">
-        {/* Category Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none shrink-0">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-xs md:text-sm font-black transition-all ${
-                selectedCategory === cat
-                  ? "bg-[#1F331E] text-white shadow-lg shadow-[#1F331E]/25 scale-105"
-                  : "bg-white hover:bg-neutral-100 text-gray-600 border border-neutral-200/60"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative w-full md:max-w-xs">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Cari berita..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#1F331E]/20 focus:border-[#1F331E] bg-white transition-all text-sm shadow-sm"
-          />
-        </div>
       </div>
 
       {/* Grid of Articles */}
       {loading ? (
-        <div className="flex justify-center items-center py-24 w-full">
+        <div className="flex justify-center items-center py-20 w-full">
           <Loader2 className="animate-spin h-10 w-10 text-[#1F331E]" />
         </div>
-      ) : filteredArticles.length > 0 ? (
+      ) : articles.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredArticles.map((article) => {
+          {articles.map((article) => {
             const category = getCategory(article);
             const readTime = calculateReadingTime(article.content);
             return (
@@ -232,15 +177,13 @@ export default function ArticlesPage() {
           })}
         </div>
       ) : (
-        <div className="text-center py-24 text-gray-500 bg-white rounded-3xl border border-neutral-100 max-w-lg mx-auto shadow-sm">
-          <BookOpen className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-          <h3 className="font-bold text-gray-700 text-lg mb-1">Berita Tidak Ditemukan</h3>
-          <p className="text-sm text-gray-400">Tidak ada berita yang cocok dengan kata kunci atau kategori terpilih.</p>
+        <div className="text-center py-20 text-gray-500 bg-white rounded-3xl border border-neutral-100">
+          Belum ada berita yang dipublikasikan saat ini.
         </div>
       )}
-
+      
       {/* Pagination / Load More */}
-      {filteredArticles.length > 0 && (
+      {articles.length > 0 && (
         <div className="mt-16 text-center">
           <Button variant="outline" size="lg" className="border-[#1F331E] text-[#1F331E] font-bold hover:bg-[#1F331E]/5 rounded-2xl px-12 transition-all hover:scale-102">
             Muat Lebih Banyak Berita
