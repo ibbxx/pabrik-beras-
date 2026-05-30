@@ -21,7 +21,7 @@ export default function ResellerPage() {
     businessName: "",
     location: "",
     volumeAmount: "",
-    volumeUnit: "kg",
+    volumeUnit: "",
     message: ""
   });
 
@@ -34,7 +34,7 @@ export default function ResellerPage() {
 
     const amount = parseFloat(formData.volumeAmount);
     // Validation
-    if (!formData.name || !formData.whatsapp || !formData.businessName || !formData.location || isNaN(amount)) {
+    if (!formData.name || !formData.whatsapp || !formData.businessName || !formData.location || isNaN(amount) || !formData.volumeUnit) {
       toast.error("Mohon lengkapi semua field yang wajib diisi!");
       return;
     }
@@ -214,7 +214,7 @@ export default function ResellerPage() {
                         type="number"
                         min="0"
                         step="any"
-                        placeholder="Contoh: 500" 
+                        placeholder="Masukkan Jumlah" 
                         value={formData.volumeAmount} 
                         onChange={handleChange} 
                         className="flex-1 h-9 lg:h-10 text-xs lg:text-sm" 
@@ -223,14 +223,15 @@ export default function ResellerPage() {
                         id="volumeUnit" 
                         value={formData.volumeUnit} 
                         onChange={handleChange}
-                        className="h-9 lg:h-10 w-24 rounded-md border border-input bg-background px-3 py-1.5 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        className="flex-1 h-9 lg:h-10 rounded-md border border-input bg-background px-3 py-1.5 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-gray-500"
                       >
-                        <option value="kg">Kg</option>
+                        <option value="">Masukkan Satuan</option>
+                        <option value="kg">kg</option>
                         <option value="ton">Ton</option>
                       </select>
                     </div>
-                    <p className="text-[10px] text-gray-400 mt-1">
-                      * Minimal pemesanan adalah 500 kg (atau 0.5 Ton) per bulan.
+                    <p className="text-[10px] text-gray-500 mt-1 font-bold">
+                      Minimal 500 Kg *
                     </p>
                   </div>
 
