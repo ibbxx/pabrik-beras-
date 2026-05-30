@@ -20,7 +20,8 @@ export default function ResellerPage() {
     whatsapp: "",
     businessName: "",
     location: "",
-    volumeNeeds: "",
+    volumeAmount: "",
+    volumeUnit: "kg",
     message: ""
   });
 
@@ -31,9 +32,16 @@ export default function ResellerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const amount = parseFloat(formData.volumeAmount);
     // Validation
-    if (!formData.name || !formData.whatsapp || !formData.businessName || !formData.location || !formData.volumeNeeds) {
+    if (!formData.name || !formData.whatsapp || !formData.businessName || !formData.location || isNaN(amount)) {
       toast.error("Mohon lengkapi semua field yang wajib diisi!");
+      return;
+    }
+
+    const volumeInKg = formData.volumeUnit === "ton" ? amount * 1000 : amount;
+    if (volumeInKg < 500) {
+      toast.error("Pengajuan tidak dapat dikirim. Kebutuhan volume minimal adalah 500 kg!");
       return;
     }
 
@@ -47,7 +55,7 @@ export default function ResellerPage() {
           whatsapp: formData.whatsapp,
           business_name: formData.businessName,
           location: formData.location,
-          volume_needs: formData.volumeNeeds,
+          volume_needs: `${formData.volumeAmount} ${formData.volumeUnit}`,
           message: formData.message || null,
           status: 'new'
         } as any);
@@ -199,17 +207,31 @@ export default function ResellerPage() {
                   </div>
 
                   <div className="space-y-1 lg:space-y-2">
-                    <Label htmlFor="volumeNeeds" className="text-[11px] lg:text-sm">Kebutuhan Beras / Bulan <span className="text-red-500">*</span></Label>
-                    <select 
-                      id="volumeNeeds" 
-                      value={formData.volumeNeeds} 
-                      onChange={handleChange}
-                      className="flex h-9 lg:h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1.5 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                    >
-                      <option value="">Pilih perkiraan volume</option>
-                      <option value="500-1000kg">500 kg - 1 Ton</option>
-                      <option value="2-5ton">2 Ton - 5 Ton</option>
-                    </select>
+                    <Label htmlFor="volumeAmount" className="text-[11px] lg:text-sm">Kebutuhan Beras / Bulan <span className="text-red-500">*</span></Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        id="volumeAmount" 
+                        type="number"
+                        min="0"
+                        step="any"
+                        placeholder="Contoh: 500" 
+                        value={formData.volumeAmount} 
+                        onChange={handleChange} 
+                        className="flex-1 h-9 lg:h-10 text-xs lg:text-sm" 
+                      />
+                      <select 
+                        id="volumeUnit" 
+                        value={formData.volumeUnit} 
+                        onChange={handleChange}
+                        className="h-9 lg:h-10 w-24 rounded-md border border-input bg-background px-3 py-1.5 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      >
+                        <option value="kg">Kg</option>
+                        <option value="ton">Ton</option>
+                      </select>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      * Minimal pemesanan adalah 500 kg (atau 0.5 Ton) per bulan.
+                    </p>
                   </div>
 
                   <div className="space-y-1 lg:space-y-2">
