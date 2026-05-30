@@ -8,7 +8,7 @@ export default function DynamicSEO() {
     if (settings.seo_title) {
       document.title = settings.seo_title;
     } else {
-      document.title = "Pabrik Beras Desa Kurma - Beras Premium Langsung dari Penggilingan";
+      document.title = "Pabrik Beras Mapaili - Beras Premium Langsung dari Penggilingan";
     }
 
     const updateMetaTag = (name: string, content: string, isProperty = false) => {

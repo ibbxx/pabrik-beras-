@@ -32,7 +32,10 @@ export function useSettings() {
           map["contact_whatsapp"] = "082355148758";
         }
         if (!map["contact_address"] || map["contact_address"].includes("Demak")) {
-          map["contact_address"] = "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Sulawesi Barat";
+          map["contact_address"] = "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Mapaili, Kecamatan Mapilli, Sulawesi Barat";
+        }
+        if (!map["warehouse_address"]) {
+          map["warehouse_address"] = "Jl. Andi Mappaodang No.125, Balang Baru, Kec. Tamalate, Kota Makassar, Sulawesi Selatan 90224";
         }
         
         localStorage.setItem("site_settings", JSON.stringify(map));

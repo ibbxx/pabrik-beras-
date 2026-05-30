@@ -55,7 +55,7 @@ export default function LoginPage() {
             <Lock size={20} />
           </div>
           <h1 className="text-xl lg:text-2xl font-black uppercase tracking-tighter text-black">Admin Access</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Desa Kurma Factory</p>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Mapaili Factory</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -97,7 +97,7 @@ export default function LoginPage() {
       </div>
 
       <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mt-10">
-        &copy; {new Date().getFullYear()} DESA KURMA FACTORY
+        &copy; {new Date().getFullYear()} MAPAILI FACTORY
       </p>
     </div>
   );

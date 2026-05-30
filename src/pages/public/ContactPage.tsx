@@ -20,7 +20,7 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Halo Admin Pabrik Beras Desa Kurma,\n\nNama: ${formData.name}\nEmail: ${formData.email}\nNo. Telp/WA: ${formData.phone}\nSubjek: ${formData.subject}\n\nPesan:\n${formData.message}`;
+    const text = `Halo Admin Pabrik Beras Mapaili,\n\nNama: ${formData.name}\nEmail: ${formData.email}\nNo. Telp/WA: ${formData.phone}\nSubjek: ${formData.subject}\n\nPesan:\n${formData.message}`;
     window.open(buildWhatsAppUrl(settings.contact_whatsapp, text), "_blank");
   };
 
@@ -51,7 +51,18 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-gray-900">Alamat Pabrik</h3>
                     <p className="text-gray-600 mt-1 whitespace-pre-line">
-                      {settings.contact_address || "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Sulawesi Barat"}
+                      {settings.contact_address || "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Mapaili, Kecamatan Mapilli, Sulawesi Barat"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#1F331E]/10 text-[#1F331E] flex items-center justify-center shrink-0">
+                    <MapPin size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Alamat Gudang</h3>
+                    <p className="text-gray-600 mt-1 whitespace-pre-line">
+                      {settings.warehouse_address || "Jl. Andi Mappaodang No.125, Balang Baru, Kec. Tamalate, Kota Makassar, Sulawesi Selatan 90224"}
                     </p>
                   </div>
                 </div>
@@ -75,7 +86,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-gray-900">Email</h3>
                     <p className="text-gray-600 mt-1">
-                      {settings.contact_email || "info@pabrikberaskurma.com"}
+                      {settings.contact_email || "info@pabrikberasmapaili.com"}
                     </p>
                   </div>
                 </div>

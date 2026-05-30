@@ -55,7 +55,7 @@ export default function ProductsPage() {
       <div className="mb-6 lg:mb-16 text-center space-y-2 lg:space-y-4">
         <h1 className="text-2xl lg:text-5xl font-black text-foreground tracking-widest uppercase leading-relaxed">Katalog Produk</h1>
         <p className="text-[10px] lg:text-sm text-muted-foreground max-w-xl mx-auto font-medium leading-relaxed uppercase tracking-widest">
-          Kualitas beras premium dari Pabrik Desa Kurma.
+          Kualitas beras premium dari Pabrik Mapaili.
         </p>
       </div>
 

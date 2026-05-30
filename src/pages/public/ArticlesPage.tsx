@@ -100,7 +100,7 @@ export default function ArticlesPage() {
       <div className="text-center mb-16">
         <h1 className="text-3xl md:text-5xl font-black text-[#1F331E] mb-4 uppercase tracking-widest leading-relaxed">Berita</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Temukan tips bermanfaat, edukasi seputar beras, dan berita terbaru dari Pabrik Beras Desa Kurma.
+          Temukan tips bermanfaat, edukasi seputar beras, dan berita terbaru dari Pabrik Beras Mapaili.
         </p>
       </div>
 

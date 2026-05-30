@@ -75,7 +75,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchData = async () => {
@@ -115,7 +115,7 @@ export default function SettingsPage() {
         (data || []).forEach((s: SiteSetting) => {
           let val = s.value;
           if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
-            try { val = JSON.parse(val); } catch (e) {}
+            try { val = JSON.parse(val); } catch (e) { }
           }
           map[s.key] = val;
         });
@@ -313,10 +313,10 @@ export default function SettingsPage() {
             {(Array.isArray(settingsMap[key]) ? settingsMap[key] : (settingsMap[key] ? [settingsMap[key]] : [])).map((url: string, index: number) => (
               <div key={index} className="w-24 h-24 rounded-2xl border border-gray-100 overflow-hidden bg-white shadow-sm relative group flex items-center justify-center shrink-0">
                 <img src={url} alt={`${label} ${index + 1}`} className="w-full h-full object-contain" />
-                <Button 
-                  type="button" 
-                  variant="destructive" 
-                  size="icon" 
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
                   className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"
                   onClick={() => {
                     const newUrls = (Array.isArray(settingsMap[key]) ? [...settingsMap[key]] : [settingsMap[key]]).filter((_, i) => i !== index);
@@ -422,9 +422,8 @@ export default function SettingsPage() {
                   type="button"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
-                    active ? "bg-black text-white shadow-md shadow-black/10" : "text-gray-500 hover:bg-gray-50 hover:text-black"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${active ? "bg-black text-white shadow-md shadow-black/10" : "text-gray-500 hover:bg-gray-50 hover:text-black"
+                    }`}
                 >
                   <Icon size={16} />
                   <div className="min-w-0">
@@ -442,495 +441,496 @@ export default function SettingsPage() {
 
             {/* ── FAQ TAB ── */}
             {activeTab === "faq" && (
-            <div className="space-y-5">
-              <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                <div>
-                  <h2 className="text-xl font-bold">Pertanyaan Umum (FAQ)</h2>
-                  <p className="text-sm text-gray-500">Kelola konten bantuan untuk pelanggan Anda.</p>
+              <div className="space-y-5">
+                <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                  <div>
+                    <h2 className="text-xl font-bold">Pertanyaan Umum (FAQ)</h2>
+                    <p className="text-sm text-gray-500">Kelola konten bantuan untuk pelanggan Anda.</p>
+                  </div>
+                  <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
+                    <Plus size={18} className="mr-2" /> Tambah Pertanyaan
+                  </Button>
                 </div>
-                <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
-                  <Plus size={18} className="mr-2" /> Tambah Pertanyaan
-                </Button>
+                {loading ? (
+                  <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
+                ) : faqs.length === 0 ? (
+                  <div className="flex flex-col items-center py-16 text-center">
+                    <MessageSquare className="w-8 h-8 text-gray-200 mb-3" />
+                    <p className="text-sm font-bold text-gray-400">Belum ada FAQ</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {faqs.map((faq) => (
+                      <div key={faq.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-black truncate">{faq.question}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{faq.answer}</p>
+                        </div>
+                        <span className="text-[10px] font-mono text-gray-300 shrink-0">#{faq.order_num || '-'}</span>
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${faq.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
+                          {faq.is_active ? 'Aktif' : 'Hidden'}
+                        </span>
+                        <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(faq)}><Pencil size={14} /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(faq.id)}><Trash2 size={14} /></Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              {loading ? (
-                <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
-              ) : faqs.length === 0 ? (
-                <div className="flex flex-col items-center py-16 text-center">
-                  <MessageSquare className="w-8 h-8 text-gray-200 mb-3" />
-                  <p className="text-sm font-bold text-gray-400">Belum ada FAQ</p>
-                </div>
-              ) : (
-                <div className="grid gap-2">
-                  {faqs.map((faq) => (
-                    <div key={faq.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-black truncate">{faq.question}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{faq.answer}</p>
-                      </div>
-                      <span className="text-[10px] font-mono text-gray-300 shrink-0">#{faq.order_num || '-'}</span>
-                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${faq.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
-                        {faq.is_active ? 'Aktif' : 'Hidden'}
-                      </span>
-                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(faq)}><Pencil size={14} /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(faq.id)}><Trash2 size={14} /></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
             )}
 
             {/* ── ARTICLES TAB ── */}
             {activeTab === "articles" && (
-            <div className="space-y-5">
-              <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                <div>
-                  <h2 className="text-xl font-bold">Berita & Edukasi</h2>
-                  <p className="text-sm text-gray-500">Publikasikan pembaruan dan edukasi tentang produk Anda.</p>
+              <div className="space-y-5">
+                <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                  <div>
+                    <h2 className="text-xl font-bold">Berita & Edukasi</h2>
+                    <p className="text-sm text-gray-500">Publikasikan pembaruan dan edukasi tentang produk Anda.</p>
+                  </div>
+                  <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
+                    <Plus size={18} className="mr-2" /> Berita Baru
+                  </Button>
                 </div>
-                <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
-                  <Plus size={18} className="mr-2" /> Berita Baru
-                </Button>
+                {loading ? (
+                  <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
+                ) : articles.length === 0 ? (
+                  <div className="flex flex-col items-center py-16 text-center">
+                    <FileText className="w-8 h-8 text-gray-200 mb-3" />
+                    <p className="text-sm font-bold text-gray-400">Belum ada berita</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {articles.map((art) => (
+                      <div key={art.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-black truncate">{art.title}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">{art.excerpt || art.slug}</p>
+                        </div>
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${art.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                          {art.is_active ? 'Publik' : 'Draft'}
+                        </span>
+                        <span className="text-[10px] text-gray-300 font-medium hidden sm:block">{art.published_at ? new Date(art.published_at).toLocaleDateString('id-ID') : '-'}</span>
+                        <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(art)}><Pencil size={14} /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(art.id)}><Trash2 size={14} /></Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              {loading ? (
-                <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
-              ) : articles.length === 0 ? (
-                <div className="flex flex-col items-center py-16 text-center">
-                  <FileText className="w-8 h-8 text-gray-200 mb-3" />
-                  <p className="text-sm font-bold text-gray-400">Belum ada berita</p>
-                </div>
-              ) : (
-                <div className="grid gap-2">
-                  {articles.map((art) => (
-                    <div key={art.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-black truncate">{art.title}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">{art.excerpt || art.slug}</p>
-                      </div>
-                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${art.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                        {art.is_active ? 'Publik' : 'Draft'}
-                      </span>
-                      <span className="text-[10px] text-gray-300 font-medium hidden sm:block">{art.published_at ? new Date(art.published_at).toLocaleDateString('id-ID') : '-'}</span>
-                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(art)}><Pencil size={14} /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(art.id)}><Trash2 size={14} /></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
             )}
 
             {activeTab === "testimonials" && (
-            <div className="space-y-5">
-              <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                <div>
-                  <h2 className="text-xl font-bold">Testimoni Pelanggan</h2>
-                  <p className="text-sm text-gray-500">Tampilkan ulasan positif dari pelanggan setia Anda.</p>
+              <div className="space-y-5">
+                <div className="flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                  <div>
+                    <h2 className="text-xl font-bold">Testimoni Pelanggan</h2>
+                    <p className="text-sm text-gray-500">Tampilkan ulasan positif dari pelanggan setia Anda.</p>
+                  </div>
+                  <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
+                    <Plus size={18} className="mr-2" /> Tambah Ulasan
+                  </Button>
                 </div>
-                <Button onClick={() => handleOpenModal()} className="h-11 w-full rounded-xl bg-black px-6 font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-gray-800 sm:w-auto">
-                  <Plus size={18} className="mr-2" /> Tambah Ulasan
-                </Button>
+                {loading ? (
+                  <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
+                ) : testimonials.length === 0 ? (
+                  <div className="flex flex-col items-center py-16 text-center">
+                    <Star className="w-8 h-8 text-gray-200 mb-3" />
+                    <p className="text-sm font-bold text-gray-400">Belum ada testimoni</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {testimonials.map((testi) => (
+                      <div key={testi.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
+                        <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 text-gray-400">
+                          <span className="text-xs font-black">{testi.name.charAt(0)}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-black">{testi.name}</p>
+                          <p className="text-[10px] text-gray-400">{testi.role || 'Pelanggan'}</p>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-amber-400 shrink-0">
+                          <Star size={10} fill="currentColor" />
+                          <span className="text-[10px] font-bold">{testi.rating || 5}</span>
+                        </div>
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${testi.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
+                          {testi.is_active ? 'Terlihat' : 'Hidden'}
+                        </span>
+                        <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(testi)}><Pencil size={14} /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(testi.id)}><Trash2 size={14} /></Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              {loading ? (
-                <div className="flex items-center justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-gray-300" /></div>
-              ) : testimonials.length === 0 ? (
-                <div className="flex flex-col items-center py-16 text-center">
-                  <Star className="w-8 h-8 text-gray-200 mb-3" />
-                  <p className="text-sm font-bold text-gray-400">Belum ada testimoni</p>
-                </div>
-              ) : (
-                <div className="grid gap-2">
-                  {testimonials.map((testi) => (
-                    <div key={testi.id} className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 hover:border-gray-200 hover:shadow-sm transition-all group">
-                      <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 text-gray-400">
-                        <span className="text-xs font-black">{testi.name.charAt(0)}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-black">{testi.name}</p>
-                        <p className="text-[10px] text-gray-400">{testi.role || 'Pelanggan'}</p>
-                      </div>
-                      <div className="flex items-center gap-0.5 text-amber-400 shrink-0">
-                        <Star size={10} fill="currentColor" />
-                        <span className="text-[10px] font-bold">{testi.rating || 5}</span>
-                      </div>
-                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold ${testi.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
-                        {testi.is_active ? 'Terlihat' : 'Hidden'}
-                      </span>
-                      <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleOpenModal(testi)}><Pencil size={14} /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(testi.id)}><Trash2 size={14} /></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
             )}
 
             {activeTab === "appearance" && (
-            <div className="space-y-5">
-              <Tabs defaultValue="hero_section" className="w-full">
-                <Card className="border border-gray-100 shadow-sm rounded-3xl bg-white overflow-hidden">
-                  <CardHeader className="px-8 py-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <CardTitle className="text-xl font-bold flex items-center gap-2"><Layout size={20} /> Pengaturan Tampilan</CardTitle>
-                      <CardDescription>Sesuaikan konten visual di halaman beranda Anda.</CardDescription>
-                    </div>
-                    <TabsList className="bg-gray-100/80 p-1 rounded-xl h-auto self-start md:self-center">
-                      <TabsTrigger value="hero_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Hero</TabsTrigger>
-                      <TabsTrigger value="profile_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Profil</TabsTrigger>
-                      <TabsTrigger value="benefits_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Keunggulan</TabsTrigger>
-                    </TabsList>
-                  </CardHeader>
-                  <CardContent className="p-8">
-                    <TabsContent value="hero_section" className="mt-0 outline-none space-y-6">
-                      <div className="grid lg:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                          {renderSettingField("hero_badge", "Teks Badge Kecil")}
-                          {renderSettingField("hero_headline", "Headline Utama", "textarea")}
-                          {renderSettingField("hero_subheadline", "Sub-headline", "textarea")}
-                        </div>
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between pt-0 border-t-0 border-gray-50">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slide Carousel (Geser untuk mengurutkan)</p>
-                            <Button 
-                              type="button"
-                              variant="outline" 
-                              size="sm" 
-                              className="h-8 rounded-lg text-[10px] font-black uppercase"
-                              onClick={() => {
-                                const currentSlides = Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [];
-                                setSettingsMap({
-                                  ...settingsMap,
-                                  "hero_slides": [...currentSlides, { image_url: "", cta_text: "", cta_link: "" }]
-                                });
-                              }}
-                            >
-                              <Plus size={14} className="mr-1" /> Tambah Slide
-                            </Button>
+              <div className="space-y-5">
+                <Tabs defaultValue="hero_section" className="w-full">
+                  <Card className="border border-gray-100 shadow-sm rounded-3xl bg-white overflow-hidden">
+                    <CardHeader className="px-8 py-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <CardTitle className="text-xl font-bold flex items-center gap-2"><Layout size={20} /> Pengaturan Tampilan</CardTitle>
+                        <CardDescription>Sesuaikan konten visual di halaman beranda Anda.</CardDescription>
+                      </div>
+                      <TabsList className="bg-gray-100/80 p-1 rounded-xl h-auto self-start md:self-center">
+                        <TabsTrigger value="hero_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Hero</TabsTrigger>
+                        <TabsTrigger value="profile_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Profil</TabsTrigger>
+                        <TabsTrigger value="benefits_section" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Keunggulan</TabsTrigger>
+                      </TabsList>
+                    </CardHeader>
+                    <CardContent className="p-8">
+                      <TabsContent value="hero_section" className="mt-0 outline-none space-y-6">
+                        <div className="grid lg:grid-cols-2 gap-8">
+                          <div className="space-y-4">
+                            {renderSettingField("hero_badge", "Teks Badge Kecil")}
+                            {renderSettingField("hero_headline", "Headline Utama", "textarea")}
+                            {renderSettingField("hero_subheadline", "Sub-headline", "textarea")}
                           </div>
-
-                          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                            {(!settingsMap["hero_slides"] || settingsMap["hero_slides"].length === 0) && (
-                              <div className="p-4 rounded-2xl border border-dashed border-gray-200 text-center bg-gray-50/50">
-                                <p className="text-xs text-gray-400">Belum ada slide tambahan. Klik "Tambah Slide".</p>
-                              </div>
-                            )}
-
-                            {(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : []).map((slide: any, index: number) => (
-                              <div 
-                                key={index} 
-                                className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide cursor-move active:cursor-grabbing hover:border-gray-300 transition-colors"
-                                draggable
-                                onDragStart={() => (dragItemRef.current = index)}
-                                onDragEnter={() => (dragOverItemRef.current = index)}
-                                onDragEnd={() => {
-                                  if (dragItemRef.current !== null && dragOverItemRef.current !== null && dragItemRef.current !== dragOverItemRef.current) {
-                                    const currentSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
-                                    const draggedItemContent = currentSlides.splice(dragItemRef.current, 1)[0];
-                                    currentSlides.splice(dragOverItemRef.current, 0, draggedItemContent);
-                                    setSettingsMap({ ...settingsMap, "hero_slides": currentSlides });
-                                  }
-                                  dragItemRef.current = null;
-                                  dragOverItemRef.current = null;
+                          <div className="space-y-6">
+                            <div className="flex items-center justify-between pt-0 border-t-0 border-gray-50">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Slide Carousel (Geser untuk mengurutkan)</p>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-8 rounded-lg text-[10px] font-black uppercase"
+                                onClick={() => {
+                                  const currentSlides = Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [];
+                                  setSettingsMap({
+                                    ...settingsMap,
+                                    "hero_slides": [...currentSlides, { image_url: "", cta_text: "", cta_link: "" }]
+                                  });
                                 }}
-                                onDragOver={(e) => e.preventDefault()}
                               >
-                                <Button 
-                                  type="button"
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="absolute top-2 right-2 h-8 w-8 text-gray-300 hover:text-red-500 rounded-lg"
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
-                                    const slideToDelete = newSlides[index];
-                                    
-                                    // Delete from Supabase Storage
-                                    if (slideToDelete.image_url) {
-                                      try {
-                                        const urlObj = new URL(slideToDelete.image_url);
-                                        const bucketPath = urlObj.pathname.split('/product_images/')[1];
-                                        if (bucketPath) {
-                                          await supabase.storage.from('product_images').remove([bucketPath]);
-                                        }
-                                      } catch (err) {
-                                        console.error("Failed to delete from storage:", err);
-                                      }
+                                <Plus size={14} className="mr-1" /> Tambah Slide
+                              </Button>
+                            </div>
+
+                            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                              {(!settingsMap["hero_slides"] || settingsMap["hero_slides"].length === 0) && (
+                                <div className="p-4 rounded-2xl border border-dashed border-gray-200 text-center bg-gray-50/50">
+                                  <p className="text-xs text-gray-400">Belum ada slide tambahan. Klik "Tambah Slide".</p>
+                                </div>
+                              )}
+
+                              {(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : []).map((slide: any, index: number) => (
+                                <div
+                                  key={index}
+                                  className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-4 relative group/slide cursor-move active:cursor-grabbing hover:border-gray-300 transition-colors"
+                                  draggable
+                                  onDragStart={() => (dragItemRef.current = index)}
+                                  onDragEnter={() => (dragOverItemRef.current = index)}
+                                  onDragEnd={() => {
+                                    if (dragItemRef.current !== null && dragOverItemRef.current !== null && dragItemRef.current !== dragOverItemRef.current) {
+                                      const currentSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                      const draggedItemContent = currentSlides.splice(dragItemRef.current, 1)[0];
+                                      currentSlides.splice(dragOverItemRef.current, 0, draggedItemContent);
+                                      setSettingsMap({ ...settingsMap, "hero_slides": currentSlides });
                                     }
-                                    
-                                    newSlides.splice(index, 1);
-                                    setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                    dragItemRef.current = null;
+                                    dragOverItemRef.current = null;
                                   }}
+                                  onDragOver={(e) => e.preventDefault()}
                                 >
-                                  <Trash2 size={14} />
-                                </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 h-8 w-8 text-gray-300 hover:text-red-500 rounded-lg"
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                      const slideToDelete = newSlides[index];
 
-                                <div className="space-y-4">
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
-                                      {slide.image_url ? (
-                                        <img src={slide.image_url} alt={`Slide ${index + 1}`} className="w-full h-full object-contain" />
-                                      ) : (
-                                        <ImageIcon className="h-6 w-6 text-gray-200" />
-                                      )}
-                                    </div>
-                                    <div className="flex-1 space-y-2">
-                                      <Input
-                                        placeholder="Image URL"
-                                        value={slide.image_url || ""}
-                                        onChange={(e) => {
-                                          const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
-                                          newSlides[index].image_url = e.target.value;
-                                          setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
-                                        }}
-                                        className="h-9 rounded-lg border-gray-100 text-[10px]"
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="h-8 rounded-lg border-gray-100 w-full gap-2 text-[10px] font-bold"
-                                        onClick={() => {
-                                          const input = document.createElement('input');
-                                          input.type = 'file';
-                                          input.accept = 'image/*';
-                                          input.onchange = async (e: any) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                              try {
-                                                const toastId = toast.loading("Mengunggah dan mengompresi gambar...");
-                                                const compressedFile = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
-                                                const validationError = validateImageFile(compressedFile, { maxSizeMB: 2 });
-                                                
-                                                if (validationError) {
-                                                  toast.error(validationError, { id: toastId });
-                                                  return;
+                                      // Delete from Supabase Storage
+                                      if (slideToDelete.image_url) {
+                                        try {
+                                          const urlObj = new URL(slideToDelete.image_url);
+                                          const bucketPath = urlObj.pathname.split('/product_images/')[1];
+                                          if (bucketPath) {
+                                            await supabase.storage.from('product_images').remove([bucketPath]);
+                                          }
+                                        } catch (err) {
+                                          console.error("Failed to delete from storage:", err);
+                                        }
+                                      }
+
+                                      newSlides.splice(index, 1);
+                                      setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                    }}
+                                  >
+                                    <Trash2 size={14} />
+                                  </Button>
+
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-4">
+                                      <div className="w-16 h-16 rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm flex items-center justify-center shrink-0">
+                                        {slide.image_url ? (
+                                          <img src={slide.image_url} alt={`Slide ${index + 1}`} className="w-full h-full object-contain" />
+                                        ) : (
+                                          <ImageIcon className="h-6 w-6 text-gray-200" />
+                                        )}
+                                      </div>
+                                      <div className="flex-1 space-y-2">
+                                        <Input
+                                          placeholder="Image URL"
+                                          value={slide.image_url || ""}
+                                          onChange={(e) => {
+                                            const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                            newSlides[index].image_url = e.target.value;
+                                            setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                          }}
+                                          className="h-9 rounded-lg border-gray-100 text-[10px]"
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="outline"
+                                          className="h-8 rounded-lg border-gray-100 w-full gap-2 text-[10px] font-bold"
+                                          onClick={() => {
+                                            const input = document.createElement('input');
+                                            input.type = 'file';
+                                            input.accept = 'image/*';
+                                            input.onchange = async (e: any) => {
+                                              const file = e.target.files[0];
+                                              if (file) {
+                                                try {
+                                                  const toastId = toast.loading("Mengunggah dan mengompresi gambar...");
+                                                  const compressedFile = await compressImageFile(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
+                                                  const validationError = validateImageFile(compressedFile, { maxSizeMB: 2 });
+
+                                                  if (validationError) {
+                                                    toast.error(validationError, { id: toastId });
+                                                    return;
+                                                  }
+
+                                                  const filePath = createImageStoragePath(`settings/hero_slide_${Date.now()}`, compressedFile);
+                                                  const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, compressedFile);
+
+                                                  if (uploadError) throw uploadError;
+
+                                                  const { data: { publicUrl } } = supabase.storage.from('product_images').getPublicUrl(filePath);
+                                                  const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                                  newSlides[index].image_url = publicUrl;
+                                                  setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+
+                                                  toast.success("Gambar berhasil diunggah!", { id: toastId });
+                                                } catch (err: any) {
+                                                  toast.error("Gagal mengunggah: " + err.message);
                                                 }
-
-                                                const filePath = createImageStoragePath(`settings/hero_slide_${Date.now()}`, compressedFile);
-                                                const { error: uploadError } = await supabase.storage.from('product_images').upload(filePath, compressedFile);
-                                                
-                                                if (uploadError) throw uploadError;
-                                                
-                                                const { data: { publicUrl } } = supabase.storage.from('product_images').getPublicUrl(filePath);
-                                                const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
-                                                newSlides[index].image_url = publicUrl;
-                                                setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
-                                                
-                                                toast.success("Gambar berhasil diunggah!", { id: toastId });
-                                              } catch (err: any) {
-                                                toast.error("Gagal mengunggah: " + err.message);
                                               }
-                                            }
-                                          };
-                                          input.click();
-                                        }}
-                                      >
-                                        <Upload size={12} /> Upload Image
-                                      </Button>
+                                            };
+                                            input.click();
+                                          }}
+                                        >
+                                          <Upload size={12} /> Upload Image
+                                        </Button>
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1">
-                                      <Label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Label Tombol</Label>
-                                      <Input 
-                                        placeholder="Belanja Sekarang" 
-                                        value={slide.cta_text || ""}
-                                        onChange={(e) => {
-                                          const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
-                                          newSlides[index].cta_text = e.target.value;
-                                          setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
-                                        }}
-                                        className="h-9 rounded-lg text-xs"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <Label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Link Tombol</Label>
-                                      <Input 
-                                        placeholder="/products" 
-                                        value={slide.cta_link || ""}
-                                        onChange={(e) => {
-                                          const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
-                                          newSlides[index].cta_link = e.target.value;
-                                          setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
-                                        }}
-                                        className="h-9 rounded-lg text-xs"
-                                      />
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="space-y-1">
+                                        <Label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Label Tombol</Label>
+                                        <Input
+                                          placeholder="Belanja Sekarang"
+                                          value={slide.cta_text || ""}
+                                          onChange={(e) => {
+                                            const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                            newSlides[index].cta_text = e.target.value;
+                                            setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                          }}
+                                          className="h-9 rounded-lg text-xs"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <Label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Link Tombol</Label>
+                                        <Input
+                                          placeholder="/products"
+                                          value={slide.cta_link || ""}
+                                          onChange={(e) => {
+                                            const newSlides = [...(Array.isArray(settingsMap["hero_slides"]) ? settingsMap["hero_slides"] : [])];
+                                            newSlides[index].cta_link = e.target.value;
+                                            setSettingsMap({ ...settingsMap, "hero_slides": newSlides });
+                                          }}
+                                          className="h-9 rounded-lg text-xs"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
 
-                          <div className="grid grid-cols-2 gap-4">
-                            {renderSettingField("hero_cta_text", "Label Tombol Default")}
-                            {renderSettingField("hero_cta_link", "Link Tombol Default")}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="pt-6 border-t border-gray-50 space-y-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Poin Kepercayaan (Trust Points)</p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                          {renderSettingField("trust_1", "Poin 1")}
-                          {renderSettingField("trust_2", "Poin 2")}
-                          {renderSettingField("trust_3", "Poin 3")}
-                        </div>
-                      </div>
-                      <div className="pt-6 border-t border-gray-50 flex justify-end">
-                        <Button onClick={() => saveSettings(["hero_badge", "hero_headline", "hero_subheadline", "hero_image_url", "hero_cta_text", "hero_cta_link", "trust_1", "trust_2", "trust_3", "hero_slides"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
-                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Perubahan Hero
-                        </Button>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="profile_section" className="mt-0 outline-none space-y-6">
-                      <div className="grid lg:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                          {renderSettingField("about_intro", "Pernyataan Intro", "textarea")}
-                          {renderSettingField("about_history", "Sejarah", "textarea")}
-                        </div>
-                        <div className="space-y-4">
-                          {renderSettingField("about_image_url", "Foto Profil", "images")}
-                          <div className="grid grid-cols-2 gap-4">
-                            {renderSettingField("about_vision", "Visi", "text")}
-                            {renderSettingField("about_mission", "Misi", "text")}
+                            <div className="grid grid-cols-2 gap-4">
+                              {renderSettingField("hero_cta_text", "Label Tombol Default")}
+                              {renderSettingField("hero_cta_link", "Link Tombol Default")}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="pt-6 border-t border-gray-50 flex justify-end">
-                        <Button onClick={() => saveSettings(["about_intro", "about_history", "about_vision", "about_mission", "about_image_url"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
-                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Profil Pabrik
-                        </Button>
-                      </div>
-                    </TabsContent>
+                        <div className="pt-6 border-t border-gray-50 space-y-4">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Poin Kepercayaan (Trust Points)</p>
+                          <div className="grid md:grid-cols-3 gap-4">
+                            {renderSettingField("trust_1", "Poin 1")}
+                            {renderSettingField("trust_2", "Poin 2")}
+                            {renderSettingField("trust_3", "Poin 3")}
+                          </div>
+                        </div>
+                        <div className="pt-6 border-t border-gray-50 flex justify-end">
+                          <Button onClick={() => saveSettings(["hero_badge", "hero_headline", "hero_subheadline", "hero_image_url", "hero_cta_text", "hero_cta_link", "trust_1", "trust_2", "trust_3", "hero_slides"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Perubahan Hero
+                          </Button>
+                        </div>
+                      </TabsContent>
 
-                    <TabsContent value="benefits_section" className="mt-0 outline-none space-y-6">
-                      <div className="grid lg:grid-cols-2 gap-8 mb-6">
-                        {renderSettingField("benefit_title", "Judul Bagian")}
-                        {renderSettingField("benefit_subtitle", "Sub-judul")}
-                      </div>
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
-                          {renderSettingField("benefit_1_title", "Keunggulan 1")}
-                          {renderSettingField("benefit_1_desc", "Deskripsi", "textarea")}
+                      <TabsContent value="profile_section" className="mt-0 outline-none space-y-6">
+                        <div className="grid lg:grid-cols-2 gap-8">
+                          <div className="space-y-4">
+                            {renderSettingField("about_intro", "Pernyataan Intro", "textarea")}
+                            {renderSettingField("about_history", "Sejarah", "textarea")}
+                          </div>
+                          <div className="space-y-4">
+                            {renderSettingField("about_image_url", "Foto Profil", "images")}
+                            <div className="grid grid-cols-2 gap-4">
+                              {renderSettingField("about_vision", "Visi", "text")}
+                              {renderSettingField("about_mission", "Misi", "text")}
+                            </div>
+                          </div>
                         </div>
-                        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
-                          {renderSettingField("benefit_2_title", "Keunggulan 2")}
-                          {renderSettingField("benefit_2_desc", "Deskripsi", "textarea")}
+                        <div className="pt-6 border-t border-gray-50 flex justify-end">
+                          <Button onClick={() => saveSettings(["about_intro", "about_history", "about_vision", "about_mission", "about_image_url"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Profil Pabrik
+                          </Button>
                         </div>
-                        <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
-                          {renderSettingField("benefit_3_title", "Keunggulan 3")}
-                          {renderSettingField("benefit_3_desc", "Deskripsi", "textarea")}
+                      </TabsContent>
+
+                      <TabsContent value="benefits_section" className="mt-0 outline-none space-y-6">
+                        <div className="grid lg:grid-cols-2 gap-8 mb-6">
+                          {renderSettingField("benefit_title", "Judul Bagian")}
+                          {renderSettingField("benefit_subtitle", "Sub-judul")}
                         </div>
-                      </div>
-                      <div className="pt-6 border-t border-gray-50 flex justify-end">
-                        <Button onClick={() => saveSettings(["benefit_title", "benefit_subtitle", "benefit_1_title", "benefit_1_desc", "benefit_2_title", "benefit_2_desc", "benefit_3_title", "benefit_3_desc"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
-                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Keunggulan
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  </CardContent>
-                </Card>
-              </Tabs>
-            </div>
+                        <div className="grid md:grid-cols-3 gap-6">
+                          <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                            {renderSettingField("benefit_1_title", "Keunggulan 1")}
+                            {renderSettingField("benefit_1_desc", "Deskripsi", "textarea")}
+                          </div>
+                          <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                            {renderSettingField("benefit_2_title", "Keunggulan 2")}
+                            {renderSettingField("benefit_2_desc", "Deskripsi", "textarea")}
+                          </div>
+                          <div className="space-y-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                            {renderSettingField("benefit_3_title", "Keunggulan 3")}
+                            {renderSettingField("benefit_3_desc", "Deskripsi", "textarea")}
+                          </div>
+                        </div>
+                        <div className="pt-6 border-t border-gray-50 flex justify-end">
+                          <Button onClick={() => saveSettings(["benefit_title", "benefit_subtitle", "benefit_1_title", "benefit_1_desc", "benefit_2_title", "benefit_2_desc", "benefit_3_title", "benefit_3_desc"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Keunggulan
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    </CardContent>
+                  </Card>
+                </Tabs>
+              </div>
             )}
 
             {activeTab === "business" && (
-            <div className="space-y-5">
-              <Tabs defaultValue="contact_info" className="w-full">
-                <Card className="border border-gray-100 shadow-sm rounded-3xl bg-white overflow-hidden">
-                  <CardHeader className="px-8 py-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <CardTitle className="text-xl font-bold flex items-center gap-2"><Phone size={20} /> Pengaturan Bisnis</CardTitle>
-                      <CardDescription>Kelola informasi kontak dan detail operasional bisnis Anda.</CardDescription>
-                    </div>
-                    <TabsList className="bg-gray-100/80 p-1 rounded-xl h-auto self-start md:self-center">
-                      <TabsTrigger value="contact_info" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Kontak</TabsTrigger>
-                      <TabsTrigger value="payment_service" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Pembayaran</TabsTrigger>
-                    </TabsList>
-                  </CardHeader>
-                  <CardContent className="p-8">
-                    <TabsContent value="contact_info" className="mt-0 outline-none space-y-6">
-                      <div className="grid lg:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                          {renderSettingField("business_name", "Nama Bisnis")}
-                          {renderSettingField("footer_description", "Deskripsi Footer", "textarea")}
-                        </div>
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            {renderSettingField("contact_whatsapp", "WhatsApp")}
-                            {renderSettingField("contact_email", "Email")}
+              <div className="space-y-5">
+                <Tabs defaultValue="contact_info" className="w-full">
+                  <Card className="border border-gray-100 shadow-sm rounded-3xl bg-white overflow-hidden">
+                    <CardHeader className="px-8 py-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <CardTitle className="text-xl font-bold flex items-center gap-2"><Phone size={20} /> Pengaturan Bisnis</CardTitle>
+                        <CardDescription>Kelola informasi kontak dan detail operasional bisnis Anda.</CardDescription>
+                      </div>
+                      <TabsList className="bg-gray-100/80 p-1 rounded-xl h-auto self-start md:self-center">
+                        <TabsTrigger value="contact_info" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Kontak</TabsTrigger>
+                        <TabsTrigger value="payment_service" className="px-4 py-2 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">Pembayaran</TabsTrigger>
+                      </TabsList>
+                    </CardHeader>
+                    <CardContent className="p-8">
+                      <TabsContent value="contact_info" className="mt-0 outline-none space-y-6">
+                        <div className="grid lg:grid-cols-2 gap-8">
+                          <div className="space-y-4">
+                            {renderSettingField("business_name", "Nama Bisnis")}
+                            {renderSettingField("footer_description", "Deskripsi Footer", "textarea")}
                           </div>
-                          {renderSettingField("contact_address", "Alamat", "textarea")}
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              {renderSettingField("contact_whatsapp", "WhatsApp")}
+                              {renderSettingField("contact_email", "Email")}
+                            </div>
+                            {renderSettingField("contact_address", "Alamat Pabrik", "textarea")}
+                            {renderSettingField("warehouse_address", "Alamat Gudang", "textarea")}
+                          </div>
                         </div>
-                      </div>
-                      <div className="pt-6 border-t border-gray-50">
-                        {renderSettingField("contact_maps_iframe", "Embed Maps", "textarea")}
-                      </div>
-                      <div className="pt-6 border-t border-gray-50 flex justify-end">
-                        <Button onClick={() => saveSettings(["business_name", "footer_description", "contact_whatsapp", "contact_email", "contact_address", "contact_maps_iframe"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
-                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Informasi Kontak
-                        </Button>
-                      </div>
-                    </TabsContent>
+                        <div className="pt-6 border-t border-gray-50">
+                          {renderSettingField("contact_maps_iframe", "Embed Maps", "textarea")}
+                        </div>
+                        <div className="pt-6 border-t border-gray-50 flex justify-end">
+                          <Button onClick={() => saveSettings(["business_name", "footer_description", "contact_whatsapp", "contact_email", "contact_address", "warehouse_address", "contact_maps_iframe"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Informasi Kontak
+                          </Button>
+                        </div>
+                      </TabsContent>
 
-                    <TabsContent value="payment_service" className="mt-0 outline-none space-y-6">
-                      <div className="grid lg:grid-cols-2 gap-8">
-                        {renderSettingField("payment_bank_info", "Info Bank (Transfer)", "textarea")}
-                        <div className="space-y-6">
-                          {renderSettingField("payment_dana_number", "Nomor E-Wallet (DANA/OVO)")}
-                          {renderSettingField("service_areas", "Area Layanan Pengiriman", "textarea")}
+                      <TabsContent value="payment_service" className="mt-0 outline-none space-y-6">
+                        <div className="grid lg:grid-cols-2 gap-8">
+                          {renderSettingField("payment_bank_info", "Info Bank (Transfer)", "textarea")}
+                          <div className="space-y-6">
+                            {renderSettingField("payment_dana_number", "Nomor E-Wallet (DANA/OVO)")}
+                            {renderSettingField("service_areas", "Area Layanan Pengiriman", "textarea")}
+                          </div>
                         </div>
-                      </div>
-                      <div className="pt-6 border-t border-gray-50 flex justify-end">
-                        <Button onClick={() => saveSettings(["payment_bank_info", "payment_dana_number", "service_areas"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
-                          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Detail Pembayaran
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  </CardContent>
-                </Card>
-              </Tabs>
-            </div>
+                        <div className="pt-6 border-t border-gray-50 flex justify-end">
+                          <Button onClick={() => saveSettings(["payment_bank_info", "payment_dana_number", "service_areas"])} disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10 transition-all">
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Detail Pembayaran
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    </CardContent>
+                  </Card>
+                </Tabs>
+              </div>
             )}
 
             {activeTab === "seo" && (
-            <div className="space-y-6">
-              <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden max-w-4xl mx-auto">
-                <CardHeader className="bg-gray-50/50 px-10 py-8">
-                  <CardTitle className="text-xl font-bold flex items-center gap-2"><Globe size={20} /> Manajemen SEO</CardTitle>
-                  <CardDescription>Kontrol bagaimana situs web Anda muncul di mesin pencari seperti Google.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-10 space-y-10">
-                  <div className="space-y-6">
-                    {renderSettingField("seo_title", "Meta Title", "text", "Direkomendasikan 50-60 karakter.")}
-                    {renderSettingField("seo_keywords", "Keywords", "text", "Pisahkan dengan koma.")}
-                    {renderSettingField("seo_description", "Meta Description", "textarea", "Direkomendasikan 150-160 karakter.")}
-                  </div>
-
-                  {/* Live Preview */}
-                  <div className="space-y-4 pt-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pratinjau Mesin Pencari</p>
-                    <div className="p-8 border border-gray-100 rounded-3xl bg-[#fafafa]">
-                      <p className="text-[#1a0dab] text-xl font-medium truncate hover:underline cursor-pointer">{settingsMap["seo_title"] || "Pratinjau Judul Situs"}</p>
-                      <p className="text-[#006621] text-sm truncate mt-1">https://pabrikberaskurma.com</p>
-                      <p className="text-[#545454] text-sm mt-1 line-clamp-2">
-                        {settingsMap["seo_description"] || "Pratinjau deskripsi situs akan muncul di sini setelah Anda mengetiknya."}
-                      </p>
+              <div className="space-y-6">
+                <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden max-w-4xl mx-auto">
+                  <CardHeader className="bg-gray-50/50 px-10 py-8">
+                    <CardTitle className="text-xl font-bold flex items-center gap-2"><Globe size={20} /> Manajemen SEO</CardTitle>
+                    <CardDescription>Kontrol bagaimana situs web Anda muncul di mesin pencari seperti Google.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-10 space-y-10">
+                    <div className="space-y-6">
+                      {renderSettingField("seo_title", "Meta Title", "text", "Direkomendasikan 50-60 karakter.")}
+                      {renderSettingField("seo_keywords", "Keywords", "text", "Pisahkan dengan koma.")}
+                      {renderSettingField("seo_description", "Meta Description", "textarea", "Direkomendasikan 150-160 karakter.")}
                     </div>
-                  </div>
 
-                  <Button onClick={() => saveSettings(["seo_title", "seo_keywords", "seo_description"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold shadow-xl shadow-black/10">
-                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Konfigurasi SEO
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                    {/* Live Preview */}
+                    <div className="space-y-4 pt-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pratinjau Mesin Pencari</p>
+                      <div className="p-8 border border-gray-100 rounded-3xl bg-[#fafafa]">
+                        <p className="text-[#1a0dab] text-xl font-medium truncate hover:underline cursor-pointer">{settingsMap["seo_title"] || "Pratinjau Judul Situs"}</p>
+                        <p className="text-[#006621] text-sm truncate mt-1">https://mapailli.vercel.app/</p>
+                        <p className="text-[#545454] text-sm mt-1 line-clamp-2">
+                          {settingsMap["seo_description"] || "Pratinjau deskripsi situs akan muncul di sini setelah Anda mengetiknya."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button onClick={() => saveSettings(["seo_title", "seo_keywords", "seo_description"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold shadow-xl shadow-black/10">
+                      {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Konfigurasi SEO
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             )}
 
           </div>

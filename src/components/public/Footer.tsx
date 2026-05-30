@@ -21,7 +21,7 @@ export function Footer() {
                 loading="lazy"
                 decoding="async"
               />
-              <h3 className="text-xl font-black text-background">{settings.business_name || "Pabrik Beras Desa Kurma"}</h3>
+              <h3 className="text-xl font-black text-background">{settings.business_name || "Pabrik Beras Mapaili"}</h3>
             </div>
             <p className="text-dust-grey/50 text-[10px] lg:text-sm mb-4 leading-relaxed">
               {settings.footer_description || "Penyedia beras lokal berkualitas dengan harga terbaik langsung dari pabrik penggilingan."}
@@ -54,13 +54,23 @@ export function Footer() {
             <h4 className="text-lg font-black text-background mb-4 uppercase tracking-widest text-xs">Kontak</h4>
             <ul className="space-y-4 text-sm text-dust-grey/50">
               <li className="flex items-start gap-3">
-                <MapPin size={20} className="shrink-0" />
-                <span>{settings.contact_address || "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Sulawesi Barat"}</span>
+                <MapPin size={20} className="shrink-0 text-background" />
+                <div>
+                  <p className="font-bold text-background text-[10px] uppercase tracking-wider mb-0.5">Pabrik</p>
+                  <span>{settings.contact_address || "Jl. H. S. Mengga, Lorong Makassar Baru, Dusun Paredeang, Mapaili, Kecamatan Mapilli, Sulawesi Barat"}</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin size={20} className="shrink-0 text-background" />
+                <div>
+                  <p className="font-bold text-background text-[10px] uppercase tracking-wider mb-0.5">Gudang</p>
+                  <span>{settings.warehouse_address || "Jl. Andi Mappaodang No.125, Balang Baru, Kec. Tamalate, Kota Makassar, Sulawesi Selatan 90224"}</span>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={20} className="shrink-0" />
                 <a 
-                  href={buildWhatsAppUrl(settings.contact_whatsapp, "Halo, saya ingin bertanya tentang produk Pabrik Beras Desa Kurma.")} 
+                  href={buildWhatsAppUrl(settings.contact_whatsapp, "Halo, saya ingin bertanya tentang produk Pabrik Beras Mapaili.")} 
                   target="_blank" 
                   rel="noreferrer" 
                   className="hover:text-background transition-colors"
@@ -73,7 +83,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-background/5 pt-6 lg:pt-8 text-center text-[9px] lg:text-sm text-dust-grey/30 font-bold uppercase tracking-widest">
-          <p>&copy; {new Date().getFullYear()} {settings.business_name || "Pabrik Beras Desa Kurma"}.</p>
+          <p>&copy; {new Date().getFullYear()} {settings.business_name || "Pabrik Beras Mapaili"}.</p>
         </div>
       </div>
     </footer>

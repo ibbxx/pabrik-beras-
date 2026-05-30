@@ -64,7 +64,7 @@ export default function ResellerPage() {
     }
   };
 
-  const whatsappMessage = `Halo tim Pabrik Beras Desa Kurma, saya ${formData.name} dari ${formData.businessName}. Saya baru saja mengisi form pendaftaran kemitraan reseller di website dan ingin menindaklanjutinya.`;
+  const whatsappMessage = `Halo tim Pabrik Beras Mapaili, saya ${formData.name} dari ${formData.businessName}. Saya baru saja mengisi form pendaftaran kemitraan reseller di website dan ingin menindaklanjutinya.`;
 
   return (
     <div className="flex flex-col min-h-screen">

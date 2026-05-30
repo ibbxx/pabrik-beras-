@@ -173,7 +173,7 @@ export default function CustomersPage() {
 
   const openWhatsApp = (phone: string, name: string) => {
     const clean = phone.replace(/\D/g, "").replace(/^0/, "62");
-    const msg = encodeURIComponent(`Halo ${name}, terima kasih sudah mendaftar sebagai mitra reseller Pabrik Beras Desa Kurma. Kami ingin menindaklanjuti pendaftaran Anda.`);
+    const msg = encodeURIComponent(`Halo ${name}, terima kasih sudah mendaftar sebagai mitra reseller Pabrik Beras Mapaili. Kami ingin menindaklanjuti pendaftaran Anda.`);
     window.open(`https://wa.me/${clean}?text=${msg}`, "_blank");
   };
 

@@ -28,7 +28,7 @@ export function PublicNavbar() {
         <Link to="/" className="flex items-center">
           <img
             src={logo}
-            alt={settings.business_name || "Desa Kurma"}
+            alt={settings.business_name || "Mapaili"}
             className="h-14 lg:h-16 w-auto object-contain"
             loading="lazy"
             decoding="async"
@@ -114,7 +114,7 @@ export function PublicNavbar() {
                     </Button>
                   </Link>
                   <div className="mt-6 flex flex-col gap-1">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-300">Pabrik Beras Desa Kurma</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-300">Pabrik Beras Mapaili</p>
                     <p className="text-[8px] font-bold text-gray-400 leading-relaxed italic">"Kualitas Premium dari Petani Lokal"</p>
                   </div>
                 </div>

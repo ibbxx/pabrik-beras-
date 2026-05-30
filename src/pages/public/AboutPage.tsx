@@ -13,7 +13,7 @@ export default function AboutPage() {
     );
   }
 
-  const rawIntro: string = (settings.about_intro as string) || "Mapailli adalah pabrik beras yang berlokasi di Dusun Paredeang, Desa Kurma, Kecamatan Mapilli, Polewali Mandar.\n\nSudah berdiri sejak tahun 1987, fokus kami menyediakan beras segar yang diambil langsung dari petani lokal. Sebagai satu-satunya tempat giling padi di Desa Kurma, kami selalu memastikan setiap butir beras diproses dengan bersih dan dijemur alami di bawah matahari supaya kualitasnya tetap terjaga.\n\nKami selalu memegang teguh kejujuran dalam timbangan dan pelayanan yang cepat, jadi Anda bisa mendapatkan beras lokal yang pulen dan sehat untuk keluarga dengan harga yang jujur dan terpercaya.";
+  const rawIntro: string = (settings.about_intro as string) || "Mapailli adalah pabrik beras yang berlokasi di Dusun Paredeang, Mapaili, Kecamatan Mapilli, Polewali Mandar.\n\nFokus kami adalah menyediakan beras segar yang diambil langsung dari petani lokal. Sebagai satu-satunya tempat giling padi di Mapaili, kami selalu memastikan setiap butir beras diproses dengan bersih dan dijemur alami di bawah matahari supaya kualitasnya tetap terjaga. Melalui proses terbaik ini, pabrik kami khusus menghasilkan Beras Jenis MR 219.\n\nBeras MR 219 merupakan varietas unggul lokal yang terkenal menghasilkan nasi yang sangat pulen, lembut, dan tidak mudah kering. Dengan selalu memegang teguh kejujuran dalam timbangan serta pelayanan yang cepat, kami memastikan Anda bisa mendapatkan beras lokal yang sehat untuk keluarga dengan harga yang jujur dan terpercaya.";
 
   // Parse text intro menjadi beberapa paragraf agar mudah dibaca
   const introParagraphs: string[] = rawIntro.split('\n').filter((p) => p.trim() !== '');
@@ -27,7 +27,7 @@ export default function AboutPage() {
       <section className="container mx-auto pt-16 pb-12 md:pt-24 md:pb-20 px-4 max-w-5xl">
         <div className="text-center mb-10 md:mb-16">
           <h1 className="text-2xl lg:text-5xl font-black text-evergreen tracking-widest uppercase leading-relaxed">
-            Tentang Pabrik Beras<br className="hidden md:block" /> Desa Kurma
+            Tentang Pabrik Beras<br className="hidden md:block" /> Mapaili
           </h1>
         </div>
         
@@ -94,7 +94,7 @@ export default function AboutPage() {
               <div className="w-20 h-1.5 bg-[#1F331E] rounded-full"></div>
             </div>
             <p className="text-base md:text-lg text-gray-600 leading-loose whitespace-pre-line text-justify">
-              {settings.about_history || "Berdiri sejak 1987, Pabrik Beras Mapailli telah menjadi mitra setia petani di Desa Kurma.\n\nMelalui perjalanan lebih dari tiga dekade, kami terus mempertahankan metode tradisional penjemuran alami di bawah sinar matahari sekaligus meningkatkan kualitas pelayanan. Dedikasi kami terhadap kualitas dan transparansi menjadikan kami satu-satunya pilihan terpercaya di wilayah Mapilli."}
+              {settings.about_history || "Berdiri sejak 1987, Pabrik Beras Mapailli telah menjadi mitra setia petani di Mapaili.\n\nMelalui perjalanan lebih dari tiga dekade, kami terus mempertahankan metode tradisional penjemuran alami di bawah sinar matahari sekaligus meningkatkan kualitas pelayanan. Dedikasi kami terhadap kualitas dan transparansi menjadikan kami satu-satunya pilihan terpercaya di wilayah Mapilli."}
             </p>
           </div>
 

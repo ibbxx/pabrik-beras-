@@ -63,7 +63,7 @@ export default function HomePage() {
                   {settings.hero_headline ? (
                     <span dangerouslySetInnerHTML={{ __html: renderGreenMarkup(settings.hero_headline).replace(/text-green-500/g, 'text-primary underline decoration-dust-grey underline-offset-[8px] lg:underline-offset-[12px]') }} />
                   ) : (
-                    <>Beras Premium <br /> <span className="text-[#523F17]">Desa Kurma</span></>
+                    <>Beras Premium <br /> <span className="text-[#523F17]">Mapaili</span></>
                   )}
                 </h1>
                 <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-[280px] sm:max-w-md lg:max-w-[580px] leading-relaxed font-medium text-left">
@@ -112,7 +112,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 lg:mb-12">
             <h2 className="text-2xl lg:text-3xl font-black text-foreground uppercase tracking-tight">{settings.benefit_title || "Mengapa Memilih Kami?"}</h2>
-            <p className="mt-2 text-xs lg:text-base text-muted-foreground font-medium uppercase tracking-widest">{settings.benefit_subtitle || "Keunggulan Pabrik Desa Kurma"}</p>
+            <p className="mt-2 text-xs lg:text-base text-muted-foreground font-medium uppercase tracking-widest">{settings.benefit_subtitle || "Keunggulan Pabrik Mapaili"}</p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -273,7 +273,7 @@ export default function HomePage() {
           <Button 
             size="lg" 
             className="bg-background text-foreground hover:bg-dust-grey font-black px-8 lg:px-12 h-12 lg:h-16 rounded-xl lg:rounded-[2rem] text-sm lg:text-lg shadow-xl lg:shadow-2xl shadow-black/20 transition-all hover:-translate-y-1"
-            onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, "Halo, saya ingin bertanya tentang produk Pabrik Beras Desa Kurma."), "_blank")}
+            onClick={() => window.open(buildWhatsAppUrl(settings.contact_whatsapp, "Halo, saya ingin bertanya tentang produk Pabrik Beras Mapaili."), "_blank")}
           >
             Hubungi via WhatsApp
           </Button>

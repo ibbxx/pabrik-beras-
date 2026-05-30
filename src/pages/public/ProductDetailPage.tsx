@@ -135,7 +135,7 @@ export default function ProductDetailPage() {
               
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isDescriptionOpen ? "max-h-[500px] opacity-100 mt-2 lg:mt-3" : "max-h-0 opacity-0"}`}>
                 <p className="text-gray-600 text-sm lg:text-base leading-relaxed font-medium text-justify pb-2">
-                  {product.description || "Beras kualitas premium kami diproses dengan teknologi modern untuk menjamin keaslian, tekstur, dan rasa. Langsung dari Pabrik Desa Kurma, kami menjamin kualitas paling segar untuk makanan harian keluarga Anda."}
+                  {product.description || "Beras kualitas premium kami diproses dengan teknologi modern untuk menjamin keaslian, tekstur, dan rasa. Langsung dari Pabrik Mapaili, kami menjamin kualitas paling segar untuk makanan harian keluarga Anda."}
                 </p>
               </div>
             </div>

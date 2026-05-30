@@ -57,7 +57,7 @@ export default function AdminLayout() {
               </div>
               <div>
                 <p className="text-sm font-black uppercase tracking-tighter">Admin Panel</p>
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Desa Kurma</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Mapaili</p>
               </div>
             </Link>
             <button
