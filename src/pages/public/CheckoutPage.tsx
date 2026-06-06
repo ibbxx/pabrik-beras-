@@ -9,6 +9,23 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const DISTRICT_SHIPPING_COSTS: Record<string, { zone: string; cost: number }> = {
+  "Tamalate": { zone: "Zona 1", cost: 10000 },
+  "Mamajang": { zone: "Zona 1", cost: 10000 },
+  "Mariso": { zone: "Zona 1", cost: 10000 },
+  "Rappocini": { zone: "Zona 2", cost: 17000 },
+  "Makassar": { zone: "Zona 2", cost: 17000 },
+  "Ujung Pandang": { zone: "Zona 2", cost: 17000 },
+  "Panakkukang": { zone: "Zona 2", cost: 17000 },
+  "Bontoala": { zone: "Zona 2", cost: 17000 },
+  "Wajo": { zone: "Zona 2", cost: 17000 },
+  "Tallo": { zone: "Zona 3", cost: 25000 },
+  "Ujung Tanah": { zone: "Zona 3", cost: 25000 },
+  "Manggala": { zone: "Zona 3", cost: 25000 },
+  "Tamalanrea": { zone: "Zona 4", cost: 32000 },
+  "Biringkanaya": { zone: "Zona 4", cost: 32000 },
+};
+
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
@@ -23,6 +40,9 @@ export default function CheckoutPage() {
     paymentMethod: "Transfer Bank"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const shippingCost = formData.district ? (DISTRICT_SHIPPING_COSTS[formData.district]?.cost || 0) : 0;
+  const totalAmount = cartTotal + shippingCost;
 
   useEffect(() => {
     if (cartItems.length === 0 && !isSubmitting) {
@@ -92,7 +112,8 @@ export default function CheckoutPage() {
           customer_id: customerId,
           status: 'pending',
           subtotal: cartTotal,
-          total_amount: cartTotal,
+          shipping_cost: shippingCost,
+          total_amount: totalAmount,
           payment_method: formData.paymentMethod
         } as any)
         .select()
@@ -122,7 +143,7 @@ export default function CheckoutPage() {
         .from('payments')
         .insert({
           order_id: orderId,
-          amount: cartTotal,
+          amount: totalAmount,
           payment_method: formData.paymentMethod,
           status: 'pending'
         } as any);
@@ -179,7 +200,20 @@ export default function CheckoutPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="district" className="text-xs font-black uppercase tracking-widest text-neutral-500">Kecamatan *</Label>
-                    <Input id="district" value={formData.district} onChange={handleInputChange} placeholder="Masukkan Kecamatan" className="h-12 rounded-xl border-neutral-200 focus:ring-primary/20" required />
+                    <select
+                      id="district"
+                      value={formData.district}
+                      onChange={(e) => setFormData(prev => ({ ...prev, district: e.target.value }))}
+                      className="flex h-12 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-medium cursor-pointer"
+                      required
+                    >
+                      <option value="" disabled>Pilih Kecamatan</option>
+                      {Object.keys(DISTRICT_SHIPPING_COSTS).map((districtName) => (
+                        <option key={districtName} value={districtName}>
+                          {districtName}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="subdistrict" className="text-xs font-black uppercase tracking-widest text-neutral-500">Kelurahan *</Label>
@@ -259,16 +293,22 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Ongkos Kirim</span>
-                <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Hubungi Admin</span>
+                {shippingCost > 0 ? (
+                  <span className="font-medium text-black">Rp {shippingCost.toLocaleString('id-ID')}</span>
+                ) : (
+                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Pilih Kecamatan</span>
+                )}
               </div>
             </div>
 
             <div className="border-t border-neutral-100 pt-6 mb-6">
               <div className="flex justify-between items-center mb-1">
                 <span className="font-black text-evergreen uppercase tracking-tight">Total Pembayaran</span>
-                <span className="font-black text-2xl text-primary tracking-tighter">Rp {cartTotal.toLocaleString('id-ID')}</span>
+                <span className="font-black text-2xl text-primary tracking-tighter">Rp {totalAmount.toLocaleString('id-ID')}</span>
               </div>
-              <p className="text-xs text-gray-500 text-right mt-1 font-medium">*Belum termasuk ongkos kirim</p>
+              <p className="text-xs text-gray-500 text-right mt-1 font-medium">
+                {shippingCost > 0 ? "*Sudah termasuk ongkos kirim" : "*Belum termasuk ongkos kirim"}
+              </p>
             </div>
 
             <Button

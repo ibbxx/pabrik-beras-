@@ -248,6 +248,18 @@ export default function OrderStatusPage() {
               </div>
             ))}
           </div>
+          <div className="pt-3 border-t border-neutral-100 space-y-2 mb-3">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-neutral-400">Subtotal</span>
+              <span className="font-bold text-gray-700">Rp {(order.subtotal || (order.total_amount - (order.shipping_cost || 0))).toLocaleString('id-ID')}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-neutral-400">Ongkos Kirim</span>
+              <span className="font-bold text-gray-700">
+                {order.shipping_cost !== null && order.shipping_cost !== undefined ? `Rp ${order.shipping_cost.toLocaleString('id-ID')}` : 'Rp 0'}
+              </span>
+            </div>
+          </div>
           <div className="pt-3 border-t border-neutral-100 flex justify-between items-center">
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total</span>
             <span className="font-black text-black text-xl tracking-tighter">Rp {(order.total_amount || 0).toLocaleString('id-ID')}</span>

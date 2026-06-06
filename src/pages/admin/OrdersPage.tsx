@@ -43,6 +43,8 @@ type Order = {
   id: string;
   order_code: string;
   customer_id: string;
+  subtotal: number | null;
+  shipping_cost: number | null;
   total_amount: number;
   status: string;
   payment_method: string;
@@ -506,6 +508,16 @@ export default function OrdersPage() {
                         ))}
                       </TableBody>
                     </Table>
+                    <div className="p-4 bg-gray-50 border-t border-gray-100 space-y-1.5 text-xs text-black font-semibold px-6 py-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Subtotal</span>
+                        <span>Rp {(selectedOrder.subtotal || (selectedOrder.total_amount - (selectedOrder.shipping_cost || 0))).toLocaleString('id-ID')}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ongkos Kirim</span>
+                        <span>Rp {(selectedOrder.shipping_cost || 0).toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
                     <div className="p-6 flex justify-between items-center bg-black text-white">
                       <div>
                         <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Total Akhir</p>
