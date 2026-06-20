@@ -9,7 +9,6 @@ import {
   FileText,
   Star,
   Layout,
-  Globe,
   Phone,
   Save,
   Info,
@@ -396,7 +395,6 @@ export default function SettingsPage() {
     { id: 'testimonials', icon: Star, label: 'Testimoni', desc: 'Tampilkan ulasan pelanggan' },
     { id: 'appearance', icon: Layout, label: 'Tampilan', desc: 'Hero, profil & benefit website' },
     { id: 'business', icon: Phone, label: 'Bisnis', desc: 'Kontak, pembayaran & layanan' },
-    { id: 'seo', icon: Globe, label: 'SEO', desc: 'Optimasi mesin pencari' },
   ];
 
 
@@ -899,39 +897,6 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {activeTab === "seo" && (
-              <div className="space-y-6">
-                <Card className="border-none shadow-sm rounded-[2.5rem] bg-white overflow-hidden max-w-4xl mx-auto">
-                  <CardHeader className="bg-gray-50/50 px-10 py-8">
-                    <CardTitle className="text-xl font-bold flex items-center gap-2"><Globe size={20} /> Manajemen SEO</CardTitle>
-                    <CardDescription>Kontrol bagaimana situs web Anda muncul di mesin pencari seperti Google.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-10 space-y-10">
-                    <div className="space-y-6">
-                      {renderSettingField("seo_title", "Meta Title", "text", "Direkomendasikan 50-60 karakter.")}
-                      {renderSettingField("seo_keywords", "Keywords", "text", "Pisahkan dengan koma.")}
-                      {renderSettingField("seo_description", "Meta Description", "textarea", "Direkomendasikan 150-160 karakter.")}
-                    </div>
-
-                    {/* Live Preview */}
-                    <div className="space-y-4 pt-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pratinjau Mesin Pencari</p>
-                      <div className="p-8 border border-gray-100 rounded-3xl bg-[#fafafa]">
-                        <p className="text-[#1a0dab] text-xl font-medium truncate hover:underline cursor-pointer">{settingsMap["seo_title"] || "Pratinjau Judul Situs"}</p>
-                        <p className="text-[#006621] text-sm truncate mt-1">https://mapailli.vercel.app/</p>
-                        <p className="text-[#545454] text-sm mt-1 line-clamp-2">
-                          {settingsMap["seo_description"] || "Pratinjau deskripsi situs akan muncul di sini setelah Anda mengetiknya."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button onClick={() => saveSettings(["seo_title", "seo_keywords", "seo_description"])} disabled={isSaving} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-xl font-bold shadow-xl shadow-black/10">
-                      {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={18} className="mr-2" />} Simpan Konfigurasi SEO
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
 
           </div>
         </div>
@@ -939,14 +904,14 @@ export default function SettingsPage() {
 
       {/* ── UNIVERSAL MODAL ── */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-xl rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
-          <DialogHeader className="bg-gray-50/50 px-10 py-8 border-b border-gray-100">
+        <DialogContent className="max-w-xl rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col max-h-[90vh]">
+          <DialogHeader className="bg-gray-50/50 px-10 py-8 border-b border-gray-100 shrink-0">
             <DialogTitle className="text-2xl font-black">
               {editingItem ? 'Ubah Data' : 'Tambah Data Baru'}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-10">
-            <form onSubmit={handleSave} className="space-y-6">
+          <form onSubmit={handleSave} className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto p-10 space-y-6 custom-scrollbar">
               {activeTab === "faq" && (
                 <>
                   <div className="space-y-2">
@@ -988,10 +953,6 @@ export default function SettingsPage() {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Konten Berita</Label>
                     <Textarea id="content" name="content" defaultValue={editingItem?.content} required className="min-h-[200px] rounded-xl border-gray-100 focus:border-black transition-all" />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">URL Gambar Sampul</Label>
-                    <Input id="image_url" name="image_url" defaultValue={editingItem?.image_url} className="h-12 rounded-xl border-gray-100 focus:border-black transition-all" />
-                  </div>
                   <div className="flex items-center gap-3">
                     <input type="checkbox" id="is_active" defaultChecked={editingItem ? editingItem.is_active : true} className="w-5 h-5 accent-black" />
                     <Label htmlFor="is_active" className="text-sm font-bold">Terbitkan Berita</Label>
@@ -1031,15 +992,15 @@ export default function SettingsPage() {
                   </div>
                 </>
               )}
+            </div>
 
-              <div className="flex justify-end gap-3 pt-6">
-                <Button type="button" variant="ghost" className="rounded-xl h-12" onClick={() => setIsModalOpen(false)}>Batal</Button>
-                <Button type="submit" disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10">
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Simpan Perubahan
-                </Button>
-              </div>
-            </form>
-          </div>
+            <div className="px-10 py-6 border-t border-gray-100 bg-gray-50/30 flex justify-end gap-3 shrink-0">
+              <Button type="button" variant="ghost" className="rounded-xl h-12" onClick={() => setIsModalOpen(false)}>Batal</Button>
+              <Button type="submit" disabled={isSaving} className="bg-black text-white hover:bg-gray-800 rounded-xl px-10 h-12 font-bold shadow-lg shadow-black/10">
+                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Simpan Perubahan
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

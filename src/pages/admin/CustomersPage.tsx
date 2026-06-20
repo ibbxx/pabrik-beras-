@@ -528,8 +528,8 @@ export default function CustomersPage() {
 
       {/* ── CUSTOMER DETAIL MODAL ── */}
       <Dialog open={isCustomerModalOpen} onOpenChange={setIsCustomerModalOpen}>
-        <DialogContent className="max-w-xl bg-white border-none rounded-2xl p-0 overflow-hidden shadow-2xl">
-          <DialogHeader className="p-5 lg:p-6 border-b border-gray-100">
+        <DialogContent className="max-w-xl bg-white border-none rounded-2xl p-0 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+          <DialogHeader className="p-5 lg:p-6 border-b border-gray-100 shrink-0">
             <DialogTitle className="text-base lg:text-lg font-black tracking-tight flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs font-black">
                 {selectedCustomer?.full_name.charAt(0)}
@@ -538,7 +538,7 @@ export default function CustomersPage() {
             </DialogTitle>
           </DialogHeader>
           {selectedCustomer && (
-            <div className="p-5 lg:p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+            <div className="p-5 lg:p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-xl p-3.5">
                   <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">WhatsApp</p>
@@ -615,8 +615,8 @@ export default function CustomersPage() {
 
       {/* ── RESELLER DETAIL MODAL ── */}
       <Dialog open={isResellerModalOpen} onOpenChange={setIsResellerModalOpen}>
-        <DialogContent className="max-w-lg bg-white border-none rounded-2xl p-0 overflow-hidden shadow-2xl">
-          <DialogHeader className="p-5 lg:p-6 border-b border-gray-100">
+        <DialogContent className="max-w-lg bg-white border-none rounded-2xl p-0 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+          <DialogHeader className="p-5 lg:p-6 border-b border-gray-100 shrink-0">
             <DialogTitle className="text-base lg:text-lg font-black tracking-tight flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
                 <Store className="w-4 h-4" />
@@ -625,7 +625,7 @@ export default function CustomersPage() {
             </DialogTitle>
           </DialogHeader>
           {selectedReseller && (
-            <div className="p-5 lg:p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+            <div className="p-5 lg:p-6 space-y-5 flex-1 overflow-y-auto custom-scrollbar">
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-2.5">
                 {[
