@@ -161,10 +161,21 @@ export default function PaymentConfirmationPage() {
         
         <div className="bg-neutral-50 rounded-xl p-4 border border-neutral-100 mb-4 text-center">
           <p className="text-[10px] text-gray-400 mb-1 font-black uppercase tracking-widest">Total Pembayaran</p>
-          <p className="text-3xl font-black text-primary tracking-tighter">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
+          <p className="text-3xl font-black text-primary tracking-tighter mb-2">Rp {order.total_amount?.toLocaleString('id-ID')}</p>
+          
+          {isSubmitted && (
+            <div className="mt-3 pt-3 border-t border-neutral-200/60">
+              <Link 
+                to={`/order-status/${order.order_code}`} 
+                className="w-full bg-black text-white hover:bg-neutral-800 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 text-center cursor-pointer"
+              >
+                Pantau Status Pesanan <ArrowRight size={12} />
+              </Link>
+            </div>
+          )}
         </div>
 
-        {order.payment_method === 'Transfer Bank' && (
+        {!isSubmitted && order.payment_method === 'Transfer Bank' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-neutral-50">
               <div>
@@ -179,7 +190,7 @@ export default function PaymentConfirmationPage() {
           </div>
         )}
 
-        {order.payment_method === 'DANA' && (
+        {!isSubmitted && order.payment_method === 'DANA' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 border border-blue-100 rounded-lg bg-blue-50/50">
               <div>
@@ -194,7 +205,7 @@ export default function PaymentConfirmationPage() {
           </div>
         )}
 
-        {order.payment_method === 'QRIS' && (
+        {!isSubmitted && order.payment_method === 'QRIS' && (
           <div className="space-y-4 text-center mt-4">
             <div className="p-4 border border-gray-200 rounded-xl bg-white shadow-sm inline-block mx-auto cursor-zoom-in group relative overflow-hidden" onClick={() => setShowQRModal(true)}>
               <img src="/qris.png" alt="QRIS" className="max-w-[220px] w-full h-auto mx-auto mb-1 rounded-lg transition-transform group-hover:scale-105" />
@@ -218,6 +229,15 @@ export default function PaymentConfirmationPage() {
             />
             <p className="text-white/60 text-center mt-4 text-xs font-black uppercase tracking-[0.2em]">Klik di mana saja untuk menutup</p>
           </div>
+        </div>
+      )}
+
+      {payment?.status === 'rejected' && (
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 mb-4 text-center">
+          <p className="text-xs font-black uppercase tracking-widest text-rose-600 mb-1">Bukti Transfer Ditolak</p>
+          <p className="text-[10px] font-bold text-rose-500 uppercase tracking-tight">
+            Bukti transfer sebelumnya ditolak oleh admin. Silakan unggah bukti transfer baru yang valid.
+          </p>
         </div>
       )}
 
@@ -265,11 +285,13 @@ export default function PaymentConfirmationPage() {
         </div>
       )}
 
-      <div className="mt-4 text-center">
-        <Link to={`/order-status/${order.order_code}`} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors flex items-center justify-center gap-2">
-          Pantau Status Pesanan <ArrowRight size={12} />
-        </Link>
-      </div>
+      {!isSubmitted && (
+        <div className="mt-4 text-center">
+          <p className="text-[9px] font-bold text-rose-500 uppercase tracking-widest">
+            * Wajib upload bukti transfer untuk memantau status pesanan
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,6 +12,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
+const ORDER_STATUS_MAP: Record<string, string> = {
+  pending: "PENDING",
+  processing: "PROSES",
+  shipped: "DIKIRIM",
+  delivered: "SELESAI",
+  cancelled: "BATAL",
+};
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any[]>([]);
@@ -45,36 +53,36 @@ export default function DashboardPage() {
 
       setStats([
         { 
-          title: "Total Revenue", 
+          title: "Total Pendapatan", 
           value: `Rp ${totalRevenue.toLocaleString('id-ID')}`, 
           change: "+0%", 
           trend: "up", 
           icon: DollarSign,
-          description: "confirmed sales"
+          description: "penjualan terkonfirmasi"
         },
         { 
-          title: "Total Orders", 
+          title: "Total Pesanan", 
           value: totalOrders.toString(), 
           change: "+0%", 
           trend: "up", 
           icon: ShoppingCart,
-          description: "lifetime orders"
+          description: "semua pesanan"
         },
         { 
-          title: "Total Products", 
+          title: "Total Produk", 
           value: totalProducts.toString(), 
           change: "+0%", 
           trend: "up", 
           icon: PackageIcon,
-          description: "active in catalog"
+          description: "aktif di katalog"
         },
         { 
-          title: "Total Customers", 
+          title: "Total Pelanggan", 
           value: totalCustomers.toString(), 
           change: "+0%", 
           trend: "up", 
           icon: Users,
-          description: "registered users"
+          description: "pelanggan terdaftar"
         },
       ]);
 
@@ -122,8 +130,8 @@ export default function DashboardPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-black tracking-tighter text-black uppercase">Dashboard</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Operational Overview</p>
+          <h1 className="text-xl lg:text-3xl font-black tracking-tighter text-black uppercase">Dashboard</h1>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Ringkasan Operasional</p>
         </div>
         <div className="flex items-center gap-2">
           <Link to="/admin/reports">
@@ -168,8 +176,8 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2 border border-gray-100 shadow-none bg-white rounded-xl lg:rounded-2xl overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 pb-4 px-6 lg:px-8">
             <div>
-              <CardTitle className="text-sm lg:text-base font-black uppercase tracking-tighter">Recent Orders</CardTitle>
-              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Customer Activity</p>
+              <CardTitle className="text-sm lg:text-base font-black uppercase tracking-tighter">Pesanan Terbaru</CardTitle>
+              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Aktivitas Pelanggan</p>
             </div>
             <Link to="/admin/orders">
               <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black hover:bg-transparent">
@@ -182,9 +190,9 @@ export default function DashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-gray-50 bg-gray-50/30">
-                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Order ID</th>
-                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Customer</th>
-                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Amount</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">ID Pesanan</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pelanggan</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total</th>
                     <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Status</th>
                   </tr>
                 </thead>
@@ -200,7 +208,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-8 py-4 text-right">
                         <span className={`inline-flex px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
-                          {order.status}
+                          {ORDER_STATUS_MAP[order.status] || order.status}
                         </span>
                       </td>
                     </tr>
@@ -208,7 +216,7 @@ export default function DashboardPage() {
                   {recentOrders.length === 0 && (
                     <tr>
                       <td colSpan={4} className="px-8 py-20 text-center text-gray-400 font-medium italic">
-                        No orders recorded yet.
+                        Belum ada pesanan tercatat.
                       </td>
                     </tr>
                   )}

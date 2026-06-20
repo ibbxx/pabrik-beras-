@@ -266,7 +266,7 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-xl lg:text-3xl font-black tracking-tighter text-black uppercase">Inventory</h1>
+          <h1 className="text-xl lg:text-3xl font-black tracking-tighter text-black uppercase">Inventaris</h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Kelola Stok & Produk Beras</p>
         </div>
         <Button onClick={() => handleOpenProdModal()} className="bg-black text-white hover:bg-black/90 h-10 px-6 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95">
@@ -301,7 +301,7 @@ export default function ProductsPage() {
             {filteredProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-20 text-gray-400 font-medium font-heading italic">
-                  No products found.
+                  Produk tidak ditemukan.
                 </TableCell>
               </TableRow>
             ) : (

@@ -14,6 +14,14 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 
+const ORDER_STATUS_MAP: Record<string, string> = {
+  pending: "PENDING",
+  processing: "PROSES",
+  shipped: "DIKIRIM",
+  delivered: "SELESAI",
+  cancelled: "BATAL",
+};
+
 type OrderRow = {
   id: string;
   order_code: string;
@@ -127,7 +135,7 @@ export default function ReportsPage() {
     const rows = filteredOrders.map((o) => [
       o.order_code,
       o.total_amount,
-      o.status,
+      ORDER_STATUS_MAP[o.status] || o.status,
       new Date(o.created_at).toLocaleDateString("id-ID"),
     ]);
     const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
@@ -270,7 +278,7 @@ export default function ReportsPage() {
                 <TableRow key={o.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
                   <TableCell className="px-6 py-3 font-mono font-black text-black tracking-tighter text-xs">{o.order_code}</TableCell>
                   <TableCell className="px-6 py-3 font-black text-black text-xs">Rp {o.total_amount.toLocaleString("id-ID")}</TableCell>
-                  <TableCell className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">{o.status}</TableCell>
+                  <TableCell className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-gray-400">{ORDER_STATUS_MAP[o.status] || o.status}</TableCell>
                   <TableCell className="px-6 py-3 text-right text-[10px] font-bold text-gray-300 uppercase tracking-widest">{new Date(o.created_at).toLocaleDateString("id-ID")}</TableCell>
                 </TableRow>
               ))

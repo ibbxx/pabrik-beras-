@@ -11,7 +11,8 @@ import {
   MoreVertical,
   CreditCard,
   Image as ImageIcon,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,13 +30,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 
 import { toast } from "sonner";
 
@@ -65,14 +67,31 @@ type Order = {
 };
 
 const PAGE_SIZE = 25;
+const ORDER_STATUS_TABS = [
+  { value: "all", label: "SEMUA" },
+  { value: "pending", label: "PENDING" },
+  { value: "processing", label: "PROSES" },
+  { value: "shipped", label: "DIKIRIM" },
+  { value: "delivered", label: "SELESAI" },
+  { value: "cancelled", label: "BATAL" },
+] as const;
+
+const ORDER_STATUS_MAP: Record<string, string> = {
+  pending: "PENDING",
+  processing: "PROSES",
+  shipped: "DIKIRIM",
+  delivered: "SELESAI",
+  cancelled: "BATAL",
+};
 
 export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilters, setStatusFilters] = useState<string[]>(["all"]);
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -80,8 +99,67 @@ export default function OrdersPage() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
+    setSelectedOrderIds([]);
     fetchOrders();
-  }, [statusFilter, page]);
+  }, [statusFilters, page]);
+
+  const handleSelectOrder = (id: string) => {
+    setSelectedOrderIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedOrderIds.length === filteredOrders.length) {
+      setSelectedOrderIds([]);
+    } else {
+      setSelectedOrderIds(filteredOrders.map((order) => order.id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus ${selectedOrderIds.length} pesanan terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      // 1. Delete associated payments first
+      const { error: payError } = await supabase
+        .from('payments')
+        .delete()
+        .in('order_id', selectedOrderIds);
+        
+      if (payError) {
+        console.error("Error deleting payments:", payError);
+      }
+
+      // 2. Delete associated order items
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .in('order_id', selectedOrderIds);
+
+      if (itemsError) {
+        console.error("Error deleting order items:", itemsError);
+      }
+
+      // 3. Delete orders
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .in('id', selectedOrderIds);
+
+      if (orderError) throw orderError;
+
+      toast.success("Berhasil menghapus pesanan terpilih!");
+      setSelectedOrderIds([]);
+      fetchOrders();
+    } catch (error: any) {
+      toast.error("Gagal menghapus pesanan: " + error.message);
+      fetchOrders();
+    }
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -98,8 +176,8 @@ export default function OrdersPage() {
         .order('created_at', { ascending: false })
         .range(from, to);
 
-      if (statusFilter !== "all") {
-        query = query.eq('status', statusFilter);
+      if (!statusFilters.includes("all")) {
+        query = query.in('status', statusFilters);
       }
 
       const { data, error, count } = await query;
@@ -125,6 +203,17 @@ export default function OrdersPage() {
     } catch (error: any) {
       toast.error("Gagal memuat detail produk: " + error.message);
     }
+  };
+
+  const syncUpdatedOrder = (orderId: string, updater: (current: Order) => Order) => {
+    setOrders((currentOrders) =>
+      currentOrders.map((currentOrder) =>
+        currentOrder.id === orderId ? updater(currentOrder) : currentOrder
+      )
+    );
+    setSelectedOrder((currentOrder) =>
+      currentOrder && currentOrder.id === orderId ? updater(currentOrder) : currentOrder
+    );
   };
 
   const handleViewDetail = async (order: Order) => {
@@ -174,13 +263,43 @@ export default function OrdersPage() {
           .eq('id', orderId);
         
         if (orderError) throw orderError;
+        syncUpdatedOrder(orderId, (currentOrder) => ({
+          ...currentOrder,
+          status: "processing",
+          payments: currentOrder.payments?.map((payment) =>
+            payment.id === paymentId
+              ? {
+                  ...payment,
+                  status: "verified",
+                }
+              : payment
+          ),
+        }));
         toast.success("Pembayaran berhasil diverifikasi!");
+        const isCurrentlyVisible = statusFilters.includes("all") || statusFilters.includes("processing");
+        if (!isCurrentlyVisible) {
+          setStatusFilters(["processing"]);
+          setPage(0);
+        } else {
+          fetchOrders();
+        }
       } else {
+        syncUpdatedOrder(orderId, (currentOrder) => ({
+          ...currentOrder,
+          payments: currentOrder.payments?.map((payment) =>
+            payment.id === paymentId
+              ? {
+                  ...payment,
+                  status: "rejected",
+                }
+              : payment
+          ),
+        }));
         toast.error("Pembayaran ditolak.");
+        fetchOrders();
       }
 
       setIsDetailModalOpen(false);
-      fetchOrders();
     } catch (error: any) {
       toast.error("Gagal verifikasi: " + error.message);
     } finally {
@@ -189,25 +308,100 @@ export default function OrdersPage() {
   };
 
   const updateOrderStatus = async (order: Order, newStatus: string) => {
-    if (!canMoveOrderStatus(order, newStatus)) {
-      toast.error("Status pesanan tidak bisa dilanjutkan sebelum pembayaran terverifikasi atau urutan status sebelumnya selesai.");
+    if (order.status === newStatus) {
+      toast.warning(`Pesanan ini sudah berada di status ${ORDER_STATUS_MAP[newStatus] || newStatus.toUpperCase()}.`);
       return;
+    }
+
+    if (!canMoveOrderStatus(order, newStatus)) {
+      if (newStatus === "cancelled") {
+        toast.error("Pesanan yang sudah selesai atau dibatalkan tidak dapat dibatalkan lagi.");
+      } else {
+        const nextStepMap: Record<string, string> = {
+          pending: "PROSES",
+          processing: "DIKIRIM",
+          shipped: "SELESAI",
+        };
+        const nextStep = nextStepMap[order.status] || "selanjutnya";
+        toast.error(
+          `Alur tidak valid. Dari status ${ORDER_STATUS_MAP[order.status] || order.status.toUpperCase()}, Anda harus menandai ke "${nextStep}" terlebih dahulu.`
+        );
+      }
+      return;
+    }
+
+    const payment = order.payments?.[0];
+    const paymentStatus = payment?.status || "pending";
+
+    if (paymentStatus === "rejected" && ["processing", "shipped", "delivered"].includes(newStatus)) {
+      const confirmOverride = window.confirm(
+        `PERINGATAN: Pembayaran untuk pesanan ini sebelumnya DITOLAK. Apakah Anda yakin tetap ingin memproses pesanan ini dan secara otomatis mengubah status pembayarannya menjadi LUNAS?`
+      );
+      if (!confirmOverride) return;
+    } else {
+      const confirmMessage = `Apakah Anda yakin ingin memindahkan status pesanan ${order.order_code} menjadi "${ORDER_STATUS_MAP[newStatus] || newStatus.toUpperCase()}"?`;
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
     }
 
     setIsUpdating(true);
     try {
-      const { error } = await (supabase as any)
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', order.id);
+      const updates: Promise<any>[] = [];
 
-      if (error) throw error;
+      // 1. Update order status in database
+      updates.push(
+        (supabase as any)
+          .from('orders')
+          .update({ status: newStatus })
+          .eq('id', order.id)
+      );
+
+      // 2. If moving to processing/shipped/delivered and payment is not verified, auto-verify it
+      const payment = order.payments?.[0];
+      const shouldVerifyPayment = ['processing', 'shipped', 'delivered'].includes(newStatus) && payment && payment.status !== 'verified';
       
-      toast.success(`Order status updated to ${newStatus}`);
+      if (shouldVerifyPayment) {
+        updates.push(
+          (supabase as any)
+            .from('payments')
+            .update({
+              status: 'verified',
+              verified_at: new Date().toISOString()
+            })
+            .eq('id', payment.id)
+        );
+      }
+
+      const results = await Promise.all(updates);
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) throw errors[0].error;
+      
+      syncUpdatedOrder(order.id, (currentOrder) => {
+        const updatedPayments = currentOrder.payments?.map((p) =>
+          p.id === payment?.id
+            ? { ...p, status: 'verified' }
+            : p
+        );
+        return {
+          ...currentOrder,
+          status: newStatus,
+          payments: shouldVerifyPayment ? updatedPayments : currentOrder.payments,
+        };
+      });
+
+      toast.success(`Pesanan dipindahkan ke ${ORDER_STATUS_MAP[newStatus] || newStatus}`);
       setIsDetailModalOpen(false);
-      fetchOrders();
+
+      const isCurrentlyVisible = statusFilters.includes("all") || statusFilters.includes(newStatus);
+      if (!isCurrentlyVisible) {
+        setStatusFilters([newStatus]);
+        setPage(0);
+      } else {
+        fetchOrders();
+      }
     } catch (error: any) {
-      toast.error("Update failed: " + error.message);
+      toast.error("Gagal memperbarui status: " + error.message);
     } finally {
       setIsUpdating(false);
     }
@@ -222,14 +416,8 @@ export default function OrdersPage() {
     return order.payments?.[0]?.status || "pending";
   };
 
-  const isPaymentCleared = (order: Order) => {
-    return getPaymentStatus(order) === "verified";
-  };
-
   const canMoveOrderStatus = (order: Order, newStatus: string) => {
     if (newStatus === "cancelled") return !["delivered", "cancelled"].includes(order.status);
-
-    if (!isPaymentCleared(order)) return false;
 
     const nextStatus: Record<string, string> = {
       pending: "processing",
@@ -241,7 +429,22 @@ export default function OrdersPage() {
   };
 
   const handleStatusFilterChange = (status: string) => {
-    setStatusFilter(status);
+    if (status === "all") {
+      setStatusFilters(["all"]);
+    } else {
+      setStatusFilters((prev) => {
+        let next = prev.filter((s) => s !== "all");
+        if (next.includes(status)) {
+          next = next.filter((s) => s !== status);
+        } else {
+          next.push(status);
+        }
+        if (next.length === 0) {
+          return ["all"];
+        }
+        return next;
+      });
+    }
     setPage(0);
   };
 
@@ -249,22 +452,22 @@ export default function OrdersPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending': return <Badge variant="outline" className="bg-gray-50 text-gray-400 border-gray-100 text-[9px] font-black uppercase tracking-widest px-2 py-0">Pending</Badge>;
-      case 'processing': return <Badge variant="outline" className="bg-gray-100 text-black border-gray-200 text-[9px] font-black uppercase tracking-widest px-2 py-0">Proses</Badge>;
-      case 'shipped': return <Badge variant="outline" className="bg-white text-black border-black text-[9px] font-black uppercase tracking-widest px-2 py-0">Dikirim</Badge>;
-      case 'delivered': return <Badge variant="outline" className="bg-black text-white border-transparent text-[9px] font-black uppercase tracking-widest px-2 py-0">Selesai</Badge>;
-      case 'cancelled': return <Badge variant="outline" className="bg-white text-gray-300 border-gray-100 text-[9px] font-black uppercase tracking-widest px-2 py-0">Batal</Badge>;
-      default: return <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest px-2 py-0">{status}</Badge>;
+      case 'pending': return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Pending</Badge>;
+      case 'processing': return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Proses</Badge>;
+      case 'shipped': return <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Dikirim</Badge>;
+      case 'delivered': return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Selesai</Badge>;
+      case 'cancelled': return <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Batal</Badge>;
+      default: return <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">{status}</Badge>;
     }
   };
 
   const getPaymentBadge = (status: string) => {
     switch (status) {
-      case "verified": return <Badge variant="outline" className="bg-black text-white border-transparent text-[9px] font-black uppercase tracking-widest px-2 py-0">Lunas</Badge>;
-      case "submitted": return <Badge variant="outline" className="bg-gray-100 text-black border-gray-200 text-[9px] font-black uppercase tracking-widest px-2 py-0">Upload</Badge>;
-      case "rejected": return <Badge variant="outline" className="bg-white text-gray-300 border-gray-100 text-[9px] font-black uppercase tracking-widest px-2 py-0">Tolak</Badge>;
-      case "cod": return <Badge variant="outline" className="bg-gray-50 text-gray-400 border-gray-100 text-[9px] font-black uppercase tracking-widest px-2 py-0">COD</Badge>;
-      default: return <Badge variant="outline" className="bg-white text-gray-300 border-gray-100 text-[9px] font-black uppercase tracking-widest px-2 py-0">Belum</Badge>;
+      case "verified": return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Lunas</Badge>;
+      case "submitted": return <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Upload</Badge>;
+      case "rejected": return <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Tolak</Badge>;
+      case "cod": return <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">COD</Badge>;
+      default: return <Badge variant="outline" className="bg-slate-100 text-slate-600 border-slate-200 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">Belum</Badge>;
     }
   };
 
@@ -273,7 +476,7 @@ export default function OrdersPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-xl lg:text-3xl font-black tracking-tighter text-black uppercase">Pesanan</h1>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Kelola & Pantau Order Pelanggan</p>
+          <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mt-1">Kelola & Pantau Order Pelanggan</p>
         </div>
         <div className="relative w-full md:w-80 group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 group-focus-within:text-black transition-colors" />
@@ -288,54 +491,81 @@ export default function OrdersPage() {
 
       <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
         <div className="flex items-center gap-1 p-1 bg-gray-50 rounded-lg w-full md:w-auto overflow-x-auto no-scrollbar">
-          {["all", "pending", "processing", "shipped", "delivered", "cancelled"].map((status) => (
+          {ORDER_STATUS_TABS.map((status) => (
             <Button 
-              key={status}
+              key={status.value}
               variant="ghost" 
               size="sm" 
-              onClick={() => handleStatusFilterChange(status)}
-              className={`rounded-md px-4 h-8 text-[9px] font-black uppercase tracking-widest transition-all ${
-                statusFilter === status 
+              onClick={() => handleStatusFilterChange(status.value)}
+              className={`rounded-md px-4 h-8 text-[10px] font-black uppercase tracking-widest transition-all ${
+                statusFilters.includes(status.value) 
                   ? "bg-black text-white" 
-                  : "text-gray-400 hover:text-black hover:bg-transparent"
+                  : "text-neutral-600 hover:text-black hover:bg-neutral-100/50"
               }`}
             >
-              {status}
+              {status.label}
             </Button>
           ))}
         </div>
+
+        {selectedOrderIds.length > 0 && (
+          <Button 
+            variant="destructive"
+            size="sm"
+            onClick={handleBulkDelete}
+            className="rounded-lg px-4 h-8 text-[9px] font-black uppercase tracking-widest transition-all bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 self-end md:self-auto"
+          >
+            <Trash2 size={12} /> Hapus ({selectedOrderIds.length})
+          </Button>
+        )}
       </div>
 
       <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-none">
         <Table>
           <TableHeader className="bg-gray-50/50">
             <TableRow className="border-gray-50">
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Order ID</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Pelanggan</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Total</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Status</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Payment</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6">Tanggal</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 h-10 px-6 text-right">Aksi</TableHead>
+              <TableHead className="w-12 h-10 px-6 text-center">
+                <input
+                  type="checkbox"
+                  checked={filteredOrders.length > 0 && selectedOrderIds.length === filteredOrders.length}
+                  onChange={handleSelectAll}
+                  className="rounded border-gray-300 text-black focus:ring-black h-4 w-4 cursor-pointer"
+                />
+              </TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6">ID Pesanan</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6">Pelanggan</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6">Total</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6">Status</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6">Pembayaran</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6">Tanggal</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-neutral-500 h-10 px-6 text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-gray-50">
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-20">
+                <TableCell colSpan={8} className="text-center py-20">
                   <Loader2 className="h-10 w-10 animate-spin mx-auto text-black/20" />
-                  <p className="mt-4 text-xs font-bold text-gray-300 uppercase tracking-widest">Fetching orders...</p>
+                  <p className="mt-4 text-xs font-bold text-gray-300 uppercase tracking-widest">Memuat pesanan...</p>
                 </TableCell>
               </TableRow>
             ) : filteredOrders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-20 text-gray-400 font-medium font-heading italic">
-                  No orders match your criteria.
+                <TableCell colSpan={8} className="text-center py-20 text-gray-400 font-medium font-heading italic">
+                  Tidak ada pesanan yang sesuai kriteria.
                 </TableCell>
               </TableRow>
             ) : (
               filteredOrders.map((order) => (
                 <TableRow key={order.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors group">
+                  <TableCell className="w-12 px-6 py-4 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedOrderIds.includes(order.id)}
+                      onChange={() => handleSelectOrder(order.id)}
+                      className="rounded border-gray-300 text-black focus:ring-black h-4 w-4 cursor-pointer"
+                    />
+                  </TableCell>
                   <TableCell className="px-6 py-4 font-mono font-black tracking-tighter text-black text-xs">{order.order_code}</TableCell>
                   <TableCell className="px-6 py-4">
                     <p className="text-[11px] font-black text-black uppercase tracking-tight">{order.customers?.full_name}</p>
@@ -366,38 +596,73 @@ export default function OrdersPage() {
                           <MoreVertical size={14} />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48 rounded-xl border border-gray-100 shadow-xl p-1 bg-white">
-                          <DropdownMenuItem onClick={() => handleViewDetail(order)} className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer">
+                          <DropdownMenuItem 
+                            onClick={() => handleViewDetail(order)} 
+                            className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer hover:bg-gray-50 transition-all"
+                          >
                             <Eye size={12} /> Lihat Detail
                           </DropdownMenuItem>
-                          <div className="h-px bg-gray-50 my-1"></div>
+                          <DropdownMenuSeparator className="bg-gray-50 my-1" />
                           <DropdownMenuItem 
-                            disabled={!canMoveOrderStatus(order, "processing")}
                             onClick={() => updateOrderStatus(order, "processing")}
-                            className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer hover:bg-black hover:text-white transition-all"
+                            className={`rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer transition-all flex items-center justify-between ${
+                              order.status === "processing"
+                                ? "bg-neutral-100 text-neutral-800 font-black cursor-default"
+                                : "hover:bg-black hover:text-white text-gray-700"
+                            }`}
                           >
-                            <Package size={12} /> Tandai Proses
+                            <span className="flex items-center gap-3">
+                              <Package size={12} /> Tandai Proses
+                            </span>
+                            {order.status === "processing" && (
+                              <span className="text-[8px] bg-neutral-200 text-neutral-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-tight">Aktif</span>
+                            )}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            disabled={!canMoveOrderStatus(order, "shipped")}
                             onClick={() => updateOrderStatus(order, "shipped")}
-                            className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer hover:bg-black hover:text-white transition-all"
+                            className={`rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer transition-all flex items-center justify-between ${
+                              order.status === "shipped"
+                                ? "bg-neutral-100 text-neutral-800 font-black cursor-default"
+                                : "hover:bg-black hover:text-white text-gray-700"
+                            }`}
                           >
-                            <Truck size={12} /> Tandai Kirim
+                            <span className="flex items-center gap-3">
+                              <Truck size={12} /> Tandai Kirim
+                            </span>
+                            {order.status === "shipped" && (
+                              <span className="text-[8px] bg-neutral-200 text-neutral-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-tight">Aktif</span>
+                            )}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            disabled={!canMoveOrderStatus(order, "delivered")}
                             onClick={() => updateOrderStatus(order, "delivered")}
-                            className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer hover:bg-black hover:text-white transition-all"
+                            className={`rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer transition-all flex items-center justify-between ${
+                              order.status === "delivered"
+                                ? "bg-neutral-100 text-neutral-800 font-black cursor-default"
+                                : "hover:bg-black hover:text-white text-gray-700"
+                            }`}
                           >
-                            <CheckCircle2 size={12} /> Tandai Selesai
+                            <span className="flex items-center gap-3">
+                              <CheckCircle2 size={12} /> Tandai Selesai
+                            </span>
+                            {order.status === "delivered" && (
+                              <span className="text-[8px] bg-neutral-200 text-neutral-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-tight">Aktif</span>
+                            )}
                           </DropdownMenuItem>
-                          <div className="h-px bg-gray-50 my-1"></div>
+                          <DropdownMenuSeparator className="bg-gray-50 my-1" />
                           <DropdownMenuItem 
-                            disabled={!canMoveOrderStatus(order, "cancelled")}
                             onClick={() => updateOrderStatus(order, "cancelled")}
-                            className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer text-gray-300 hover:text-black"
+                            className={`rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest gap-3 cursor-pointer transition-all flex items-center justify-between ${
+                              order.status === "cancelled"
+                                ? "bg-neutral-100 text-neutral-800 font-black cursor-default"
+                                : "hover:bg-red-50 text-red-600 hover:text-red-700"
+                            }`}
                           >
-                            <XCircle size={12} /> Batalkan Order
+                            <span className="flex items-center gap-3">
+                              <XCircle size={12} /> Batalkan Order
+                            </span>
+                            {order.status === "cancelled" && (
+                              <span className="text-[8px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-tight">Aktif</span>
+                            )}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -410,25 +675,27 @@ export default function OrdersPage() {
         </Table>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[9px] font-black uppercase tracking-widest text-gray-300">
-        <p>
-          Menampilkan {filteredOrders.length} dari {totalCount} pesanan
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-neutral-500 mt-4 pt-4 border-t border-neutral-100">
+        <p className="uppercase tracking-wider">
+          Menampilkan <span className="text-black font-black">{filteredOrders.length}</span> dari <span className="text-black font-black">{totalCount}</span> pesanan
         </p>
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-8 text-gray-400 hover:text-black hover:bg-transparent"
+            className="h-8 text-[10px] font-black uppercase tracking-widest border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-black rounded-lg transition-colors"
             disabled={page === 0 || loading}
             onClick={() => setPage((current) => Math.max(0, current - 1))}
           >
             Sebelumnya
           </Button>
-          <span className="px-3">Halaman {page + 1} / {totalPages}</span>
+          <span className="px-3 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+            Halaman <span className="text-black">{page + 1}</span> / {totalPages}
+          </span>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-8 text-gray-400 hover:text-black hover:bg-transparent"
+            className="h-8 text-[10px] font-black uppercase tracking-widest border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-black rounded-lg transition-colors"
             disabled={page + 1 >= totalPages || loading}
             onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
           >
@@ -444,7 +711,7 @@ export default function OrdersPage() {
             <DialogHeader>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Order Summary</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Ringkasan Pesanan</p>
                   <DialogTitle className="text-xl lg:text-3xl font-black tracking-tighter uppercase">ID: {selectedOrder?.order_code}</DialogTitle>
                 </div>
                 <div className="flex items-center gap-2">
@@ -571,7 +838,7 @@ export default function OrdersPage() {
                           </p>
                         </div>
                         
-                        {selectedOrder.payments[0].status === 'submitted' && (
+                        {(selectedOrder.payments[0].status === 'submitted' || selectedOrder.payments[0].status === 'pending') && (
                           <div className="flex flex-col gap-2">
                             <Button 
                               className="w-full bg-black text-white hover:bg-neutral-800 h-10 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
@@ -586,7 +853,7 @@ export default function OrdersPage() {
                               onClick={() => verifyPayment(selectedOrder.payments![0].id, selectedOrder.id, 'rejected')}
                               disabled={isUpdating}
                             >
-                              Reject
+                              Tolak
                             </Button>
                           </div>
                         )}
@@ -608,7 +875,7 @@ export default function OrdersPage() {
                     disabled={isUpdating || !canMoveOrderStatus(selectedOrder, 'processing')}
                     onClick={() => updateOrderStatus(selectedOrder, 'processing')}
                   >
-                    Proses Order
+                    Proses Pesanan
                   </Button>
                 )}
                 {selectedOrder.status === 'processing' && (

@@ -54,7 +54,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-black text-white mb-6">
             <Lock size={20} />
           </div>
-          <h1 className="text-xl lg:text-2xl font-black uppercase tracking-tighter text-black">Admin Access</h1>
+          <h1 className="text-xl lg:text-2xl font-black uppercase tracking-tighter text-black">Akses Admin</h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Mapaili Factory</p>
         </div>
 

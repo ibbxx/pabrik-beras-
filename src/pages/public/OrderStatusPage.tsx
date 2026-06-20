@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Clock, Package, Truck, ArrowLeft, Download, Search, Loader2, Copy } from "lucide-react";
+import { CheckCircle2, Clock, Package, Truck, ArrowLeft, Search, Loader2, Copy } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useEffect, useState } from "react";
@@ -71,7 +71,18 @@ export default function OrderStatusPage() {
           .eq('order_id', orderDataAny.id)
           .single();
           
-        if (paymentData) setPayment(paymentData);
+        if (paymentData) {
+          setPayment(paymentData);
+          const payData = paymentData as any;
+          if (payData.status === 'pending' || payData.status === 'rejected') {
+            toast.error(payData.status === 'rejected'
+              ? "Bukti pembayaran ditolak. Silakan unggah bukti baru."
+              : "Silakan unggah bukti pembayaran terlebih dahulu!"
+            );
+            navigate(`/payment-confirmation/${orderId}`);
+            return;
+          }
+        }
 
       } catch (err) {
         console.error("Error fetching order status", err);
@@ -191,9 +202,6 @@ export default function OrderStatusPage() {
             <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{orderDate} WIB</p>
           </div>
         </div>
-        <Button variant="outline" size="sm" className="h-8 text-[9px] font-black uppercase tracking-widest rounded-lg" onClick={() => window.print()}>
-          <Download size={12} className="mr-1" /> Invoice
-        </Button>
       </div>
 
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 mb-4">
@@ -299,6 +307,9 @@ export default function OrderStatusPage() {
                 )}
                 {payment?.status === 'pending' && (
                   <span className="bg-orange-50 text-orange-700 text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest">PENDING</span>
+                )}
+                {payment?.status === 'rejected' && (
+                  <span className="bg-red-50 text-red-700 text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest">DITOLAK</span>
                 )}
               </div>
             </div>

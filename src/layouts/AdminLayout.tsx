@@ -127,7 +127,7 @@ export default function AdminLayout() {
           </button>
  
           <div className="hidden lg:block">
-            <h2 className="text-base font-black tracking-tighter uppercase">Overview</h2>
+            <h2 className="text-base font-black tracking-tighter uppercase">Ringkasan</h2>
           </div>
  
           <div className="ml-auto flex items-center gap-4">

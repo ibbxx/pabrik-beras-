@@ -170,7 +170,7 @@ export default function SettingsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this item?")) return;
+    if (!confirm("Apakah Anda yakin ingin menghapus item ini?")) return;
     try {
       let table = "";
       if (activeTab === "faq") table = "faqs";

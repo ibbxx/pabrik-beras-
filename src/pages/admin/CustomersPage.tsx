@@ -117,7 +117,16 @@ export default function CustomersPage() {
   const [selectedResellerIds, setSelectedResellerIds] = useState<Set<string>>(new Set());
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
-  useEffect(() => { fetchData(); }, [activeTab]);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
+  const [isDeletingCustomers, setIsDeletingCustomers] = useState(false);
+  const [isDeletingSingleCustomer, setIsDeletingSingleCustomer] = useState(false);
+
+  useEffect(() => {
+    setIsManageMode(false);
+    setSelectedResellerIds(new Set());
+    setSelectedCustomerIds(new Set());
+    fetchData();
+  }, [activeTab]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -206,6 +215,52 @@ export default function CustomersPage() {
     }
   };
 
+  const toggleCustomerSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSet = new Set(selectedCustomerIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedCustomerIds(newSet);
+  };
+
+  const handleBulkDeleteCustomers = async () => {
+    if (selectedCustomerIds.size === 0) return;
+    if (!confirm(`Yakin ingin menghapus ${selectedCustomerIds.size} pelanggan terpilih? Data tidak dapat dikembalikan.`)) return;
+
+    setIsDeletingCustomers(true);
+    try {
+      const ids = Array.from(selectedCustomerIds);
+      const { error } = await supabase.from("customers").delete().in("id", ids);
+      if (error) throw error;
+      
+      toast.success(`${ids.length} pelanggan berhasil dihapus`);
+      setSelectedCustomerIds(new Set());
+      setIsManageMode(false);
+      fetchData();
+    } catch (err: any) {
+      toast.error("Gagal menghapus: " + err.message);
+    } finally {
+      setIsDeletingCustomers(false);
+    }
+  };
+
+  const handleDeleteSingleCustomer = async (id: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus pelanggan ini? Data tidak dapat dikembalikan.")) return;
+    setIsDeletingSingleCustomer(true);
+    try {
+      const { error } = await supabase.from("customers").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast.success("Pelanggan berhasil dihapus");
+      setIsCustomerModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      toast.error("Gagal menghapus: " + err.message);
+    } finally {
+      setIsDeletingSingleCustomer(false);
+    }
+  };
+
   /* ── Derived data ── */
   const filteredCustomers = customers.filter(c =>
     c.full_name.toLowerCase().includes(customerSearch.toLowerCase()) || c.whatsapp.includes(customerSearch)
@@ -263,20 +318,45 @@ export default function CustomersPage() {
             <StatCard icon={UserPlus} label="Bulan Ini" value={customers.filter(c => { const d = new Date(c.created_at); const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); }).length} accent="bg-gray-700" />
           </div>
 
-          {/* Search */}
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
-            <Input
-              placeholder="Cari nama atau nomor WA..."
-              className="pl-10 h-11 border-gray-100 rounded-xl text-xs font-medium focus-visible:ring-black/20 bg-white shadow-sm"
-              value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-            />
-            {customerSearch && (
-              <button onClick={() => setCustomerSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-3.5 h-3.5 text-gray-300 hover:text-black transition-colors" />
-              </button>
-            )}
+          {/* Search and Manage */}
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
+              <Input
+                placeholder="Cari nama atau nomor WA..."
+                className="pl-10 h-11 border-gray-100 rounded-xl text-xs font-medium focus-visible:ring-black/20 bg-white shadow-sm"
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+              />
+              {customerSearch && (
+                <button onClick={() => setCustomerSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <X className="w-3.5 h-3.5 text-gray-300 hover:text-black transition-colors" />
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {isManageMode && selectedCustomerIds.size > 0 && (
+                <Button 
+                  variant="destructive" 
+                  className="rounded-xl h-11 text-xs font-bold"
+                  onClick={handleBulkDeleteCustomers}
+                  disabled={isDeletingCustomers}
+                >
+                  {isDeletingCustomers ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Hapus ({selectedCustomerIds.size})
+                </Button>
+              )}
+              <Button
+                variant={isManageMode ? "outline" : "default"}
+                className={`rounded-xl h-11 text-xs font-bold ${!isManageMode ? "bg-black text-white hover:bg-black/90" : "border-gray-200"}`}
+                onClick={() => {
+                  setIsManageMode(!isManageMode);
+                  setSelectedCustomerIds(new Set());
+                }}
+              >
+                {isManageMode ? "Batal" : "Kelola"}
+              </Button>
+            </div>
           </div>
 
           {/* List */}
@@ -289,12 +369,28 @@ export default function CustomersPage() {
           ) : (
             <div className="grid gap-2.5">
               {filteredCustomers.map((c) => (
-                <button
+                <div
                   key={c.id}
-                  onClick={() => handleViewCustomer(c)}
-                  className="w-full text-left bg-white border border-gray-100 rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 flex items-center gap-4 hover:border-gray-200 hover:shadow-sm transition-all group"
+                  onClick={(e) => {
+                    if (isManageMode) toggleCustomerSelection(c.id, e);
+                    else handleViewCustomer(c);
+                  }}
+                  className={`w-full text-left bg-white border ${
+                    selectedCustomerIds.has(c.id) ? "border-black shadow-md ring-1 ring-black" : "border-gray-100 hover:border-gray-200"
+                  } rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 flex items-center gap-4 hover:shadow-sm transition-all group cursor-pointer`}
                 >
-                  <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0 group-hover:bg-black group-hover:text-white transition-colors text-gray-400">
+                  {isManageMode && (
+                    <div className="shrink-0 mr-1">
+                      <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                        selectedCustomerIds.has(c.id) ? "bg-black border-black text-white" : "border-gray-300 bg-gray-50"
+                      }`}>
+                        {selectedCustomerIds.has(c.id) && <CheckCircle2 className="w-3 h-3" />}
+                      </div>
+                    </div>
+                  )}
+                  <div className={`w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors text-gray-400 ${
+                    selectedCustomerIds.has(c.id) ? "bg-black text-white" : "bg-gray-50 group-hover:bg-black group-hover:text-white"
+                  }`}>
                     <span className="text-xs font-black uppercase">{c.full_name.charAt(0)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -308,11 +404,11 @@ export default function CustomersPage() {
                       </span>
                     </div>
                   </div>
-                  <span className="text-[10px] text-gray-300 font-medium hidden sm:block">
+                  <span className="text-[10px] text-gray-300 font-medium hidden sm:block whitespace-nowrap">
                     {new Date(c.created_at).toLocaleDateString("id-ID")}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-black transition-colors shrink-0" />
-                </button>
+                  {!isManageMode && <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-black transition-colors shrink-0" />}
+                </div>
               ))}
             </div>
           )}
@@ -488,12 +584,30 @@ export default function CustomersPage() {
                 )}
               </div>
 
-              <Button
-                className="w-full bg-black text-white rounded-xl h-11 font-bold text-xs hover:bg-black/90 transition-all active:scale-[0.98]"
-                onClick={() => openWhatsApp(selectedCustomer.whatsapp, selectedCustomer.full_name)}
-              >
-                <MessageCircle className="mr-2 h-3.5 w-3.5" /> Hubungi via WhatsApp
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Button
+                  className="flex-1 bg-black text-white rounded-xl h-11 font-bold text-xs hover:bg-black/90 transition-all active:scale-[0.98]"
+                  onClick={() => openWhatsApp(selectedCustomer.whatsapp, selectedCustomer.full_name)}
+                >
+                  <MessageCircle className="mr-2 h-3.5 w-3.5" /> Hubungi via WhatsApp
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="h-11 rounded-xl font-bold text-xs active:scale-[0.98]"
+                  onClick={() => handleDeleteSingleCustomer(selectedCustomer.id)}
+                  disabled={isDeletingSingleCustomer}
+                >
+                  {isDeletingSingleCustomer ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Hapus
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-11 text-xs font-bold text-gray-400 hover:text-black hover:bg-transparent"
+                  onClick={() => setIsCustomerModalOpen(false)}
+                >
+                  Tutup
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
