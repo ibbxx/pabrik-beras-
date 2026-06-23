@@ -291,14 +291,14 @@ export default function CheckoutPage() {
                   <input type="radio" name="payment" value="Transfer Bank" checked={formData.paymentMethod === 'Transfer Bank'} onChange={handlePaymentChange} className="mt-1 accent-primary" />
                   <div className="flex-1">
                     <p className="font-black text-evergreen uppercase tracking-tight">Transfer Bank Mandiri</p>
-                    <p className="text-sm text-gray-500 mt-1">Transfer ke rekening Bank Mandiri a.n Aris Abrar.</p>
+                    <p className="text-sm text-gray-500 mt-1">Transfer ke rekening Bank Mandiri a.n NURMAUTIA.</p>
                     {formData.paymentMethod === 'Transfer Bank' && (
                       <div className="mt-3 p-3 bg-white rounded-lg border border-neutral-100 shadow-sm flex items-center justify-between">
                         <div>
-                          <p className="text-xs font-black text-gray-700">No. Rekening: <span className="font-mono text-primary">1740012489571</span></p>
-                          <p className="text-xs text-gray-500 mt-1">a.n <span className="font-black text-evergreen">Aris Abrar</span></p>
+                          <p className="text-xs font-black text-gray-700">No. Rekening: <span className="font-mono text-primary">1520032724433</span></p>
+                          <p className="text-xs text-gray-500 mt-1">a.n <span className="font-black text-evergreen">NURMAUTIA</span></p>
                         </div>
-                        <Button type="button" variant="outline" size="sm" onClick={(e) => { e.preventDefault(); handleCopy("1740012489571"); }} className="h-8 text-[9px] font-bold uppercase tracking-widest">
+                        <Button type="button" variant="outline" size="sm" onClick={(e) => { e.preventDefault(); handleCopy("1520032724433"); }} className="h-8 text-[9px] font-bold uppercase tracking-widest">
                           Salin
                         </Button>
                       </div>
@@ -313,10 +313,10 @@ export default function CheckoutPage() {
                     {formData.paymentMethod === 'DANA' && (
                       <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center justify-between">
                         <div>
-                          <p className="text-xs font-bold text-blue-800">No. DANA: <span className="font-mono text-blue-900">082355148758</span></p>
-                          <p className="text-xs text-blue-600 mt-1">a.n <span className="font-semibold text-blue-800">Aris Abrar</span></p>
+                          <p className="text-xs font-bold text-blue-800">No. DANA: <span className="font-mono text-blue-900">081244733327</span></p>
+                          <p className="text-xs text-blue-600 mt-1">a.n <span className="font-semibold text-blue-800">NUR MAUTIA</span></p>
                         </div>
-                        <Button type="button" variant="outline" size="sm" onClick={(e) => { e.preventDefault(); handleCopy("082355148758"); }} className="h-8 text-[9px] font-bold uppercase tracking-widest border-blue-200 text-blue-700">
+                        <Button type="button" variant="outline" size="sm" onClick={(e) => { e.preventDefault(); handleCopy("081244733327"); }} className="h-8 text-[9px] font-bold uppercase tracking-widest border-blue-200 text-blue-700">
                           Salin
                         </Button>
                       </div>

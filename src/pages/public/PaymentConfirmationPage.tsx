@@ -180,10 +180,10 @@ export default function PaymentConfirmationPage() {
             <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-neutral-50">
               <div>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Bank Mandiri</p>
-                <p className="font-mono font-black text-base text-primary">1740012489571</p>
-                <p className="text-xs text-gray-500">a.n Aris Abrar</p>
+                <p className="font-mono font-black text-base text-primary">1520032724433</p>
+                <p className="text-xs text-gray-500">a.n NURMAUTIA</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => handleCopy("1740012489571")} className="h-9 text-[10px] font-bold uppercase tracking-widest">
+              <Button variant="outline" size="sm" onClick={() => handleCopy("1520032724433")} className="h-9 text-[10px] font-bold uppercase tracking-widest">
                 Salin
               </Button>
             </div>
@@ -195,10 +195,10 @@ export default function PaymentConfirmationPage() {
             <div className="flex items-center justify-between p-3 border border-blue-100 rounded-lg bg-blue-50/50">
               <div>
                 <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">DANA</p>
-                <p className="font-mono font-bold text-base text-blue-900">082355148758</p>
-                <p className="text-xs text-blue-600">a.n Aris Abrar</p>
+                <p className="font-mono font-bold text-base text-blue-900">081244733327</p>
+                <p className="text-xs text-blue-600">a.n NUR MAUTIA</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => handleCopy("082355148758")} className="h-9 text-[10px] font-bold uppercase tracking-widest border-blue-200 text-blue-700">
+              <Button variant="outline" size="sm" onClick={() => handleCopy("081244733327")} className="h-9 text-[10px] font-bold uppercase tracking-widest border-blue-200 text-blue-700">
                 Salin
               </Button>
             </div>
