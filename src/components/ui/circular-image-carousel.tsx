@@ -50,15 +50,6 @@ export const CircularImageCarousel = ({ images, autoplay = true }: CircularImage
     };
   }, [autoplay, imagesLength]);
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "ArrowRight") handleNext();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [handlePrev, handleNext]);
-
   const handleNext = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % imagesLength);
     if (autoplayIntervalRef.current) clearInterval(autoplayIntervalRef.current);
@@ -68,6 +59,15 @@ export const CircularImageCarousel = ({ images, autoplay = true }: CircularImage
     setActiveIndex((prev) => (prev - 1 + imagesLength) % imagesLength);
     if (autoplayIntervalRef.current) clearInterval(autoplayIntervalRef.current);
   }, [imagesLength]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "ArrowRight") handleNext();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [handlePrev, handleNext]);
 
   function getImageStyle(index: number): React.CSSProperties {
     if (imagesLength === 1) {

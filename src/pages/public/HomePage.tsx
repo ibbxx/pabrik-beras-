@@ -13,18 +13,15 @@ export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const { settings, loading: settingsLoading } = useSettings();
-  const [testimonials, setTestimonials] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, testimoRes] = await Promise.all([
+        const [productsRes] = await Promise.all([
           supabase.from("products").select("*").eq("is_active", true).eq("is_featured", true).limit(4),
-          supabase.from("testimonials").select("*").eq("is_active", true).limit(3)
         ]);
 
         if (productsRes.data) setFeaturedProducts(productsRes.data);
-        if (testimoRes.data) setTestimonials(testimoRes.data);
 
       } catch (err) {
         console.error("Error fetching home data:", err);
@@ -63,7 +60,7 @@ export default function HomePage() {
                   {settings.hero_headline ? (
                     <span dangerouslySetInnerHTML={{ __html: renderGreenMarkup(settings.hero_headline).replace(/text-green-500/g, 'text-primary underline decoration-dust-grey underline-offset-[8px] lg:underline-offset-[12px]') }} />
                   ) : (
-                    <>Beras Premium <br /> <span className="text-[#523F17]">Mapaili</span></>
+                    <>Beras Premium <br /> <span className="text-[#523F17]">Mapailli</span></>
                   )}
                 </h1>
                 <p className="text-xs sm:text-sm md:text-xl text-muted-foreground max-w-[280px] sm:max-w-md lg:max-w-[580px] leading-relaxed font-medium text-left">
@@ -205,62 +202,6 @@ export default function HomePage() {
                 Lihat Semua Katalog
               </Button>
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-10 lg:py-24 bg-neutral-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8 lg:mb-12">
-            <h2 className="text-2xl lg:text-3xl font-black text-foreground uppercase tracking-tight">Testimoni</h2>
-            <p className="mt-2 text-[10px] lg:text-base text-muted-foreground font-medium uppercase tracking-widest">Ulasan Pelanggan Setia</p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {loading ? (
-              [1, 2, 3].map((i) => (
-                <div key={i} className="p-6 bg-neutral-50 rounded-2xl animate-pulse">
-                  <div className="h-4 w-full bg-neutral-200 rounded mb-2" />
-                  <div className="h-4 w-3/4 bg-neutral-200 rounded mb-6" />
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-neutral-200" />
-                    <div>
-                      <div className="h-4 w-24 bg-neutral-200 rounded mb-1" />
-                      <div className="h-3 w-16 bg-neutral-200 rounded" />
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : testimonials.length > 0 ? (
-              testimonials.map((testi) => (
-                <div key={testi.id} className="p-6 lg:p-8 bg-[#f5f5f5] rounded-[1.5rem] lg:rounded-[2.5rem] border border-gray-100 relative">
-                  <div className="flex mb-3 lg:mb-4 text-dark-khaki">
-                    {Array.from({ length: testi.rating || 5 }).map((_, i) => (
-                      <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                    ))}
-                  </div>
-                  <p className="text-foreground italic mb-6 lg:mb-8 text-sm lg:text-lg font-medium leading-relaxed text-justify">"{testi.content}"</p>
-                  <div className="flex items-center gap-4">
-                    {testi.avatar_url ? (
-                      <img src={testi.avatar_url} alt={testi.name} className="w-12 h-12 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-black lg:text-xl">
-                        {testi.name.charAt(0)}
-                      </div>
-                    )}
-                    <div>
-                      <h4 className="font-black text-foreground lg:text-lg">{testi.name}</h4>
-                      {testi.role && <p className="text-[9px] lg:text-sm text-dark-khaki font-black uppercase tracking-widest">{testi.role}</p>}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8 text-gray-500">
-                Belum ada ulasan.
-              </div>
-            )}
           </div>
         </div>
       </section>

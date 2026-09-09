@@ -27,7 +27,7 @@ export default function AboutPage() {
       <section className="container mx-auto pt-16 pb-12 md:pt-24 md:pb-20 px-4 max-w-5xl">
         <div className="text-center mb-10 md:mb-16">
           <h1 className="text-2xl lg:text-5xl font-black text-evergreen tracking-widest uppercase leading-relaxed">
-            Tentang Pabrik Beras<br className="hidden md:block" /> Mapaili
+            Tentang Pabrik Beras<br className="hidden md:block" /> Mapailli
           </h1>
         </div>
         
