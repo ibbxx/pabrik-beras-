@@ -57,7 +57,7 @@ export const CircularImageCarousel = ({ images, autoplay = true }: CircularImage
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [activeIndex, imagesLength]);
+  }, [handlePrev, handleNext]);
 
   const handleNext = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % imagesLength);
